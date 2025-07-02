@@ -127,7 +127,7 @@ export default function StudentsPage() {
 
             // Cours principal
             course: primaryCourse?.name || "Non assigné",
-            courseLabel: primaryCourse?.label || primaryCourse?.name || "Non assigné",
+            courseName: primaryCourse?.label || primaryCourse?.name || "Non assigné",
             courseType: primaryCourse?.type || null,
             courseId: primaryCourse?.id || null,
 
@@ -678,7 +678,7 @@ export default function StudentsPage() {
                               : "text-gray-900"
                           }
                         >
-                          {student.courseLabel}
+                          {student.course}
                         </div>
 
                         {/* Badges pour cours multiples et historique */}
