@@ -1,5 +1,3 @@
-// components/layout/Sidebar.tsx
-
 "use client";
 
 import { cn } from "@/lib/utils";
@@ -10,12 +8,15 @@ import {
   CreditCard,
   Home,
   LayoutDashboard,
+  Menu,
   Settings,
   UserPlus,
   Users,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -24,18 +25,33 @@ const menuItems = [
   { id: "students", label: "Élèves", icon: Users, href: "/students" },
   { id: "planning", label: "Planning", icon: Calendar, href: "/planning" },
   { id: "registration", label: "Inscription", icon: UserPlus, href: "/registration" },
-  { id: "pre-registration", label: "Préinscription", icon: UserPlus, href: "/pre-registration" },
+  { id: "pre-registration", label: "Pré-inscription", icon: UserPlus, href: "/pre-registration" },
   { id: "payments", label: "Paiements", icon: CreditCard, href: "/payments" },
   { id: "settings", label: "Paramètres", icon: Settings, href: "/settings" },
 ];
 
 export const Sidebar = () => {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 shadow-sm">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
+    <>
+      {/* 🌐 Mobile toggle */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded shadow"
+        onClick={() => setOpen(!open)}
+        aria-label="Toggle menu"
+      >
+        {open ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      <aside
+        className={cn(
+          "bg-white border-r border-gray-200 shadow-md fixed inset-y-0 left-0 w-64 transform transition-transform md:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        )}
+      >
+        <div className="p-6 border-b border-gray-200 flex items-center gap-3">
           <div className="p-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600">
             <Building className="text-white" size={20} />
           </div>
@@ -44,39 +60,48 @@ export const Sidebar = () => {
             <p className="text-xs text-gray-600">Gestion scolaire</p>
           </div>
         </div>
-      </div>
 
-      <nav className="p-4 space-y-2">
-        {menuItems.map(item => {
-          const isActive = pathname === item.href;
-
-          return (
-            <Link key={item.id} href={item.href}>
-              <div
+        <nav className="p-4 space-y-2">
+          {menuItems.map(item => {
+            const isActive = pathname?.startsWith(item.href);
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
                 className={cn(
-                  "group w-full flex justify-start items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors",
+                  "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors",
                   isActive
                     ? "bg-blue-50 text-blue-700"
                     : "text-gray-700 hover:bg-gray-100 hover:text-black"
                 )}
               >
                 <item.icon
-                  className="w-5 h-5 shrink-0 text-gray-500 group-hover:text-black"
-                  aria-hidden="true"
+                  className={cn(
+                    "w-5 h-5 shrink-0 transition-colors",
+                    isActive ? "text-blue-600" : "text-gray-500 group-hover:text-black"
+                  )}
                 />
-                <span className="truncate">{item.label}</span>
-              </div>
-            </Link>
-          );
-        })}
-      </nav>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
 
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <div className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
-          <p className="text-sm font-medium text-blue-900">École Primaire</p>
-          <p className="text-xs text-blue-700">Les Petits Génies</p>
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <div className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
+            <p className="text-sm font-medium text-blue-900">École Primaire</p>
+            <p className="text-xs text-blue-700">Les Petits Génies</p>
+          </div>
         </div>
-      </div>
-    </div>
+      </aside>
+
+      {/* Overlay when sidebar is open on mobile */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black opacity-20 md:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+    </>
   );
 };
