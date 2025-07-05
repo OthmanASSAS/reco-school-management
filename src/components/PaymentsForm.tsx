@@ -32,7 +32,6 @@ export default function PaymentsForm() {
 
     setLoading(true);
 
-    // 1. Appeler ton backend pour créer un PaymentIntent
     const res = await fetch("/api/create-payment-intent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -51,7 +50,7 @@ export default function PaymentsForm() {
     }
 
     const cardNumberElement = elements.getElement(CardNumberElement);
-    // 2. Confirmer le paiement côté client
+
     const result = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
         card: cardNumberElement!,
