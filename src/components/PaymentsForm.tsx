@@ -6,33 +6,69 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { CreditCard } from "lucide-react";
-
-const MOCK_STUDENTS = [
-  { id: "1", name: "Sophie Martin" },
-  { id: "2", name: "Lucas Dubois" },
-  { id: "3", name: "Emma Rousseau" },
-];
+import {
+  CardElement,
+  useStripe,
+  useElements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+} from "@stripe/react-stripe-js";
 
 export default function PaymentsForm() {
-  const [student, setStudent] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState("350");
   const [cardHolder, setCardHolder] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [date, setDate] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const stripe = useStripe();
+  const elements = useElements();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Envoyer les données au backend
-    alert("Paiement enregistré !");
-    setStudent("");
-    setAmount("");
-    setCardHolder("");
-    setCardNumber("");
-    setExpiry("");
-    setCvv("");
-    setDate("");
+    setMessage(null);
+
+    if (!stripe || !elements) return;
+
+    setLoading(true);
+
+    // 1. Appeler ton backend pour créer un PaymentIntent
+    const res = await fetch("/api/create-payment-intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: Math.round(Number(amount) * 100), // Stripe attend les montants en centimes
+        cardHolder,
+      }),
+    });
+
+    const { clientSecret, error } = await res.json();
+
+    if (error || !clientSecret) {
+      setMessage("Erreur lors de la création du paiement.");
+      setLoading(false);
+      return;
+    }
+
+    const cardNumberElement = elements.getElement(CardNumberElement);
+    // 2. Confirmer le paiement côté client
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: cardNumberElement!,
+        billing_details: { name: cardHolder },
+      },
+    });
+
+    if (result.error) {
+      setMessage(result.error.message || "Erreur lors du paiement.");
+      setLoading(false);
+    } else if (result.paymentIntent?.status === "succeeded") {
+      setMessage("Paiement réussi !");
+      setAmount("350");
+      setCardHolder("");
+      elements.getElement(CardElement)?.clear();
+    }
+    setLoading(false);
   };
 
   return (
@@ -46,109 +82,32 @@ export default function PaymentsForm() {
       <CardContent>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <Label htmlFor="student">Élève concerné *</Label>
-            <select
-              id="student"
-              value={student}
-              onChange={e => setStudent(e.target.value)}
-              required
-              className="w-full border rounded h-12 px-3"
-            >
-              <option value="">Sélectionner un élève</option>
-              {MOCK_STUDENTS.map(s => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="amount">Montant (€) *</Label>
-            <Input
-              id="amount"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Ex: 120.00"
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-              required
-              className="h-12"
-            />
-          </div>
-          <div>
-            <Label htmlFor="cardHolder">Titulaire de la carte *</Label>
-            <Input
-              id="cardHolder"
-              type="text"
-              placeholder="Nom Prénom"
-              value={cardHolder}
-              onChange={e => setCardHolder(e.target.value)}
-              required
-              className="h-12"
-            />
-          </div>
-          <div>
-            <Label htmlFor="cardNumber">Numéro de carte *</Label>
-            <Input
-              id="cardNumber"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9\s]{13,19}"
-              maxLength={19}
-              placeholder="1234 5678 9012 3456"
-              value={cardNumber}
-              onChange={e => setCardNumber(e.target.value.replace(/[^\d\s]/g, ""))}
-              required
-              className="h-12"
-            />
+            <Label>Numéro de carte</Label>
+            <CardNumberElement className="border rounded p-3" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="expiry">Date d'expiration *</Label>
-              <Input
-                id="expiry"
-                type="text"
-                placeholder="MM/AA"
-                value={expiry}
-                onChange={e => setExpiry(e.target.value)}
-                required
-                className="h-12"
-                maxLength={5}
-              />
+              <Label>Date d'expiration</Label>
+              <CardExpiryElement className="border rounded p-3" />
             </div>
             <div>
-              <Label htmlFor="cvv">CVV *</Label>
-              <Input
-                id="cvv"
-                type="password"
-                inputMode="numeric"
-                pattern="[0-9]{3,4}"
-                maxLength={4}
-                placeholder="123"
-                value={cvv}
-                onChange={e => setCvv(e.target.value.replace(/\D/, ""))}
-                required
-                className="h-12"
-              />
+              <Label>CVV</Label>
+              <CardCvcElement className="border rounded p-3" />
             </div>
           </div>
-          <div>
-            <Label htmlFor="date">Date du paiement *</Label>
-            <Input
-              id="date"
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              required
-              className="h-12"
-            />
-          </div>
+          {message && (
+            <div
+              className={`text-center text-sm ${message.includes("réussi") ? "text-green-600" : "text-red-600"}`}
+            >
+              {message}
+            </div>
+          )}
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white h-12"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white h-12 text-base font-bold"
+            disabled={loading || !stripe}
           >
-            Valider le paiement
+            {loading ? "Paiement en cours..." : `payer ${amount}€`}
           </Button>
         </form>
       </CardContent>

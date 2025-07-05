@@ -1,9 +1,9 @@
-import PaymentsForm from "@/components/PaymentsForm";
+import PaymentsFormClientWrapper from "@/components/PaymentsFormWrapper";
 
 export default function PaymentsPage() {
   return (
     <div className="p-6">
-      <PaymentsForm />
+      <PaymentsFormClientWrapper />
     </div>
   );
 }
