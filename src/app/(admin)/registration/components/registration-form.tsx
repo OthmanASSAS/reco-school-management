@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Send } from "lucide-react";
-import { Alert, AlertDescription } from "./ui/alert";
+import { Alert, AlertDescription } from "../../../../components/ui/alert";
 import { createRegistration, RegistrationState } from "@/lib/actions/registrations";
 import { useEffect, useRef, useState } from "react";
-import { Textarea } from "./ui/textarea";
+import { Textarea } from "../../../../components/ui/textarea";
 
 interface DataProps {
   families: { id: string; name: string }[];

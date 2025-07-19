@@ -1,4 +1,4 @@
-import RegistrationForm from "@/components/registration-form";
+import RegistrationForm from "@/app/(admin)/registration/components/registration-form";
 import supabase from "@/lib/supabase";
 
 export default async function RegistrationPage() {
