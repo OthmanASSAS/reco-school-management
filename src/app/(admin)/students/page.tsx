@@ -22,8 +22,10 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 export default function StudentsPage() {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("active");
@@ -222,7 +224,11 @@ export default function StudentsPage() {
 
       if (error) {
         console.error("Erreur création enrollment:", error);
-        alert("Erreur lors de l'attribution du cours");
+        toast({
+          variant: "destructive",
+          title: "Erreur d'attribution",
+          description: "Erreur lors de l'attribution du cours",
+        });
         return;
       }
 
@@ -234,10 +240,17 @@ export default function StudentsPage() {
       setSelectedCourseForEdit("");
       setSelectedStudent(null);
 
-      alert("Cours attribué avec succès !");
+      toast({
+        title: "Cours attribué",
+        description: "Le cours a été attribué avec succès !",
+      });
     } catch (error) {
       console.error("Erreur inattendue:", error);
-      alert("Une erreur inattendue s'est produite");
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur inattendue s'est produite",
+      });
     } finally {
       setEnrollmentLoading(false);
     }
@@ -258,16 +271,27 @@ export default function StudentsPage() {
 
       if (error) {
         console.error("Erreur fin de cours:", error);
-        alert("Erreur lors de la fin du cours");
+        toast({
+          variant: "destructive",
+          title: "Erreur de fin de cours",
+          description: "Erreur lors de la fin du cours",
+        });
         return;
       }
 
       // Recharger les données
       await fetchData();
-      alert("Cours terminé avec succès !");
+      toast({
+        title: "Cours terminé",
+        description: "Le cours a été terminé avec succès !",
+      });
     } catch (error) {
       console.error("Erreur inattendue:", error);
-      alert("Une erreur inattendue s'est produite");
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur inattendue s'est produite",
+      });
     }
   };
 

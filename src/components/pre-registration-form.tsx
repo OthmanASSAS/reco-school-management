@@ -22,6 +22,7 @@ import {
   Users,
 } from "lucide-react";
 import React, { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 type FamilyInfo = {
   familyName: string;
@@ -40,6 +41,7 @@ type StudentInfo = {
 };
 
 export default function PreRegistrationForm() {
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [family, setFamily] = useState<FamilyInfo>({
     familyName: "",
@@ -90,7 +92,11 @@ export default function PreRegistrationForm() {
       setAppointmentDay(null);
       setStep(1);
     } else {
-      alert(result.error || "Erreur lors de l'envoi.");
+      toast({
+        variant: "destructive",
+        title: "Erreur d'envoi",
+        description: result.error || "Erreur lors de l'envoi.",
+      });
     }
   };
 

@@ -20,6 +20,7 @@ import { Edit, Trash2, Eye, AlertCircle, CreditCard } from "lucide-react";
 import { deleteFamily } from "@/lib/actions/families";
 import FamilyFormModal from "./family-form-modal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface Family {
   id: string;
@@ -77,6 +78,7 @@ interface ChequeLot {
 }
 
 export default function FamiliesTable() {
+  const { toast } = useToast();
   const [families, setFamilies] = useState<Family[]>([]);
   const [search, setSearch] = useState("");
   const [deleteMessage, setDeleteMessage] = useState<string | null>(null);
@@ -286,7 +288,11 @@ export default function FamiliesTable() {
         paymentForm.bank_transfer_amount <= 0 &&
         totalCheques <= 0
       ) {
-        alert("Veuillez saisir un montant à payer");
+        toast({
+          variant: "destructive",
+          title: "Montant requis",
+          description: "Veuillez saisir un montant à payer.",
+        });
         return;
       }
 
@@ -311,10 +317,17 @@ export default function FamiliesTable() {
 
       if (error) {
         console.error("Erreur lors de la création des paiements:", error);
-        alert("Erreur lors de la création des paiements: " + error.message);
+        toast({
+          variant: "destructive",
+          title: "Erreur d'enregistrement",
+          description: `Erreur lors de la création des paiements: ${error.message}`,
+        });
       } else {
         console.log("Paiements créés avec succès:", data);
-        alert("Paiement enregistré avec succès !");
+        toast({
+          title: "Paiement enregistré",
+          description: "Le paiement a été enregistré avec succès !",
+        });
         setPaymentSuccess(true);
         setShowPaymentForm(false);
         setPaymentModalOpen(false);
@@ -323,7 +336,11 @@ export default function FamiliesTable() {
       }
     } catch (error) {
       console.error("Erreur:", error);
-      alert("Erreur lors du traitement du paiement");
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Erreur lors du traitement du paiement.",
+      });
     }
   };
 
@@ -544,7 +561,10 @@ export default function FamiliesTable() {
                           title="Modifier"
                           onClick={() => {
                             // TODO: Implémenter la modification
-                            alert("Fonction de modification à implémenter");
+                            toast({
+                              title: "Fonctionnalité à venir",
+                              description: "La modification des familles sera bientôt disponible.",
+                            });
                           }}
                         >
                           <Edit size={14} />
