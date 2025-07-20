@@ -314,6 +314,7 @@ export default function FamiliesTable() {
         alert("Erreur lors de la création des paiements: " + error.message);
       } else {
         console.log("Paiements créés avec succès:", data);
+        alert("Paiement enregistré avec succès !");
         setPaymentSuccess(true);
         setShowPaymentForm(false);
         setPaymentModalOpen(false);
@@ -355,7 +356,7 @@ export default function FamiliesTable() {
   ];
 
   const [chequeLots, setChequeLots] = useState<ChequeLot[]>([
-    { count: 1, amount: 0, banque: BANKS[0], nom: selectedFamily ? selectedFamily.last_name : "" },
+    { count: 0, amount: 0, banque: BANKS[0], nom: selectedFamily ? selectedFamily.last_name : "" },
   ]);
   const [refund, setRefund] = useState(0);
   const [remarques, setRemarques] = useState("");
@@ -427,6 +428,29 @@ export default function FamiliesTable() {
     } else {
       return { status: "En attente", className: "bg-yellow-100 text-yellow-800" };
     }
+  };
+
+  // Fonction pour réinitialiser le formulaire de paiement
+  const resetPaymentForm = () => {
+    setPaymentForm({
+      cash_amount: 0,
+      cheque_amount: 0,
+      card_amount: 0,
+      cheque_count: 0,
+      bank_transfer: false,
+      bank_transfer_amount: 0,
+      books: false,
+    });
+    setChequeLots([
+      {
+        count: 0,
+        amount: 0,
+        banque: BANKS[0],
+        nom: selectedFamily ? selectedFamily.last_name : "",
+      },
+    ]);
+    setRefund(0);
+    setRemarques("");
   };
 
   return (
@@ -1032,7 +1056,10 @@ export default function FamiliesTable() {
                   {/* Actions */}
                   <div className="flex gap-2">
                     <Button
-                      onClick={() => setShowPaymentForm(true)}
+                      onClick={() => {
+                        resetPaymentForm();
+                        setShowPaymentForm(true);
+                      }}
                       className="flex-1"
                       disabled={
                         calculateTotalAmount(selectedFamily) -
