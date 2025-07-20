@@ -1,0 +1,102 @@
+"use client";
+
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Family } from "@/types/families";
+import PaymentSummary from "./PaymentSummary";
+import PaymentForm from "./PaymentForm";
+import { useToast } from "@/hooks/use-toast";
+import supabase from "@/lib/supabase";
+
+interface PaymentModalProps {
+  family: Family;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onPaymentSaved: () => void;
+  currentSchoolYear: string | null;
+  schoolYears: any[];
+}
+
+export default function PaymentModal({
+  family,
+  open,
+  onOpenChange,
+  onPaymentSaved,
+  currentSchoolYear,
+  schoolYears,
+}: PaymentModalProps) {
+  const { toast } = useToast();
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+
+  const handlePaymentSave = async (paymentData: any) => {
+    try {
+      const paymentsToCreate = family.students
+        .filter(student => student.enrollments.length > 0)
+        .map(student => ({
+          student_id: student.id,
+          ...paymentData,
+        }));
+
+      const { data, error } = await supabase.from("payments").insert(paymentsToCreate).select();
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Erreur d'enregistrement",
+          description: `Erreur lors de la création des paiements: ${error.message}`,
+        });
+      } else {
+        toast({
+          title: "Paiement enregistré",
+          description: "Le paiement a été enregistré avec succès !",
+        });
+        setShowPaymentForm(false);
+        onOpenChange(false);
+        onPaymentSaved();
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Erreur lors du traitement du paiement.",
+      });
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={open => {
+        onOpenChange(open);
+        setShowPaymentForm(false);
+      }}
+    >
+      <DialogContent className="w-full max-w-[40vw] max-h-[95vh] overflow-auto p-4 sm:p-8">
+        <DialogHeader>
+          <DialogTitle>
+            {showPaymentForm
+              ? `Saisir un paiement - Famille ${family.last_name}`
+              : `Gestion des paiements - Famille ${family.last_name}`}
+          </DialogTitle>
+        </DialogHeader>
+
+        {showPaymentForm ? (
+          <PaymentForm
+            family={family}
+            onSave={handlePaymentSave}
+            onCancel={() => setShowPaymentForm(false)}
+          />
+        ) : (
+          <PaymentSummary
+            family={family}
+            currentSchoolYear={currentSchoolYear}
+            schoolYears={schoolYears}
+            onStartPayment={() => setShowPaymentForm(true)}
+            onClose={() => onOpenChange(false)}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}

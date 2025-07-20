@@ -1,4 +1,4 @@
-import FamiliesList from "@/components/families-list";
+import FamiliesList from "./components/FamiliesList";
 
 export default function FamiliesPage() {
   return (
