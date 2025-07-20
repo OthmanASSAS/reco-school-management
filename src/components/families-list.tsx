@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -16,7 +17,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-import { Edit, Trash2, Eye, AlertCircle, CreditCard } from "lucide-react";
+import { Edit, Trash2, Eye, AlertCircle, CreditCard, Users, User, BookOpen } from "lucide-react";
 import { deleteFamily } from "@/lib/actions/families";
 import FamilyFormModal from "./family-form-modal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -88,6 +89,8 @@ export default function FamiliesTable() {
   const [currentSchoolYear, setCurrentSchoolYear] = useState<string | null>(null);
   const [schoolYears, setSchoolYears] = useState<any[]>([]);
   const [paymentInputModalOpen, setPaymentInputModalOpen] = useState(false);
+  const [familyDetailsModalOpen, setFamilyDetailsModalOpen] = useState(false);
+  const [selectedFamilyForDetails, setSelectedFamilyForDetails] = useState<Family | null>(null);
   const [paymentForm, setPaymentForm] = useState({
     cash_amount: 0,
     cheque_amount: 0,
@@ -219,6 +222,11 @@ export default function FamiliesTable() {
     setSelectedFamily(family);
     setPaymentModalOpen(true);
     setPaymentSuccess(false);
+  };
+
+  const handleFamilyDetails = (family: Family) => {
+    setSelectedFamilyForDetails(family);
+    setFamilyDetailsModalOpen(true);
   };
 
   // Calculer le montant total pour une famille
@@ -544,7 +552,12 @@ export default function FamiliesTable() {
                     </td>
                     <td className="p-3">
                       <div className="flex justify-center space-x-1">
-                        <Button variant="outline" size="sm" title="Voir les détails">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          title="Voir les détails"
+                          onClick={() => handleFamilyDetails(f)}
+                        >
                           <Eye size={14} />
                         </Button>
                         <Button
@@ -1099,6 +1112,226 @@ export default function FamiliesTable() {
                   </div>
                 </>
               )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Modal des détails de la famille */}
+      {selectedFamilyForDetails && (
+        <Dialog open={familyDetailsModalOpen} onOpenChange={setFamilyDetailsModalOpen}>
+          <DialogContent className="w-full max-w-[50vw] max-h-[95vh] overflow-auto p-4 sm:p-8">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3 text-2xl">
+                <Users size={24} />
+                Famille {selectedFamilyForDetails.last_name.toUpperCase()}
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {/* Informations de la famille */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-4">
+                <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                  <User size={20} />
+                  Informations de contact
+                </h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex flex-col">
+                      <span className="font-medium text-gray-700 mb-1">Nom complet</span>
+                      <span className="text-gray-900 font-medium">
+                        {selectedFamilyForDetails.first_name} {selectedFamilyForDetails.last_name}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-gray-700 mb-1">Email</span>
+                      <span className="text-blue-600 font-medium">
+                        {selectedFamilyForDetails.email}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-gray-700 mb-1">Téléphone</span>
+                      <span className="text-gray-900">
+                        {selectedFamilyForDetails.phone || "Non renseigné"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-700 mb-1">Adresse</span>
+                    <span className="text-gray-900">
+                      {selectedFamilyForDetails.address ? (
+                        <div className="space-y-1">
+                          <div>{selectedFamilyForDetails.address}</div>
+                          {(selectedFamilyForDetails.postal_code ||
+                            selectedFamilyForDetails.city) && (
+                            <div>
+                              {selectedFamilyForDetails.postal_code &&
+                                selectedFamilyForDetails.postal_code}
+                              {selectedFamilyForDetails.postal_code &&
+                                selectedFamilyForDetails.city &&
+                                " "}
+                              {selectedFamilyForDetails.city && selectedFamilyForDetails.city}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        "Non renseignée"
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Résumé financier */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200 p-4">
+                <h3 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
+                  <CreditCard size={20} />
+                  Résumé financier
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {selectedFamilyForDetails.students.length}
+                    </div>
+                    <div className="text-sm text-gray-600">Étudiants</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {calculateTotalAmount(selectedFamilyForDetails)}€
+                    </div>
+                    <div className="text-sm text-gray-600">Total cours</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {calculatePaidAmount(selectedFamilyForDetails)}€
+                    </div>
+                    <div className="text-sm text-gray-600">Payé</div>
+                  </div>
+                  <div className="text-center">
+                    <div
+                      className={`text-2xl font-bold ${
+                        calculateTotalAmount(selectedFamilyForDetails) -
+                          calculatePaidAmount(selectedFamilyForDetails) >
+                        0
+                          ? "text-red-600"
+                          : "text-green-600"
+                      }`}
+                    >
+                      {calculateTotalAmount(selectedFamilyForDetails) -
+                        calculatePaidAmount(selectedFamilyForDetails)}
+                      €
+                    </div>
+                    <div className="text-sm text-gray-600">Reste à payer</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Liste des étudiants */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 p-4">
+                <h3 className="font-semibold text-purple-900 mb-4 flex items-center gap-2">
+                  <Users size={20} />
+                  Étudiants ({selectedFamilyForDetails.students.length})
+                </h3>
+                <div className="space-y-4">
+                  {selectedFamilyForDetails.students.map((student, index) => (
+                    <div
+                      key={student.id}
+                      className="bg-white rounded-lg p-4 border border-purple-100 shadow-sm"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-lg font-semibold text-gray-900">
+                          {student.first_name} {student.last_name}
+                        </h4>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">
+                            {student.registration_type === "child" ? "Enfant" : "Adulte"}
+                          </Badge>
+                          {student.birth_date && (
+                            <Badge variant="outline" className="text-gray-600">
+                              {new Date(student.birth_date).toLocaleDateString("fr-FR")}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Cours de l'étudiant */}
+                      {student.enrollments.length > 0 ? (
+                        <div className="space-y-3">
+                          <h5 className="font-medium text-gray-700 flex items-center gap-2">
+                            <BookOpen size={16} />
+                            Cours suivis
+                          </h5>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {student.enrollments.map(enrollment => (
+                              <div key={enrollment.id} className="bg-white rounded-lg p-3 border">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-medium text-gray-900">
+                                    {enrollment.courses.name}
+                                  </span>
+                                  <Badge
+                                    variant={
+                                      enrollment.status === "active" ? "default" : "secondary"
+                                    }
+                                    className={
+                                      enrollment.status === "active"
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-gray-100 text-gray-800"
+                                    }
+                                  >
+                                    {enrollment.status === "active" ? "Actif" : "Terminé"}
+                                  </Badge>
+                                </div>
+                                <div className="text-sm text-gray-600 space-y-1">
+                                  <div>Prix : {enrollment.courses.price}€</div>
+                                  <div>Type : {enrollment.courses.type}</div>
+                                  <div>
+                                    Début :{" "}
+                                    {new Date(enrollment.start_date).toLocaleDateString("fr-FR")}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-gray-500 text-sm">Aucun cours suivi actuellement</div>
+                      )}
+
+                      {/* Statut des paiements */}
+                      <div className="mt-4 p-3 bg-white rounded-lg border">
+                        <h5 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
+                          <CreditCard size={16} />
+                          Statut des paiements
+                        </h5>
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm text-gray-600">
+                            Total : {calculateStudentTotalAmount(student)}€
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            Payé : {calculateStudentPaidAmount(student)}€
+                          </div>
+                          <Badge
+                            variant={
+                              getPaymentStatus(student).status === "Payé"
+                                ? "default"
+                                : "destructive"
+                            }
+                            className={getPaymentStatus(student).className}
+                          >
+                            {getPaymentStatus(student).status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <Button variant="outline" onClick={() => setFamilyDetailsModalOpen(false)}>
+                Fermer
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
