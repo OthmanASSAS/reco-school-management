@@ -77,7 +77,11 @@ export default function PreRegistrationForm() {
     const result = await response.json();
 
     if (response.ok) {
-      setSuccessMessage(result.message || "Votre demande a bien été enregistrée.");
+      toast({
+        variant: "default",
+        title: "Préinscription envoyée !",
+        description: result.message || "Votre demande a bien été enregistrée.",
+      });
       // Réinitialise le formulaire
       setFamily({
         familyName: "",

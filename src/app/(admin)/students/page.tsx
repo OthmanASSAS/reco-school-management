@@ -28,7 +28,7 @@ export default function StudentsPage() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("active");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [students, setStudents] = useState<any[]>([]);
   const [availableCourses, setAvailableCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);

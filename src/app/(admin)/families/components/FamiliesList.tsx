@@ -73,7 +73,19 @@ export default function FamiliesList() {
         phone, 
         address, 
         postal_code, 
-        city, 
+        city,
+        payments!payments_family_id_fkey(
+          id,
+          family_id,
+          amount_cash,
+          amount_card,
+          amount_transfer,
+          refund_amount,
+          books,
+          remarks,
+          cheques,
+          created_at
+        ),
         students(
           id,
           first_name,
@@ -90,18 +102,6 @@ export default function FamiliesList() {
               price,
               type
             )
-          ),
-          payments(
-            id,
-            student_id,
-            amount_cash,
-            amount_card,
-            amount_transfer,
-            refund_amount,
-            books,
-            remarks,
-            cheques,
-            created_at
           )
         )
       `
@@ -111,16 +111,27 @@ export default function FamiliesList() {
     if (error) {
       console.error(error);
     } else {
+      // ✅ FILTRAGE: Par année scolaire pour enrollments et payments
+      const selectedSchoolYear = schoolYears.find(year => year.id === currentSchoolYear);
+      const schoolYearStart = selectedSchoolYear
+        ? new Date(selectedSchoolYear.start_date).getFullYear()
+        : new Date().getFullYear();
+
       const filteredData = ((data as any[]) || []).map(family => ({
         ...family,
+        // Filtrer les étudiants et leurs cours par année
         students: family.students.map((student: any) => ({
           ...student,
           enrollments: student.enrollments.filter((enrollment: any) => {
             const enrollmentYear = new Date(enrollment.start_date).getFullYear();
-            const currentYear = new Date().getFullYear();
-            return enrollment.status === "active" && enrollmentYear === currentYear;
+            return enrollment.status === "active" && enrollmentYear === schoolYearStart;
           }),
         })),
+        // Filtrer les paiements par année
+        payments: family.payments.filter((payment: any) => {
+          const paymentYear = new Date(payment.created_at).getFullYear();
+          return paymentYear === schoolYearStart;
+        }),
       }));
 
       setFamilies(filteredData);
@@ -148,7 +159,7 @@ export default function FamiliesList() {
       phone.includes(search)
     );
   });
-
+  console.log({ filtered, families });
   return (
     <div className="space-y-6">
       {deleteMessage && (

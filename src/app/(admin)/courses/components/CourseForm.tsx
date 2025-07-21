@@ -1,17 +1,14 @@
 "use client";
 import { Course } from "@/types";
 import { Button } from "@/components/ui/button";
-import { createCourse, updateCourse } from "../actions/actions";
 
 interface Props {
   course?: Course;
+  onSubmit: (formData: FormData) => void;
 }
-export default function CourseForm({ course }: Props) {
+export default function CourseForm({ course, onSubmit }: Props) {
   return (
-    <form
-      action={course ? data => updateCourse(course.id, data) : createCourse}
-      className="space-y-4"
-    >
+    <form action={onSubmit} className="space-y-4">
       <input name="name" defaultValue={course?.name} placeholder="Nom du cours" required />
       <select name="teacher_id" defaultValue={course?.teacher_id ?? ""}>
         {/* map enseignants */}

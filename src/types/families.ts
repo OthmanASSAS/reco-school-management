@@ -8,6 +8,7 @@ export interface Family {
   postal_code: string;
   city: string;
   students: Student[];
+  payments?: Payment[]; // Ajouté pour les paiements globaux famille
 }
 
 export interface Student {

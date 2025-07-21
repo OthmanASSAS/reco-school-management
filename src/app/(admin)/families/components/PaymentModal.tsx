@@ -31,20 +31,19 @@ export default function PaymentModal({
 
   const handlePaymentSave = async (paymentData: any) => {
     try {
-      const paymentsToCreate = family.students
-        .filter(student => student.enrollments.length > 0)
-        .map(student => ({
-          student_id: student.id,
-          ...paymentData,
-        }));
+      // Paiement global famille : on insère un seul paiement avec family_id
+      const paymentToCreate = {
+        family_id: family.id,
+        ...paymentData,
+      };
 
-      const { data, error } = await supabase.from("payments").insert(paymentsToCreate).select();
+      const { data, error } = await supabase.from("payments").insert([paymentToCreate]).select();
 
       if (error) {
         toast({
           variant: "destructive",
           title: "Erreur d'enregistrement",
-          description: `Erreur lors de la création des paiements: ${error.message}`,
+          description: `Erreur lors de la création du paiement: ${error.message}`,
         });
       } else {
         toast({
