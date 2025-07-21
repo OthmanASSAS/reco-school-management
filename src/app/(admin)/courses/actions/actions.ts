@@ -25,9 +25,34 @@ export async function getCoursesWithDetail() {
 export async function createCourse(formData: FormData) {
   "use server";
   const name = formData.get("name") as string;
+  const type = formData.get("type") as string;
   const teacher_id = formData.get("teacher_id") as string;
-  // ... autres champs
-  await supabase.from("courses").insert({ name, teacher_id /*...*/ });
+  const room_id = formData.get("room_id") as string;
+  const price = formData.get("price") ? Number(formData.get("price")) : null;
+  const capacity = formData.get("capacity") ? Number(formData.get("capacity")) : null;
+  const schedule = formData.get("schedule") as string | null;
+  const label = formData.get("label") as string | null;
+  const category = formData.get("category") as string | null;
+  const audience = formData.get("audience") as string | null;
+  const school_year_id = formData.get("school_year_id") as string | null;
+
+  const { error } = await supabase.from("courses").insert({
+    name,
+    type,
+    teacher_id,
+    room_id,
+    price,
+    capacity,
+    schedule,
+    label,
+    category,
+    audience,
+    school_year_id,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
   revalidatePath("/courses");
 }
 
