@@ -63,8 +63,7 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
   async function fetchFamilyDetails() {
     if (!currentSchoolYear) return;
 
-    const { data, error } = await supabase.from("families").select(
-      `
+    const { data, error } = await supabase.from("families").select(`
         id,
         payments!payments_family_id_fkey(
           id,
@@ -85,7 +84,7 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
             start_date,
             end_date,
             created_at,
-            courses(
+            courses:course_id(
               id,
               name,
               price,
@@ -96,57 +95,57 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
             )
           )
         )
-      `
-    );
+      `);
 
     if (error) {
       console.error(error);
-    } else {
-      // Fusionner les données détaillées avec les données de base
-      const mergedFamilies = initialFamilies.map(family => {
-        const details = data?.find(d => d.id === family.id);
-        return {
-          ...family,
-          payments: (details?.payments || []) as Payment[],
-          students: family.students.map(student => {
-            const detailedStudent = details?.students?.find(s => s.id === student.id);
-            const enrichedEnrollments = (detailedStudent?.enrollments || []).map(e => ({
-              ...e,
-              courses: e.courses[0], // Supabase retourne un tableau, on prend le premier élément
-            }));
-            return {
-              ...student,
-              enrollments: enrichedEnrollments as EnrichedEnrollment[],
-            };
-          }),
-        };
-      });
-
-      // ✅ FILTRAGE: Par année scolaire pour enrollments et payments
-      const selectedSchoolYear = schoolYears.find(year => year.id === currentSchoolYear);
-      const schoolYearStart = selectedSchoolYear
-        ? new Date(selectedSchoolYear.start_date).getFullYear()
-        : new Date().getFullYear();
-
-      const filteredData = mergedFamilies.map(family => ({
-        ...family,
-        // Filtrer les étudiants et leurs cours par année
-        students: family.students.map(student => ({
-          ...student,
-          enrollments: student.enrollments.filter(enrollment => {
-            const enrollmentYear = new Date(enrollment.start_date).getFullYear();
-            return enrollment.status === "active" && enrollmentYear === schoolYearStart;
-          }),
-        })),
-        // Filtrer les paiements par année
-        payments: family.payments.filter(payment => {
-          const paymentYear = new Date(payment.created_at).getFullYear();
-          return paymentYear === schoolYearStart;
-        }),
-      })) as EnrichedFamily[];
-
-      setFamilies(filteredData);
+      return;
     }
+
+    // Fusionner les données détaillées avec les données de base
+    const mergedFamilies = initialFamilies.map(family => {
+      const details = data?.find(d => d.id === family.id);
+      return {
+        ...family,
+        payments: (details?.payments || []) as Payment[],
+        students: family.students.map(student => {
+          const detailedStudent = details?.students?.find(s => s.id === student.id);
+          const enrichedEnrollments = (detailedStudent?.enrollments || []).map(e => ({
+            ...e,
+            courses: e.courses, // plus besoin de [0], c'est un objet
+          }));
+          return {
+            ...student,
+            enrollments: enrichedEnrollments as EnrichedEnrollment[],
+          };
+        }),
+      };
+    });
+
+    // ✅ FILTRAGE: Par année scolaire pour enrollments et payments
+    const selectedSchoolYear = schoolYears.find(year => year.id === currentSchoolYear);
+    const schoolYearStart = selectedSchoolYear
+      ? new Date(selectedSchoolYear.start_date).getFullYear()
+      : new Date().getFullYear();
+
+    const filteredData = mergedFamilies.map(family => ({
+      ...family,
+      // Filtrer les étudiants et leurs cours par année
+      students: family.students.map(student => ({
+        ...student,
+        enrollments: student.enrollments.filter(enrollment => {
+          const enrollmentYear = new Date(enrollment.start_date).getFullYear();
+          return enrollment.status === "active" && enrollmentYear === schoolYearStart;
+        }),
+      })),
+      // Filtrer les paiements par année
+      payments: family.payments.filter(payment => {
+        const paymentYear = new Date(payment.created_at).getFullYear();
+        return paymentYear === schoolYearStart;
+      }),
+    })) as EnrichedFamily[];
+
+    setFamilies(filteredData);
   }
 
   const handlePaymentManagement = (family: Family) => {

@@ -32,10 +32,11 @@ export default function PaymentSummary({
 
     family.students.forEach(student => {
       student.enrollments.forEach(enrollment => {
+        // Vérifier si l'inscription est active et correspond à l'année scolaire
         const enrollmentYear = new Date(enrollment.start_date).getFullYear();
-        if (enrollmentYear === schoolYearStart) {
+        if (enrollment.status === "active" && enrollmentYear === schoolYearStart) {
           if (enrollment.courses?.price) {
-            total += enrollment.courses.price;
+            total += Number(enrollment.courses.price);
           }
         }
       });
@@ -43,7 +44,7 @@ export default function PaymentSummary({
     return total;
   };
 
-  // Calcule le total payé pour l'année sélectionnée (paiement global famille)
+  // Calcule le total payé pour l'année sélectionnée
   const calculatePaidAmount = (family: Family) => {
     let paid = 0;
     const currentYearObj = currentSchoolYear
@@ -77,9 +78,6 @@ export default function PaymentSummary({
     });
     return paid;
   };
-
-  // Le reste du code (affichage) ne doit plus utiliser student.payments
-  // Pour l'historique, il faudra aussi utiliser family.payments
 
   const totalAmount = calculateTotalAmount(family);
   const paidAmount = calculatePaidAmount(family);

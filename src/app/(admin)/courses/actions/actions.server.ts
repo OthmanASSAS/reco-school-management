@@ -1,6 +1,7 @@
+"use server";
+
 import supabase from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
-import { Course } from "@/types";
 
 export async function getCoursesWithDetail() {
   try {
@@ -23,58 +24,100 @@ export async function getCoursesWithDetail() {
 }
 
 export async function createCourse(formData: FormData) {
-  "use server";
   const name = formData.get("name") as string;
   const type = formData.get("type") as string;
+  const label = formData.get("label") as string;
+  const category = formData.get("category") as string;
+  const status = formData.get("status") as string;
+  const capacity = Number(formData.get("capacity")) || null;
+  const price = Number(formData.get("price")) || null;
   const teacher_id = formData.get("teacher_id") as string;
   const room_id = formData.get("room_id") as string;
-  const price = formData.get("price") ? Number(formData.get("price")) : null;
-  const capacity = formData.get("capacity") ? Number(formData.get("capacity")) : null;
-  const schedule = formData.get("schedule") as string | null;
-  const label = formData.get("label") as string | null;
-  const category = formData.get("category") as string | null;
-  const audience = formData.get("audience") as string | null;
-  const school_year_id = formData.get("school_year_id") as string | null;
 
-  const { error } = await supabase.from("courses").insert({
-    name,
-    type,
-    teacher_id,
-    room_id,
-    price,
-    capacity,
-    schedule,
-    label,
-    category,
-    audience,
-    school_year_id,
-  });
+  try {
+    const { error } = await supabase.from("courses").insert([
+      {
+        name,
+        type,
+        label,
+        category,
+        status,
+        capacity,
+        price,
+        teacher_id: teacher_id || null,
+        room_id: room_id || null,
+      },
+    ]);
 
-  if (error) {
-    throw new Error(error.message);
+    if (error) throw error;
+
+    revalidatePath("/admin/courses");
+    return { message: "Cours créé avec succès !", success: true };
+  } catch (error) {
+    console.error("Erreur création cours:", error);
+    return {
+      message: "Erreur lors de la création du cours",
+      success: false,
+    };
   }
-  revalidatePath("/courses");
 }
 
-export async function updateCourse(id: string, formData: FormData) {
-  "use server";
-  await supabase
-    .from("courses")
-    .update({
-      name: formData.get("name"),
-      teacher_id: formData.get("teacher_id"),
-      room_id: formData.get("room_id"),
-      price: formData.get("price"),
-      type: formData.get("type"),
-      schedule: formData.get("schedule"),
-    })
-    .eq("id", id);
-  revalidatePath("/courses");
+export async function updateCourse(formData: FormData) {
+  const id = formData.get("id") as string;
+  const name = formData.get("name") as string;
+  const type = formData.get("type") as string;
+  const label = formData.get("label") as string;
+  const category = formData.get("category") as string;
+  const status = formData.get("status") as string;
+  const capacity = Number(formData.get("capacity")) || null;
+  const price = Number(formData.get("price")) || null;
+  const teacher_id = formData.get("teacher_id") as string;
+  const room_id = formData.get("room_id") as string;
+
+  try {
+    const { error } = await supabase
+      .from("courses")
+      .update({
+        name,
+        type,
+        label,
+        category,
+        status,
+        capacity,
+        price,
+        teacher_id: teacher_id || null,
+        room_id: room_id || null,
+      })
+      .eq("id", id);
+
+    if (error) throw error;
+
+    revalidatePath("/admin/courses");
+    return { message: "Cours mis à jour avec succès !", success: true };
+  } catch (error) {
+    console.error("Erreur mise à jour cours:", error);
+    return {
+      message: "Erreur lors de la mise à jour du cours",
+      success: false,
+    };
+  }
 }
 
 export async function deleteCourse(formData: FormData) {
-  "use server";
   const id = formData.get("id") as string;
-  await supabase.from("courses").delete().eq("id", id);
-  revalidatePath("/courses");
+
+  try {
+    const { error } = await supabase.from("courses").delete().eq("id", id);
+
+    if (error) throw error;
+
+    revalidatePath("/admin/courses");
+    return { message: "Cours supprimé avec succès !", success: true };
+  } catch (error) {
+    console.error("Erreur suppression cours:", error);
+    return {
+      message: "Erreur lors de la suppression du cours",
+      success: false,
+    };
+  }
 }
