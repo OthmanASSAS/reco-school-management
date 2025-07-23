@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Users, User } from "lucide-react";
 import { Family } from "@/types/families";
 import PaymentHistory from "./PaymentHistory";
+import { fetchCourseDiscountSettings } from "@/lib/settings";
 
 interface PaymentSummaryProps {
   family: Family;
@@ -20,9 +22,24 @@ export default function PaymentSummary({
   onStartPayment,
   onClose,
 }: PaymentSummaryProps) {
-  // Calcule le total des cours pour l'année sélectionnée
+  const [discountSettings, setDiscountSettings] = useState({
+    startAt: 3,
+    step: 25,
+    mode: "cumulative",
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCourseDiscountSettings()
+      .then(settings => {
+        setDiscountSettings(settings);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  // Calcule le total des cours pour l'année sélectionnée avec dégressif dynamique
   const calculateTotalAmount = (family: Family) => {
-    let total = 0;
     const currentYearObj = currentSchoolYear
       ? schoolYears.find(y => y.id === currentSchoolYear)
       : null;
@@ -30,16 +47,22 @@ export default function PaymentSummary({
       ? new Date(currentYearObj.start_date).getFullYear()
       : new Date().getFullYear();
 
-    family.students.forEach(student => {
-      student.enrollments.forEach(enrollment => {
-        // Vérifier si l'inscription est active et correspond à l'année scolaire
+    const { startAt, step, mode } = discountSettings;
+    const allEnrollments = family.students.flatMap(student =>
+      student.enrollments.filter(enrollment => {
         const enrollmentYear = new Date(enrollment.start_date).getFullYear();
-        if (enrollment.status === "active" && enrollmentYear === schoolYearStart) {
-          if (enrollment.courses?.price) {
-            total += Number(enrollment.courses.price);
-          }
-        }
-      });
+        return enrollment.status === "active" && enrollmentYear === schoolYearStart;
+      })
+    );
+
+    let total = 0;
+    allEnrollments.forEach((enrollment, idx) => {
+      let price = Number(enrollment.courses?.price) || 0;
+      if (idx >= startAt - 1) {
+        const reduction = mode === "cumulative" ? (idx - (startAt - 2)) * step : step;
+        price = Math.max(0, price - reduction);
+      }
+      total += price;
     });
     return total;
   };
@@ -156,6 +179,12 @@ export default function PaymentSummary({
               )}
             </div>
           ))}
+        </div>
+        {/* Affichage du dégressif */}
+        <div className="mt-4 text-xs text-blue-700 italic">
+          {discountSettings.mode === "cumulative"
+            ? `Dégressif appliqué à partir du ${discountSettings.startAt}e cours : -${discountSettings.step}€ pour le ${discountSettings.startAt}e, -${discountSettings.step * 2}€ pour le ${discountSettings.startAt + 1}e, etc.`
+            : `Dégressif appliqué à partir du ${discountSettings.startAt}e cours : -${discountSettings.step}€ pour chaque cours à partir du ${discountSettings.startAt}e`}
         </div>
       </div>
 

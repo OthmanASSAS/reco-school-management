@@ -42,14 +42,14 @@ export default async function StudentsPage() {
         enrollments (
           id,
           status,
-          start_date,
-          end_date,
-          created_at,
+              start_date,
+              end_date,
+              created_at,
           courses:course_id (
-            id,
-            name,
-            type,
-            category,
+                id,
+                name,
+                type,
+                category,
             label,
             status
           )
