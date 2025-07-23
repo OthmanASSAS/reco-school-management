@@ -1,4 +1,4 @@
-// app/(admin)/layout.tsx — ou app/dashboard/layout.tsx
+// app/(admin)/layout.tsx
 import type { ReactNode } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 

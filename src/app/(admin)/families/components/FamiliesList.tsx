@@ -15,68 +15,59 @@ import {
 import { AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-import { Family } from "@/types/families";
+import { Family, SchoolYear, Student, Enrollment, Course, Payment } from "@/types/families";
 import FamiliesTable from "./FamiliesTable";
 import FamilyFormModal from "./FamilyFormModal";
 import PaymentModal from "./PaymentModal";
 import FamilyDetailsModal from "./FamilyDetailsModal";
 
-export default function FamiliesList() {
+interface FamiliesListProps {
+  initialFamilies: Family[];
+  initialSchoolYears: SchoolYear[];
+}
+
+interface EnrichedEnrollment extends Omit<Enrollment, "courses"> {
+  courses: Course;
+}
+
+interface EnrichedStudent extends Omit<Student, "enrollments"> {
+  enrollments: EnrichedEnrollment[];
+}
+
+interface EnrichedFamily extends Omit<Family, "students"> {
+  students: EnrichedStudent[];
+}
+
+export default function FamiliesList({ initialFamilies, initialSchoolYears }: FamiliesListProps) {
   const { toast } = useToast();
-  const [families, setFamilies] = useState<Family[]>([]);
+  const [families, setFamilies] = useState<EnrichedFamily[]>(initialFamilies as EnrichedFamily[]);
   const [search, setSearch] = useState("");
   const [deleteMessage, setDeleteMessage] = useState<string | null>(null);
-  const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
+  const [selectedFamily, setSelectedFamily] = useState<EnrichedFamily | null>(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-  const [currentSchoolYear, setCurrentSchoolYear] = useState<string | null>(null);
-  const [schoolYears, setSchoolYears] = useState<any[]>([]);
+  const [currentSchoolYear, setCurrentSchoolYear] = useState<string | null>(
+    initialSchoolYears?.[0]?.id || null
+  );
+  const [schoolYears, setSchoolYears] = useState<SchoolYear[]>(initialSchoolYears || []);
   const [familyDetailsModalOpen, setFamilyDetailsModalOpen] = useState(false);
-  const [selectedFamilyForDetails, setSelectedFamilyForDetails] = useState<Family | null>(null);
-
-  useEffect(() => {
-    fetchSchoolYears();
-  }, []);
+  const [selectedFamilyForDetails, setSelectedFamilyForDetails] = useState<EnrichedFamily | null>(
+    null
+  );
 
   useEffect(() => {
     if (currentSchoolYear) {
-      fetchFamilies();
+      fetchFamilyDetails();
     }
   }, [currentSchoolYear]);
 
-  async function fetchSchoolYears() {
-    const { data, error } = await supabase
-      .from("school_years")
-      .select("id, label, start_date")
-      .order("start_date", { ascending: false });
-
-    if (error) {
-      console.error("Erreur récupération années scolaires:", error);
-    } else {
-      setSchoolYears(data || []);
-      if (data && data.length > 0) {
-        setCurrentSchoolYear(data[0].id);
-      }
-    }
-  }
-
-  async function fetchFamilies() {
+  async function fetchFamilyDetails() {
     if (!currentSchoolYear) return;
 
-    const { data, error } = await supabase
-      .from("families")
-      .select(
-        `
-        id, 
-        last_name, 
-        first_name, 
-        email, 
-        phone, 
-        address, 
-        postal_code, 
-        city,
+    const { data, error } = await supabase.from("families").select(
+      `
+        id,
         payments!payments_family_id_fkey(
           id,
-          family_id,
           amount_cash,
           amount_card,
           amount_transfer,
@@ -88,51 +79,71 @@ export default function FamiliesList() {
         ),
         students(
           id,
-          first_name,
-          last_name,
-          birth_date,
-          registration_type,
           enrollments(
             id,
             status,
             start_date,
+            end_date,
+            created_at,
             courses(
               id,
               name,
               price,
-              type
+              type,
+              category,
+              label,
+              status
             )
           )
         )
       `
-      )
-      .order("last_name", { ascending: true });
+    );
 
     if (error) {
       console.error(error);
     } else {
+      // Fusionner les données détaillées avec les données de base
+      const mergedFamilies = initialFamilies.map(family => {
+        const details = data?.find(d => d.id === family.id);
+        return {
+          ...family,
+          payments: (details?.payments || []) as Payment[],
+          students: family.students.map(student => {
+            const detailedStudent = details?.students?.find(s => s.id === student.id);
+            const enrichedEnrollments = (detailedStudent?.enrollments || []).map(e => ({
+              ...e,
+              courses: e.courses[0], // Supabase retourne un tableau, on prend le premier élément
+            }));
+            return {
+              ...student,
+              enrollments: enrichedEnrollments as EnrichedEnrollment[],
+            };
+          }),
+        };
+      });
+
       // ✅ FILTRAGE: Par année scolaire pour enrollments et payments
       const selectedSchoolYear = schoolYears.find(year => year.id === currentSchoolYear);
       const schoolYearStart = selectedSchoolYear
         ? new Date(selectedSchoolYear.start_date).getFullYear()
         : new Date().getFullYear();
 
-      const filteredData = ((data as any[]) || []).map(family => ({
+      const filteredData = mergedFamilies.map(family => ({
         ...family,
         // Filtrer les étudiants et leurs cours par année
-        students: family.students.map((student: any) => ({
+        students: family.students.map(student => ({
           ...student,
-          enrollments: student.enrollments.filter((enrollment: any) => {
+          enrollments: student.enrollments.filter(enrollment => {
             const enrollmentYear = new Date(enrollment.start_date).getFullYear();
             return enrollment.status === "active" && enrollmentYear === schoolYearStart;
           }),
         })),
         // Filtrer les paiements par année
-        payments: family.payments.filter((payment: any) => {
+        payments: family.payments.filter(payment => {
           const paymentYear = new Date(payment.created_at).getFullYear();
           return paymentYear === schoolYearStart;
         }),
-      }));
+      })) as EnrichedFamily[];
 
       setFamilies(filteredData);
     }
@@ -159,6 +170,7 @@ export default function FamiliesList() {
       phone.includes(search)
     );
   });
+
   return (
     <div className="space-y-6">
       {deleteMessage && (
@@ -192,7 +204,7 @@ export default function FamiliesList() {
               className="w-full sm:max-w-xs"
             />
             <div className="w-full sm:w-auto">
-              <FamilyFormModal onFamilyCreated={fetchFamilies} />
+              <FamilyFormModal onFamilyCreated={fetchFamilyDetails} />
             </div>
           </div>
         </CardHeader>
@@ -202,7 +214,7 @@ export default function FamiliesList() {
             families={filtered}
             onPaymentManagement={handlePaymentManagement}
             onFamilyDetails={handleFamilyDetails}
-            onRefresh={fetchFamilies}
+            onRefresh={fetchFamilyDetails}
             setDeleteMessage={setDeleteMessage}
           />
         </CardContent>
@@ -213,7 +225,7 @@ export default function FamiliesList() {
           family={selectedFamily}
           open={paymentModalOpen}
           onOpenChange={setPaymentModalOpen}
-          onPaymentSaved={fetchFamilies}
+          onPaymentSaved={fetchFamilyDetails}
           currentSchoolYear={currentSchoolYear}
           schoolYears={schoolYears}
         />
