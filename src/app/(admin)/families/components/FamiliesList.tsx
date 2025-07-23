@@ -169,11 +169,11 @@ export default function FamiliesList() {
       )}
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <CardTitle>Familles ({families.length})</CardTitle>
-          <div className="flex gap-3 items-center">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full sm:w-auto">
             <Select value={currentSchoolYear || ""} onValueChange={setCurrentSchoolYear}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="Sélectionner l'année" />
               </SelectTrigger>
               <SelectContent>
@@ -189,9 +189,11 @@ export default function FamiliesList() {
               placeholder="Rechercher..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="max-w-xs"
+              className="w-full sm:max-w-xs"
             />
-            <FamilyFormModal onFamilyCreated={fetchFamilies} />
+            <div className="w-full sm:w-auto">
+              <FamilyFormModal onFamilyCreated={fetchFamilies} />
+            </div>
           </div>
         </CardHeader>
 

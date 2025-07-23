@@ -23,6 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function StudentsPage() {
   const { toast } = useToast();
@@ -565,239 +566,311 @@ export default function StudentsPage() {
   );
 
   return (
-    <div className="space-y-6">
-      {/* En-tête avec filtres */}
-      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:flex-1 lg:max-w-4xl">
-          <div className="relative flex-1">
-            <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={16}
-            />
-            <Input
-              placeholder="Rechercher un élève, famille ou cours..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+    <div className="w-full px-4 py-6 md:py-12">
+      <div className="w-full md:max-w-7xl md:mx-auto">
+        <div className="space-y-6">
+          {/* Header avec filtres et bouton */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Input
+                placeholder="Rechercher un élève..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full sm:w-64"
+              />
+              <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="Cours" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les cours</SelectItem>
+                  {Array.from(new Set(students.map(s => s.course)))
+                    .filter(course => course !== "Non assigné")
+                    .sort()
+                    .map(course => (
+                      <SelectItem key={course} value={course}>
+                        {course}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="Statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous</SelectItem>
+                  <SelectItem value="active">Cours actifs</SelectItem>
+                  <SelectItem value="no_course">Sans cours</SelectItem>
+                  <SelectItem value="multiple">Cours multiples</SelectItem>
+                  <SelectItem value="history">Avec historique</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 w-full sm:w-auto">
+              <UserPlus size={16} className="mr-2" />
+              Nouvel élève
+            </Button>
           </div>
 
-          <div className="flex gap-2">
-            <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Cours" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les cours</SelectItem>
-                {allCourses.map(course => (
-                  <SelectItem key={course} value={course}>
-                    {course}
-                  </SelectItem>
-                ))}
-                <SelectItem value="Non assigné">Non assigné</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Statistiques */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="bg-white p-4 rounded-lg border">
+              <div className="text-2xl font-bold text-blue-600">{students.length}</div>
+              <div className="text-sm text-gray-600">Total élèves</div>
+            </div>
+            <div className="bg-white p-4 rounded-lg border">
+              <div className="text-2xl font-bold text-green-600">
+                {students.filter(s => s.activeCoursesCount > 0).length}
+              </div>
+              <div className="text-sm text-gray-600">Avec cours actifs</div>
+            </div>
+            <div className="bg-white p-4 rounded-lg border">
+              <div className="text-2xl font-bold text-purple-600">
+                {students.filter(s => s.hasMultipleCourses).length}
+              </div>
+              <div className="text-sm text-gray-600">Cours multiples</div>
+            </div>
+            <div className="bg-white p-4 rounded-lg border">
+              <div className="text-2xl font-bold text-orange-600">
+                {students.filter(s => s.hasHistory).length}
+              </div>
+              <div className="text-sm text-gray-600">Avec historique</div>
+            </div>
+            <div className="bg-white p-4 rounded-lg border col-span-2 lg:col-span-1">
+              <div className="text-2xl font-bold text-gray-600">
+                {students.filter(s => s.activeCoursesCount === 0).length}
+              </div>
+              <div className="text-sm text-gray-600">Sans cours</div>
+            </div>
+          </div>
 
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous</SelectItem>
-                <SelectItem value="active">Cours actifs</SelectItem>
-                <SelectItem value="no_course">Sans cours</SelectItem>
-                <SelectItem value="multiple">Cours multiples</SelectItem>
-                <SelectItem value="history">Avec historique</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-          <UserPlus size={16} className="mr-2" />
-          Nouvel élève
-        </Button>
-      </div>
-
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-blue-600">{students.length}</div>
-          <div className="text-sm text-gray-600">Total élèves</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-green-600">
-            {students.filter(s => s.activeCoursesCount > 0).length}
-          </div>
-          <div className="text-sm text-gray-600">Avec cours actifs</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-purple-600">
-            {students.filter(s => s.hasMultipleCourses).length}
-          </div>
-          <div className="text-sm text-gray-600">Cours multiples</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-orange-600">
-            {students.filter(s => s.hasHistory).length}
-          </div>
-          <div className="text-sm text-gray-600">Avec historique</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-gray-600">
-            {students.filter(s => s.activeCoursesCount === 0).length}
-          </div>
-          <div className="text-sm text-gray-600">Sans cours</div>
-        </div>
-      </div>
-
-      {/* Tableau */}
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-gray-500">Chargement des élèves...</div>
-        </div>
-      ) : filteredStudents.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg border">
-          <p className="text-gray-500 mb-2">Aucun élève trouvé</p>
-          {searchTerm && (
-            <p className="text-sm text-gray-400">
-              Essayez de modifier votre recherche ou vos filtres
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700">Élève</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700">Cours</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700">Statut</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700">Famille</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700">
-                    Première inscription
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
+          {/* Tableau */}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-gray-500">Chargement des élèves...</div>
+            </div>
+          ) : filteredStudents.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg border">
+              <p className="text-gray-500 mb-2">Aucun élève trouvé</p>
+              {searchTerm && (
+                <p className="text-sm text-gray-400">
+                  Essayez de modifier votre recherche ou vos filtres
+                </p>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Version mobile - Cartes */}
+              <div className="block lg:hidden space-y-4">
                 {filteredStudents.map(student => (
-                  <tr key={student.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div>
-                        <div className="font-medium text-gray-900">{student.name}</div>
-                        <div className="text-sm text-gray-500">
-                          {getTypeDisplay(student.type, student.age)}
-                          {student.level && ` • ${student.level}`}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div>
-                        <div
-                          className={
-                            student.course === "Non assigné"
-                              ? "text-gray-400 italic"
-                              : "text-gray-900"
-                          }
-                        >
-                          {student.course}
-                        </div>
-
-                        {/* Badges pour cours multiples et historique */}
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {student.hasMultipleCourses && (
+                  <Card key={student.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
+                            {student.name}
+                          </CardTitle>
+                          <div className="flex flex-wrap gap-2 mb-2">
                             <Badge variant="outline" className="text-xs">
-                              +{student.activeCoursesCount - 1} autre
-                              {student.activeCoursesCount > 2 ? "s" : ""}
+                              {getTypeDisplay(student.type, student.age)}
                             </Badge>
-                          )}
-                          {student.hasHistory && (
-                            <Badge variant="secondary" className="text-xs">
-                              <History size={10} className="mr-1" />
-                              Historique
-                            </Badge>
-                          )}
-                          {student.activeCoursesCount === 0 && student.totalCoursesCount > 0 && (
-                            <Badge variant="outline" className="text-xs text-orange-600">
-                              Cours terminés
-                            </Badge>
-                          )}
+                            {student.level && (
+                              <Badge variant="secondary" className="text-xs">
+                                {student.level}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Voir les détails"
+                                onClick={() => setSelectedStudent(student)}
+                              >
+                                <Eye size={16} />
+                              </Button>
+                            </DialogTrigger>
+                            {selectedStudent && <StudentDetailsModal student={selectedStudent} />}
+                          </Dialog>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-green-600 hover:text-green-800"
+                            title="Attribuer/Modifier cours"
+                            onClick={() => {
+                              setSelectedStudent(student);
+                              setEditModalOpen(true);
+                            }}
+                          >
+                            <Edit size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-800"
+                            title="Supprimer"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
                         </div>
                       </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="space-y-1">
-                        {student.activeCoursesCount > 0 ? (
-                          <Badge className="bg-green-100 text-green-800">
-                            {student.activeCoursesCount} actif
-                            {student.activeCoursesCount > 1 ? "s" : ""}
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">Sans cours</Badge>
-                        )}
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-2 text-sm">
+                        <div>
+                          <span className="text-gray-500">Cours:</span>
+                          <p
+                            className={`font-medium ${student.course === "Non assigné" ? "text-gray-400 italic" : "text-gray-900"}`}
+                          >
+                            {student.course}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Famille:</span>
+                          <p className="font-medium">{student.family || "—"}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Première inscription:</span>
+                          <p className="font-medium">{formatDate(student.firstEnrollment)}</p>
+                        </div>
                       </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div>
-                        <div className="text-gray-900">{student.family}</div>
-                        <div className="text-xs text-gray-500">{student.familyEmail}</div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {formatDate(student.firstEnrollment)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <button
-                              className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
-                              title="Voir les détails"
-                              onClick={() => setSelectedStudent(student)}
-                            >
-                              <Eye size={16} />
-                            </button>
-                          </DialogTrigger>
-                          {selectedStudent && <StudentDetailsModal student={selectedStudent} />}
-                        </Dialog>
-
-                        <button
-                          className="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50"
-                          title="Attribuer/Modifier cours"
-                          onClick={() => {
-                            setSelectedStudent(student);
-                            setEditModalOpen(true);
-                          }}
-                        >
-                          <Edit size={16} />
-                        </button>
-
-                        <button
-                          className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50"
-                          title="Supprimer"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                    </CardContent>
+                  </Card>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </div>
 
-          <div className="px-4 py-3 bg-gray-50 border-t text-sm text-gray-600">
-            {filteredStudents.length} élève{filteredStudents.length > 1 ? "s" : ""} affiché
-            {filteredStudents.length > 1 ? "s" : ""}
-            {students.length !== filteredStudents.length && ` sur ${students.length} total`}
-          </div>
+              {/* Version desktop - Table */}
+              <div className="hidden lg:block bg-white rounded-lg border overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">Élève</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">Cours</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">Statut</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">Famille</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">
+                          Première inscription
+                        </th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {filteredStudents.map(student => (
+                        <tr key={student.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3">
+                            <div>
+                              <div className="font-medium text-gray-900">{student.name}</div>
+                              <div className="text-sm text-gray-500">
+                                {getTypeDisplay(student.type, student.age)}
+                                {student.level && ` • ${student.level}`}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div>
+                              <div
+                                className={
+                                  student.course === "Non assigné"
+                                    ? "text-gray-400 italic"
+                                    : "text-gray-900"
+                                }
+                              >
+                                {student.course}
+                              </div>
+
+                              {/* Badges pour cours multiples et historique */}
+                              <div className="flex gap-1 mt-1">
+                                {student.hasMultipleCourses && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs bg-purple-50 text-purple-700 border-purple-200"
+                                  >
+                                    Multiples
+                                  </Badge>
+                                )}
+                                {student.hasHistory && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs bg-orange-50 text-orange-700 border-orange-200"
+                                  >
+                                    Historique
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={`w-2 h-2 rounded-full ${
+                                  student.activeCoursesCount > 0 ? "bg-green-500" : "bg-gray-300"
+                                }`}
+                              />
+                              <span className="text-sm text-gray-600">
+                                {student.activeCoursesCount > 0 ? "Actif" : "Inactif"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-gray-700">{student.family || "—"}</td>
+                          <td className="px-4 py-3 text-gray-700">
+                            {formatDate(student.firstEnrollment)}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex gap-2">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <button
+                                    className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
+                                    title="Voir les détails"
+                                    onClick={() => setSelectedStudent(student)}
+                                  >
+                                    <Eye size={16} />
+                                  </button>
+                                </DialogTrigger>
+                                {selectedStudent && (
+                                  <StudentDetailsModal student={selectedStudent} />
+                                )}
+                              </Dialog>
+
+                              <button
+                                className="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50"
+                                title="Attribuer/Modifier cours"
+                                onClick={() => {
+                                  setSelectedStudent(student);
+                                  setEditModalOpen(true);
+                                }}
+                              >
+                                <Edit size={16} />
+                              </button>
+
+                              <button
+                                className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50"
+                                title="Supprimer"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Modals */}
+          <CourseAssignmentModal />
         </div>
-      )}
-
-      {/* Modals */}
-      <CourseAssignmentModal />
+      </div>
     </div>
   );
 }

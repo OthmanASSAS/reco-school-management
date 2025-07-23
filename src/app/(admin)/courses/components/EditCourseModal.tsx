@@ -76,12 +76,14 @@ export default function EditCourseModal({ course, open, onClose, onSaved }: Edit
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Modifier le cours</DialogTitle>
         </DialogHeader>
         {loading ? (
-          <div>Chargement...</div>
+          <div className="flex items-center justify-center py-8">
+            <div className="text-gray-500">Chargement...</div>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -142,37 +144,39 @@ export default function EditCourseModal({ course, open, onClose, onSaved }: Edit
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="price">Prix (€)</Label>
-              <Input
-                id="price"
-                name="price"
-                type="number"
-                min={0}
-                step={1}
-                required
-                defaultValue={course.price ?? ""}
-              />
-            </div>
-            <div>
-              <Label htmlFor="capacity">Capacité</Label>
-              <Input
-                id="capacity"
-                name="capacity"
-                type="number"
-                min={1}
-                step={1}
-                required
-                defaultValue={course.capacity ?? ""}
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="price">Prix (€)</Label>
+                <Input
+                  id="price"
+                  name="price"
+                  type="number"
+                  min={0}
+                  step={1}
+                  required
+                  defaultValue={course.price ?? ""}
+                />
+              </div>
+              <div>
+                <Label htmlFor="capacity">Capacité</Label>
+                <Input
+                  id="capacity"
+                  name="capacity"
+                  type="number"
+                  min={1}
+                  step={1}
+                  required
+                  defaultValue={course.capacity ?? ""}
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="schedule">Description / horaires</Label>
               <Input id="schedule" name="schedule" defaultValue={course.schedule ?? ""} />
             </div>
             {error && <div className="text-red-600 text-sm">{error}</div>}
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="submit" disabled={saving}>
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+              <Button type="submit" disabled={saving} className="w-full sm:w-auto">
                 {saving ? "Enregistrement..." : "Enregistrer les modifications"}
               </Button>
             </div>

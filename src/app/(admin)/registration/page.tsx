@@ -24,7 +24,7 @@ export default async function RegistrationPage() {
       coursesError,
     });
     return (
-      <div className="p-6 text-red-500">
+      <div className="p-4 md:p-6 text-red-500">
         Erreur lors du chargement des données nécessaires pour le formulaire.
       </div>
     );
@@ -58,9 +58,9 @@ export default async function RegistrationPage() {
   }));
 
   return (
-    <div className="p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Nouvelle inscription</h1>
+    <div className="w-full p-4 md:p-6">
+      <div className="w-full md:max-w-4xl md:mx-auto">
+        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Nouvelle inscription</h1>
         <RegistrationForm
           families={families}
           schoolYears={schoolYears}
