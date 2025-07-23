@@ -64,52 +64,15 @@ export default function RegistrationForm({ families, schoolYears, courseInstance
     }
   }, [state]);
 
-  // DEBUG: Afficher les données reçues
-  console.log("=== DEBUG FORM ===");
-  console.log("courseInstances reçues:", courseInstances);
-  console.log("selectedType:", selectedType);
-  console.log("families:", families);
-  console.log("schoolYears:", schoolYears);
-
   const typeMap = { Enfant: "enfants", Adulte: "adultes" };
   const filteredCourses = selectedType
     ? courseInstances.filter(instance => {
-        console.log(
-          `Filtrage: instance.course.type=${instance.course.type}, recherché=${typeMap[selectedType as "Enfant" | "Adulte"]}`
-        );
         return instance.course.type === typeMap[selectedType as "Enfant" | "Adulte"];
       })
     : [];
 
-  console.log("filteredCourses:", filteredCourses);
-
   return (
     <div className="space-y-6">
-      {/* DEBUG: Affichage des données */}
-      <Card className="bg-gray-50 border-dashed">
-        <CardHeader>
-          <CardTitle className="text-sm text-gray-600">🐛 Debug Info</CardTitle>
-        </CardHeader>
-        <CardContent className="text-xs">
-          <p>Total course instances: {courseInstances.length}</p>
-          <p>Selected type: {selectedType}</p>
-          <p>Filtered courses: {filteredCourses.length}</p>
-          {courseInstances.slice(0, 2).map(instance => (
-            <div key={instance.id} className="mt-2 p-2 bg-white rounded">
-              <p>ID: {instance.id}</p>
-              <p>
-                Course: {instance.course.name} (type: {instance.course.type})
-              </p>
-              <p>Teacher: {instance.teacher?.name || "Aucun"}</p>
-              <p>
-                Time: {instance.timeSlot?.day} {instance.timeSlot?.startTime}-
-                {instance.timeSlot?.endTime}
-              </p>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
       <form ref={formRef} action={dispatch} className="space-y-6">
         {/* Champs cachés pour les valeurs des Select */}
         <input type="hidden" name="registrationType" value={selectedType} />
@@ -146,7 +109,6 @@ export default function RegistrationForm({ families, schoolYears, courseInstance
               <Select
                 value={selectedType}
                 onValueChange={value => {
-                  console.log("Type sélectionné:", value);
                   setSelectedType(value as "Enfant" | "Adulte" | "");
                   setSelectedCourse(""); // Reset course selection
                 }}

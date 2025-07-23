@@ -159,7 +159,6 @@ export default function FamiliesList() {
       phone.includes(search)
     );
   });
-  console.log({ filtered, families });
   return (
     <div className="space-y-6">
       {deleteMessage && (

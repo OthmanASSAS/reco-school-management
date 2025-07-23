@@ -318,8 +318,6 @@ export default function FamiliesTable() {
           cheques: chequeLots,
         }));
 
-      console.log("Paiements à créer:", paymentsToCreate);
-
       // Insérer les paiements
       const { data, error } = await supabase.from("payments").insert(paymentsToCreate).select();
 
@@ -331,7 +329,6 @@ export default function FamiliesTable() {
           description: `Erreur lors de la création des paiements: ${error.message}`,
         });
       } else {
-        console.log("Paiements créés avec succès:", data);
         toast({
           title: "Paiement enregistré",
           description: "Le paiement a été enregistré avec succès !",
@@ -1018,7 +1015,7 @@ export default function FamiliesTable() {
                                                 key={`cheque-${idx}`}
                                                 className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium"
                                               >
-                                                �� {lot.count} chèque{lot.count > 1 ? "s" : ""} de{" "}
+                                                💰 {lot.count} chèque{lot.count > 1 ? "s" : ""} de{" "}
                                                 {lot.amount}€ ({lot.banque})
                                               </span>
                                             );

@@ -17,11 +17,6 @@ export default async function RegistrationPage() {
       .eq("status", "active"),
   ]);
 
-  console.log("=== DEBUG PAGE ===");
-  console.log("familiesData:", familiesData);
-  console.log("schoolYearsData:", schoolYearsData);
-  console.log("coursesData:", coursesData);
-
   if (familiesError || schoolYearsError || coursesError) {
     console.error("Erreur lors du chargement des données:", {
       familiesError,
@@ -61,8 +56,6 @@ export default async function RegistrationPage() {
     capacity: course.capacity || 0,
     price: course.price || 0,
   }));
-
-  console.log("courseInstances transformées:", courseInstances);
 
   return (
     <div className="p-6">

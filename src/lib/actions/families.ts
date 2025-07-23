@@ -26,8 +26,6 @@ export async function createFamily(
   prevState: FamilyState,
   formData: FormData
 ): Promise<FamilyState> {
-  console.log("=== CREATE FAMILY ===");
-
   // Validation des données du formulaire
   const validatedFields = FamilySchema.safeParse({
     firstName: getFormValue(formData, "firstName"),
@@ -40,8 +38,6 @@ export async function createFamily(
   });
 
   if (!validatedFields.success) {
-    console.log("Erreurs de validation:", validatedFields.error.format());
-
     const formattedErrors = validatedFields.error.format();
     return {
       errors: {
