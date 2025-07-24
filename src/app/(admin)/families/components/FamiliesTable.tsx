@@ -7,6 +7,7 @@ import { deleteFamily } from "@/lib/actions/families";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 interface FamiliesTableProps {
   families: Family[];
@@ -74,9 +75,11 @@ export default function FamiliesTable({
                     size="sm"
                     className="text-blue-600 hover:text-blue-800"
                     title="Voir les détails"
-                    onClick={() => onFamilyDetails(f)}
+                    asChild
                   >
-                    <Eye size={16} />
+                    <Link href={`/families/${f.id}/edit`}>
+                      <Eye size={16} />
+                    </Link>
                   </Button>
                   <Button
                     variant="ghost"
@@ -176,13 +179,10 @@ export default function FamiliesTable({
                   </td>
                   <td className="p-3">
                     <div className="flex justify-center space-x-1">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        title="Voir les détails"
-                        onClick={() => onFamilyDetails(f)}
-                      >
-                        <Eye size={14} />
+                      <Button variant="outline" size="sm" title="Voir les détails" asChild>
+                        <Link href={`/families/${f.id}/edit`}>
+                          <Eye size={14} />
+                        </Link>
                       </Button>
                       <Button
                         variant="outline"

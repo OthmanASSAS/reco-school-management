@@ -180,8 +180,9 @@ export async function updateFamily(
       };
     }
 
+    
     // Mettre à jour la famille
-    const { error: updateError } = await supabase
+    const { error: updateError, data: updateData } = await supabase
       .from("families")
       .update({
         first_name: family.firstName,
@@ -192,7 +193,9 @@ export async function updateFamily(
         postal_code: family.postalCode,
         city: family.city,
       })
-      .eq("id", familyId);
+      .eq("id", familyId)
+      .select();
+    
 
     if (updateError) {
       console.error("Erreur mise à jour famille:", updateError);
