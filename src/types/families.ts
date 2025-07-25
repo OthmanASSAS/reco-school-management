@@ -9,11 +9,12 @@ export interface Course {
 
 export interface Enrollment {
   id: string;
+  course_id: string; // La clé étrangère vers le cours
   status: string;
   start_date: string;
   end_date?: string;
   created_at: string;
-  courses: Course;
+  courses: Course; // L'objet cours imbriqué retourné par la requête
 }
 
 export interface Student {

@@ -197,6 +197,7 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
       }
 
       // Mettre à jour l'étudiant localement
+      console.log({ selectedStudent });
       if (selectedStudent) {
         setStudents(currentStudents =>
           currentStudents.map(student => {

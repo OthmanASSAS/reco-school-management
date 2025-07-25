@@ -1,68 +1,204 @@
-// scripts/seed.ts
+// scripts/seed.ts - Version réaliste pour école arabe/coran
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 import { faker } from "@faker-js/faker";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SECRET_KEY!;
-
-// Use service_role key for seeding to bypass RLS
 const sb = createClient(supabaseUrl, supabaseServiceKey);
 
-// --- Configuration des quantités de données ---
-const NUM_FAMILIES = 5;
-const NUM_STUDENTS_PER_FAMILY = 2;
-const NUM_TEACHERS = 3;
-const NUM_ROOMS = 3;
-const NUM_TIME_BLOCKS = 5; // Lundi 9h, Mardi 9h, etc.
-const NUM_COURSES = 10;
-const NUM_ENROLLMENTS_PER_STUDENT = 1;
-const NUM_PAYMENTS_PER_FAMILY = 1;
-const NUM_APPOINTMENTS_PER_STUDENT = 1;
-const NUM_COURSE_INSTANCES = 5;
-const NUM_REGISTRATIONS = 5;
-const NUM_SCHOOL_YEARS = 1;
-const NUM_APPOINTMENT_DAYS = 3;
-const NUM_TIME_SLOTS = 5;
+// --- Configuration réaliste ---
+const NUM_FAMILIES = 8;
+const NUM_STUDENTS_PER_FAMILY = 2; // 1-3 enfants par famille
+const STANDARD_PRICE = 350; // Prix fixe pour tous les cours
+
+// Données réalistes pour une école arabe/coran
+const REALISTIC_DATA = {
+  teachers: [
+    { name: "Ustadh Ahmed Benali", email: "ahmed.benali@ecole.fr", phone: "06 12 34 56 78" },
+    {
+      name: "Ustadha Fatima Al-Maghribi",
+      email: "fatima.almaghribi@ecole.fr",
+      phone: "06 23 45 67 89",
+    },
+    { name: "Ustadh Omar Zouaoui", email: "omar.zouaoui@ecole.fr", phone: "06 34 56 78 90" },
+    { name: "Ustadha Aisha Bennani", email: "aisha.bennani@ecole.fr", phone: "06 45 67 89 01" },
+    { name: "Ustadh Youssef Talbi", email: "youssef.talbi@ecole.fr", phone: "06 56 78 90 12" },
+  ],
+
+  rooms: [
+    { name: "Salle Al-Fatiha", capacity: 15, location: "Rez-de-chaussée" },
+    { name: "Salle Al-Baqarah", capacity: 20, location: "1er étage" },
+    { name: "Salle An-Nour", capacity: 12, location: "1er étage" },
+    { name: "Salle As-Sabr", capacity: 18, location: "2ème étage" },
+    { name: "Salle Al-Hikmah", capacity: 25, location: "2ème étage" },
+  ],
+
+  courses: [
+    // Cours d'Arabe
+    {
+      name: "Arabe 1",
+      label: "Arabe Débutant",
+      type: "enfants",
+      category: "Arabe",
+      description: "Initiation à l'alphabet arabe et premiers mots",
+    },
+    {
+      name: "Arabe 2",
+      label: "Arabe Élémentaire",
+      type: "enfants",
+      category: "Arabe",
+      description: "Lecture de mots simples et phrases courtes",
+    },
+    {
+      name: "Arabe 3",
+      label: "Arabe Intermédiaire",
+      type: "enfants",
+      category: "Arabe",
+      description: "Lecture fluide et expression écrite",
+    },
+    {
+      name: "Arabe Adulte 1",
+      label: "Arabe Adulte Débutant",
+      type: "adultes",
+      category: "Arabe",
+      description: "Apprentissage de l'arabe pour adultes",
+    },
+    {
+      name: "Arabe Adulte 2",
+      label: "Arabe Adulte Avancé",
+      type: "adultes",
+      category: "Arabe",
+      description: "Perfectionnement en arabe littéraire",
+    },
+
+    // Cours de Coran
+    {
+      name: "Coran 1",
+      label: "Coran Débutant",
+      type: "enfants",
+      category: "Coran",
+      description: "Apprentissage du Tajwid et courtes sourates",
+    },
+    {
+      name: "Coran 2",
+      label: "Coran Intermédiaire",
+      type: "enfants",
+      category: "Coran",
+      description: "Mémorisation et perfectionnement",
+    },
+    {
+      name: "Coran 3",
+      label: "Coran Avancé",
+      type: "enfants",
+      category: "Coran",
+      description: "Hafs et règles avancées",
+    },
+    {
+      name: "Coran Adulte",
+      label: "Coran pour Adultes",
+      type: "adultes",
+      category: "Coran",
+      description: "Lecture coranique et Tajwid pour adultes",
+    },
+
+    // Cours spécialisés
+    {
+      name: "Maternelle",
+      label: "Éveil Islamique",
+      type: "enfants",
+      category: "Maternelle",
+      description: "Éveil religieux pour les tout-petits",
+    },
+    {
+      name: "Soutien",
+      label: "Soutien Scolaire",
+      type: "enfants",
+      category: "Scolaire",
+      description: "Aide aux devoirs et soutien",
+    },
+  ],
+
+  // Noms de familles arabes/musulmanes réalistes
+  arabicFamilyNames: [
+    "Al-Maghribi",
+    "Benali",
+    "Zouaoui",
+    "Bennani",
+    "Talbi",
+    "El-Fassi",
+    "Alami",
+    "Berrada",
+    "Cherkaoui",
+    "Tazi",
+    "Bennaceur",
+    "Sebti",
+    "Andaloussi",
+    "Chraibi",
+    "Lahlou",
+    "Mekouar",
+  ],
+
+  arabicFirstNames: {
+    boys: [
+      "Ahmed",
+      "Mohammed",
+      "Omar",
+      "Youssef",
+      "Hamza",
+      "Adam",
+      "Ayoub",
+      "Ismail",
+      "Bilal",
+      "Zakaria",
+    ],
+    girls: [
+      "Fatima",
+      "Aisha",
+      "Khadija",
+      "Maryam",
+      "Hafsa",
+      "Zeinab",
+      "Salma",
+      "Nour",
+      "Aya",
+      "Lina",
+    ],
+  },
+
+  // Périodes de cours réalistes
+  schoolPeriods: [
+    { label: "2023-2024", start: "2023-09-01", end: "2024-06-30" },
+    { label: "2024-2025", start: "2024-09-01", end: "2025-06-30" },
+  ],
+};
 
 async function main() {
-  // ✅ ORDRE CORRIGÉ : supprimer d'abord les tables dépendantes
+  // Nettoyage (votre code existant est bon)
   const tablesToClean = [
-    
-    "schedules", // Dépend de courses, time_blocks, rooms
-    "registrations", // Dépend de students, course_instances, families, school_years
-    "payments", // Dépend de families, students
-    "appointments", // Dépend de students
-    "enrollments", // Dépend de students, courses
-    "course_instances", // Dépend de courses, teachers, rooms, time_slots
-    "courses", // Dépend de teachers, rooms, school_years
-    "students", // Dépend de families - MAINTENANT on peut les supprimer
-    "families", // MAINTENANT on peut les supprimer
-    "teachers", // Indépendant
-    "rooms", // Indépendant
-    "time_blocks", // Indépendant
-    "time_slots", // Indépendant
-    "school_years", // Indépendant
-    "appointment_days", // Indépendant
+    "schedules",
+    "registrations",
+    "payments",
+    "appointments",
+    "enrollments",
+    "course_instances",
+    "courses",
+    "students",
+    "families",
+    "teachers",
+    "rooms",
+    "time_blocks",
+    "time_slots",
+    "school_years",
+    "appointment_days",
   ];
 
   console.log("🧹 Cleaning up tables...");
   for (const t of tablesToClean) {
     try {
-      // Méthode plus agressive pour s'assurer que tout est supprimé
-      const { error, count } = await sb
-        .from(t)
-        .delete()
-        .neq("id", "00000000-0000-0000-0000-000000000000"); // UUID impossible
-
+      const { error } = await sb.from(t).delete().neq("id", "00000000-0000-0000-0000-000000000000");
       if (error) {
         console.error(`   ❌ Error cleaning ${t}:`, error);
-        // En cas d'erreur, essayer une approche différente
-        try {
-          await sb.from(t).delete().gt("created_at", "1900-01-01");
-        } catch (fallbackError) {
-          console.error(`   ❌ Fallback failed for ${t}:`, fallbackError);
-        }
       } else {
         console.log(`   ✅ Cleaned ${t}`);
       }
@@ -71,424 +207,209 @@ async function main() {
     }
   }
 
-  // Vérification que les tables sont vraiment vides
-  console.log("🔍 Verification of cleanup...");
-  const criticalTables = ["families", "students", "enrollments"];
-  for (const table of criticalTables) {
-    try {
-      const { count } = await sb.from(table).select("*", { count: "exact", head: true });
+  console.log("🌱 Inserting realistic data for Islamic school...");
 
-      if (count && count > 0) {
-        console.warn(`⚠️  ${table} still has ${count} rows after cleanup`);
-      } else {
-        console.log(`✅ ${table} is empty`);
-      }
-    } catch (error) {
-      console.error(`❌ Cannot verify ${table}:`, error);
-    }
-  }
-
-  console.log("Cleanup complete.");
-
-  console.log("Inserting data...");
-
-  let insertedFamilies: any[] = [];
-  let insertedTeachers: any[] = [];
-  let insertedRooms: any[] = [];
-  let insertedTimeBlocks: any[] = [];
-  let insertedSchoolYears: any[] = [];
-  let insertedStudents: any[] = [];
-  let insertedCourses: any[] = [];
-  let insertedSchedules: any[] = [];
-  let insertedEnrollments: any[] = [];
-  let insertedPayments: any[] = [];
-  let insertedAppointments: any[] = [];
-  let insertedCourseInstances: any[] = [];
-  let insertedRegistrations: any[] = [];
-  let insertedAppointmentDays: any[] = [];
-  let insertedTimeSlots: any[] = [];
-
-  // --- 1. Insert Families ---
-  const families = Array.from({ length: NUM_FAMILIES }).map(() => ({
+  // --- 1. Insert School Years ---
+  const schoolYears = REALISTIC_DATA.schoolPeriods.map(period => ({
     id: faker.string.uuid(),
-    first_name: faker.person.firstName(),
-    last_name: faker.person.lastName(),
-    email: faker.internet.email(),
-    phone: faker.phone.number(),
-    address: faker.location.streetAddress(),
-    postal_code: faker.location.zipCode(),
-    city: faker.location.city(),
+    label: period.label,
+    start_date: period.start,
+    end_date: period.end,
     created_at: new Date().toISOString(),
   }));
-  const { data: familiesData, error: familiesError } = await sb
-    .from("families")
-    .insert(families)
-    .select();
-  if (familiesError) console.error("Error inserting families:", familiesError);
-  else insertedFamilies = familiesData || [];
-  console.log(`   - Inserted ${insertedFamilies.length} families.`);
 
-  // --- 2. Insert Teachers ---
-  const teachers = Array.from({ length: NUM_TEACHERS }).map(() => ({
+  const { data: schoolYearsData } = await sb.from("school_years").insert(schoolYears).select();
+  console.log(`   📅 Inserted ${schoolYearsData?.length} school years`);
+
+  // --- 2. Insert Realistic Teachers ---
+  const teachers = REALISTIC_DATA.teachers.map(teacher => ({
     id: faker.string.uuid(),
-    full_name: faker.person.fullName(),
-    email: faker.internet.email(),
-    phone: faker.phone.number(),
+    full_name: teacher.name,
+    email: teacher.email,
+    phone: teacher.phone,
     created_at: new Date().toISOString(),
   }));
-  const { data: teachersData, error: teachersError } = await sb
-    .from("teachers")
-    .insert(teachers)
-    .select();
-  if (teachersError) console.error("Error inserting teachers:", teachersError);
-  else insertedTeachers = teachersData || [];
-  console.log(`   - Inserted ${insertedTeachers.length} teachers.`);
 
-  // --- 3. Insert Rooms ---
-  const rooms = Array.from({ length: NUM_ROOMS }).map((_, i) => ({
+  const { data: teachersData } = await sb.from("teachers").insert(teachers).select();
+  console.log(`   👨‍🏫 Inserted ${teachersData?.length} teachers`);
+
+  // --- 3. Insert Realistic Rooms ---
+  const rooms = REALISTIC_DATA.rooms.map(room => ({
     id: faker.string.uuid(),
-    name: `Salle ${i + 1} - ${faker.word.adjective()}`,
-    capacity: faker.number.int({ min: 10, max: 30 }),
-    location: faker.location.city(),
+    name: room.name,
+    capacity: room.capacity,
+    location: room.location,
     created_at: new Date().toISOString(),
   }));
-  const { data: roomsData, error: roomsError } = await sb.from("rooms").insert(rooms).select();
-  if (roomsError) console.error("Error inserting rooms:", roomsError);
-  else insertedRooms = roomsData || [];
-  console.log(`   - Inserted ${insertedRooms.length} rooms.`);
 
-  // --- 4. Insert Time Blocks ---
-  const weekdays = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
-  const timeBlocks = Array.from({ length: NUM_TIME_BLOCKS }).map((_, i) => ({
-    id: faker.string.uuid(),
-    weekday: faker.helpers.arrayElement(weekdays),
-    start_time: `${faker.number.int({ min: 8, max: 12 })}:00:00`,
-    end_time: `${faker.number.int({ min: 13, max: 18 })}:00:00`,
-    created_at: new Date().toISOString(),
-  }));
-  const { data: timeBlocksData, error: timeBlocksError } = await sb
-    .from("time_blocks")
-    .insert(timeBlocks)
-    .select();
-  if (timeBlocksError) console.error("Error inserting time_blocks:", timeBlocksError);
-  else insertedTimeBlocks = timeBlocksData || [];
-  console.log(`   - Inserted ${insertedTimeBlocks.length} time_blocks.`);
+  const { data: roomsData } = await sb.from("rooms").insert(rooms).select();
+  console.log(`   🏫 Inserted ${roomsData?.length} rooms`);
 
-  // --- 5. Insert School Years ---
-  const schoolYears = Array.from({ length: NUM_SCHOOL_YEARS }).map(() => {
-    const start = faker.date.past({ years: 1 });
-    const end = faker.date.future({ years: 1, refDate: start });
+  // --- 4. Insert Realistic Families ---
+  const families = Array.from({ length: NUM_FAMILIES }).map(() => {
+    const familyName = faker.helpers.arrayElement(REALISTIC_DATA.arabicFamilyNames);
+    const fatherName = faker.helpers.arrayElement(REALISTIC_DATA.arabicFirstNames.boys);
+
     return {
       id: faker.string.uuid(),
-      label: `${start.getFullYear()}-${end.getFullYear()}`,
-      start_date: start.toISOString().split("T")[0],
-      end_date: end.toISOString().split("T")[0],
+      first_name: fatherName,
+      last_name: familyName,
+      email: `${fatherName.toLowerCase()}.${familyName.toLowerCase().replace("-", "")}@gmail.com`,
+      phone: `06 ${faker.string.numeric(2)} ${faker.string.numeric(2)} ${faker.string.numeric(2)} ${faker.string.numeric(2)}`,
+      address: `${faker.location.streetAddress()}, ${faker.location.city()}`,
+      postal_code: faker.location.zipCode(),
+      city: faker.helpers.arrayElement(["Paris", "Lyon", "Marseille", "Lille", "Toulouse"]),
       created_at: new Date().toISOString(),
     };
   });
-  const { data: schoolYearsData, error: schoolYearsError } = await sb
-    .from("school_years")
-    .insert(schoolYears)
-    .select();
-  if (schoolYearsError) console.error("Error inserting school_years:", schoolYearsError);
-  else insertedSchoolYears = schoolYearsData || [];
-  console.log(`   - Inserted ${insertedSchoolYears.length} school_years.`);
 
-  // --- 6. Insert Students (dependent on Families) ---
-  if (insertedFamilies.length > 0) {
-    const students = insertedFamilies.flatMap(family => {
-      const familyStudents: any[] = [];
-      for (let i = 0; i < NUM_STUDENTS_PER_FAMILY; i++) {
-        const birthDate = faker.date.birthdate({ min: 3, max: 60, mode: "age" });
-        familyStudents.push({
-          id: faker.string.uuid(),
-          family_id: family.id,
-          last_name: family.last_name, // Use family's last name for consistency
-          first_name: faker.person.firstName(),
-          birth_date: birthDate.toISOString().split("T")[0],
-          level: faker.helpers.arrayElement(["Débutant", "Intermédiaire", "Avancé", null]),
-          registration_type:
-            birthDate.getFullYear() > new Date().getFullYear() - 14 ? "child" : "adult",
-          already_registered: faker.datatype.boolean(),
-          notes: faker.lorem.sentence(),
-          created_at: new Date().toISOString(),
-        });
-      }
-      return familyStudents;
+  const { data: familiesData } = await sb.from("families").insert(families).select();
+  console.log(`   👨‍👩‍👧‍👦 Inserted ${familiesData?.length} families`);
+
+  // --- 5. Insert Realistic Courses ---
+  const courses = REALISTIC_DATA.courses.map(course => ({
+    id: faker.string.uuid(),
+    name: course.name,
+    label: course.label,
+    type: course.type,
+    category: course.category,
+    teacher_id: faker.helpers.arrayElement(teachersData!).id,
+    room_id: faker.helpers.arrayElement(roomsData!).id,
+    school_year_id: faker.helpers.arrayElement(schoolYearsData!).id,
+    schedule: `${faker.helpers.arrayElement(["Mercredi", "Samedi", "Dimanche"])} ${faker.helpers.arrayElement(["9h-11h", "14h-16h", "16h-18h"])}`,
+    capacity: faker.number.int({ min: 12, max: 20 }),
+    price: STANDARD_PRICE, // Prix fixe
+    status: "active",
+    audience: faker.helpers.arrayElement(["Hommes", "Femmes", "Mixte"]),
+    created_at: new Date().toISOString(),
+  }));
+
+  const { data: coursesData } = await sb.from("courses").insert(courses).select();
+  console.log(`   📚 Inserted ${coursesData?.length} courses`);
+
+  // --- 6. Insert Realistic Students ---
+  const students = familiesData!.flatMap(family => {
+    const numStudents = faker.number.int({ min: 1, max: 3 });
+    const familyStudents = [];
+
+    for (let i = 0; i < numStudents; i++) {
+      const isGirl = faker.datatype.boolean();
+      const firstName = isGirl
+        ? faker.helpers.arrayElement(REALISTIC_DATA.arabicFirstNames.girls)
+        : faker.helpers.arrayElement(REALISTIC_DATA.arabicFirstNames.boys);
+
+      const age = faker.number.int({ min: 4, max: 16 });
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - age);
+
+      familyStudents.push({
+        id: faker.string.uuid(),
+        family_id: family.id,
+        first_name: firstName,
+        last_name: family.last_name,
+        birth_date: birthDate.toISOString().split("T")[0],
+        registration_type: age < 14 ? "child" : "adult",
+        level: faker.helpers.arrayElement(["Débutant", "Élémentaire", "Intermédiaire", "Avancé"]),
+        already_registered: faker.datatype.boolean({ probability: 0.3 }),
+        notes: faker.helpers.arrayElement([
+          "Élève assidu et motivé",
+          "Besoin d'encouragements",
+          "Très bon niveau",
+          "Première année",
+          "",
+        ]),
+        created_at: faker.date
+          .between({
+            from: new Date("2023-09-01"),
+            to: new Date(),
+          })
+          .toISOString(),
+      });
+    }
+
+    return familyStudents;
+  });
+
+  const { data: studentsData } = await sb.from("students").insert(students).select();
+  console.log(`   🎓 Inserted ${studentsData?.length} students`);
+
+  // --- 7. Insert Realistic Enrollments (avec historique) ---
+  type EnrollmentToInsert = {
+    id: string;
+    student_id: string;
+    course_id: string;
+    start_date: string;
+    end_date: string | null;
+    status: "active" | "finished";
+    created_at: string;
+  };
+
+  const enrollments = studentsData!.flatMap(student => {
+    const studentAge = new Date().getFullYear() - new Date(student.birth_date).getFullYear();
+    const studentEnrollments: EnrollmentToInsert[] = [];
+
+    // Cours appropriés selon l'âge et le type
+    const appropriateCourses = coursesData!.filter(course => {
+      if (studentAge <= 6) return course.category === "Maternelle";
+      if (studentAge >= 14) return course.type === "adultes";
+      return course.type === "enfants";
     });
-    const { data: studentsData, error: studentsError } = await sb
-      .from("students")
-      .insert(students)
-      .select();
-    if (studentsError) console.error("Error inserting students:", studentsError);
-    else insertedStudents = studentsData || [];
-  }
-  console.log(`   - Inserted ${insertedStudents.length} students.`);
 
-  // --- 7. Insert Courses (dependent on Rooms, Teachers, School Years) ---
-  if (insertedTeachers.length > 0 && insertedRooms.length > 0 && insertedSchoolYears.length > 0) {
-    const courses = Array.from({ length: NUM_COURSES }).map(() => ({
-      id: faker.string.uuid(),
-      name: faker.word.words({ count: 2 }),
-      type: faker.helpers.arrayElement(["enfants", "adultes"]),
-      teacher_id: faker.helpers.arrayElement(insertedTeachers).id,
-      room_id: faker.helpers.arrayElement(insertedRooms).id,
-      schedule: faker.lorem.sentence(3), // Simplified schedule description
-      capacity: faker.number.int({ min: 5, max: 20 }),
-      price: faker.number.float({ min: 100, max: 500, fractionDigits: 2 }),
-      status: faker.helpers.arrayElement(["active", "inactive"]),
-      label: faker.commerce.productAdjective() + " " + faker.commerce.product(),
-      category: faker.helpers.arrayElement(["Arabe", "Coran", "Maternelle", "Scolaire"]),
-      audience: faker.helpers.arrayElement(["Hommes", "Femmes", "Mixte"]),
-      school_year_id: faker.helpers.arrayElement(insertedSchoolYears).id,
-      created_at: new Date().toISOString(),
-    }));
-    const { data: coursesData, error: coursesError } = await sb
-      .from("courses")
-      .insert(courses)
-      .select();
-    if (coursesError) console.error("Error inserting courses:", coursesError);
-    else insertedCourses = coursesData || [];
-  }
-  console.log(`   - Inserted ${insertedCourses.length} courses.`);
+    // Nombre de cours selon l'âge (1-3 cours)
+    const numCourses = studentAge <= 6 ? 1 : faker.number.int({ min: 1, max: 3 });
+    const selectedCourses = faker.helpers.arrayElements(appropriateCourses, numCourses);
 
-  // --- 8. Insert Schedules (dependent on Courses, Time Blocks, Rooms) ---
-  if (insertedCourses.length > 0 && insertedTimeBlocks.length > 0 && insertedRooms.length > 0) {
-    const schedules = insertedCourses.map(course => ({
-      id: faker.string.uuid(),
-      course_id: course.id,
-      time_block_id: faker.helpers.arrayElement(insertedTimeBlocks).id,
-      room_id: faker.helpers.arrayElement(insertedRooms).id,
-      created_at: new Date().toISOString(),
-    }));
-    const { data: schedulesData, error: schedulesError } = await sb
-      .from("schedules")
-      .insert(schedules)
-      .select();
-    if (schedulesError) console.error("Error inserting schedules:", schedulesError);
-    else insertedSchedules = schedulesData || [];
-  }
-  console.log(`   - Inserted ${insertedSchedules.length} schedules.`);
+    selectedCourses.forEach(course => {
+      // Cours actuel (année 2024-2025)
+      studentEnrollments.push({
+        id: faker.string.uuid(),
+        student_id: student.id,
+        course_id: course.id,
+        start_date: "2024-09-01",
+        end_date: null,
+        status: "active",
+        created_at: new Date().toISOString(),
+      });
 
-  // --- 9. Insert Enrollments (dependent on Students, Courses) ---
-  if (insertedStudents.length > 0 && insertedCourses.length > 0) {
-    const enrollmentsToInsert = insertedStudents.flatMap(student => {
-      const studentEnrollments: any[] = [];
-      for (let i = 0; i < NUM_ENROLLMENTS_PER_STUDENT; i++) {
+      // Historique (année précédente) pour 40% des étudiants
+      if (faker.datatype.boolean({ probability: 0.4 })) {
         studentEnrollments.push({
           id: faker.string.uuid(),
           student_id: student.id,
-          course_id: faker.helpers.arrayElement(insertedCourses).id,
-          start_date: faker.date.past({ years: 1 }).toISOString().split("T")[0],
-          end_date: faker.helpers.arrayElement([
-            null,
-            faker.date.future({ years: 1 }).toISOString().split("T")[0],
-          ]),
-          status: faker.helpers.arrayElement(["active", "finished"]),
-          created_at: new Date().toISOString(),
+          course_id: course.id,
+          start_date: "2023-09-01",
+          end_date: "2024-06-30",
+          status: "finished",
+          created_at: new Date("2023-09-01").toISOString(),
         });
       }
-      return studentEnrollments;
     });
-    const { data: enrollmentsData, error: enrollmentsError } = await sb
-      .from("enrollments")
-      .insert(enrollmentsToInsert)
-      .select();
-    if (enrollmentsError) console.error("Error inserting enrollments:", enrollmentsError);
-    else insertedEnrollments = enrollmentsData || [];
-  }
-  console.log(`   - Inserted ${insertedEnrollments.length} enrollments.`);
 
-  // --- 10. Insert Payments (dependent on Families, Students) ---
-  if (insertedFamilies.length > 0 && insertedStudents.length > 0) {
-    const paymentsToInsert = insertedFamilies.flatMap(family => {
-      const familyPayments: any[] = [];
-      for (let i = 0; i < NUM_PAYMENTS_PER_FAMILY; i++) {
-        const studentsInFamily = insertedStudents.filter(s => s.family_id === family.id);
-        const studentForPayment =
-          studentsInFamily.length > 0 ? faker.helpers.arrayElement(studentsInFamily) : null;
+    return studentEnrollments;
+  });
 
-        familyPayments.push({
-          id: faker.string.uuid(),
-          family_id: family.id,
-          student_id: studentForPayment ? studentForPayment.id : null,
-          amount_cash: faker.number.float({ min: 0, max: 200, fractionDigits: 2 }),
-          amount_card: faker.number.float({ min: 0, max: 200, fractionDigits: 2 }),
-          amount_transfer: faker.number.float({ min: 0, max: 200, fractionDigits: 2 }),
-          refund_amount: faker.number.float({ min: 0, max: 50, fractionDigits: 2 }),
-          cheques: JSON.stringify(
-            faker.helpers.arrayElements(
-              [
-                {
-                  nom: faker.person.lastName(),
-                  count: faker.number.int({ min: 1, max: 3 }),
-                  amount: faker.number.float({ min: 50, max: 150, fractionDigits: 2 }),
-                  banque: faker.company.name(),
-                },
-                {
-                  nom: faker.person.lastName(),
-                  count: faker.number.int({ min: 1, max: 3 }),
-                  amount: faker.number.float({ min: 50, max: 150, fractionDigits: 2 }),
-                  banque: faker.company.name(),
-                },
-              ],
-              { min: 0, max: 2 }
-            )
-          ),
-          remarks: faker.helpers.arrayElement([faker.lorem.sentence(), null]),
-          created_at: new Date().toISOString(),
-        });
-      }
-      return familyPayments;
-    });
-    const { data: paymentsData, error: paymentsError } = await sb
-      .from("payments")
-      .insert(paymentsToInsert)
-      .select();
-    if (paymentsError) console.error("Error inserting payments:", paymentsError);
-    else insertedPayments = paymentsData || [];
-  }
-  console.log(`   - Inserted ${insertedPayments.length} payments.`);
+  const { data: enrollmentsData } = await sb.from("enrollments").insert(enrollments).select();
+  console.log(`   📝 Inserted ${enrollmentsData?.length} enrollments (with history)`);
 
-  // --- 11. Insert Appointments (dependent on Students) ---
-  if (insertedStudents.length > 0) {
-    const appointmentsToInsert = insertedStudents.flatMap(student => {
-      const studentAppointments: any[] = [];
-      for (let i = 0; i < NUM_APPOINTMENTS_PER_STUDENT; i++) {
-        studentAppointments.push({
-          id: faker.string.uuid(),
-          student_id: student.id,
-          date: faker.date.future({ years: 1 }).toISOString().split("T")[0],
-          time: faker.date
-            .anytime()
-            .toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-          created_at: new Date().toISOString(),
-        });
-      }
-      return studentAppointments;
-    });
-    const { data: appointmentsData, error: appointmentsError } = await sb
-      .from("appointments")
-      .insert(appointmentsToInsert)
-      .select();
-    if (appointmentsError) console.error("Error inserting appointments:", appointmentsError);
-    else insertedAppointments = appointmentsData || [];
-  }
-  console.log(`   - Inserted ${insertedAppointments.length} appointments.`);
-
-  // --- 12. Insert Time Slots (now generating data) ---
-  const daysOfWeek = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
-  const timeSlots = Array.from({ length: NUM_TIME_SLOTS }).map(() => ({
-    id: faker.string.uuid(),
-    day: faker.helpers.arrayElement(daysOfWeek),
-    start_time: `${faker.number.int({ min: 8, max: 12 })}:00:00`,
-    end_time: `${faker.number.int({ min: 13, max: 18 })}:00:00`,
-    created_at: new Date().toISOString(),
-  }));
-  const { data: timeSlotsData, error: timeSlotsError } = await sb
-    .from("time_slots")
-    .insert(timeSlots)
-    .select();
-  if (timeSlotsError) console.error("Error inserting time_slots:", timeSlotsError);
-  else insertedTimeSlots = timeSlotsData || [];
-  console.log(`   - Inserted ${insertedTimeSlots.length} time_slots.`);
-
-  // --- 13. Insert Course Instances (dependent on Courses, Teachers, Rooms, Time Slots) ---
-  if (
-    insertedCourses.length > 0 &&
-    insertedTeachers.length > 0 &&
-    insertedRooms.length > 0 &&
-    insertedTimeSlots.length > 0
-  ) {
-    const courseInstancesToInsert = Array.from({ length: NUM_COURSE_INSTANCES }).map(() => ({
-      id: faker.string.uuid(),
-      course_id: faker.helpers.arrayElement(insertedCourses).id,
-      teacher_id: faker.helpers.arrayElement(insertedTeachers).id,
-      room_id: faker.helpers.arrayElement(insertedRooms).id,
-      time_slot_id: faker.helpers.arrayElement(insertedTimeSlots).id,
-      capacity: faker.number.int({ min: 10, max: 25 }),
-      price: faker.number.float({ min: 50, max: 300, fractionDigits: 2 }),
-      status: faker.helpers.arrayElement(["active", "archived"]),
-      created_at: new Date().toISOString(),
-    }));
-    const { data: courseInstancesData, error: courseInstancesError } = await sb
-      .from("course_instances")
-      .insert(courseInstancesToInsert)
-      .select();
-    if (courseInstancesError)
-      console.error("Error inserting course_instances:", courseInstancesError);
-    else insertedCourseInstances = courseInstancesData || [];
-  }
-  console.log(`   - Inserted ${insertedCourseInstances.length} course_instances.`);
-
-  // --- 14. Insert Appointment Days (now generating data) ---
-  const appointmentDays = Array.from({ length: NUM_APPOINTMENT_DAYS }).map(() => ({
-    id: faker.string.uuid(),
-    date: faker.date.future({ years: 1 }).toISOString().split("T")[0],
-    is_active: faker.datatype.boolean(),
-    created_at: new Date().toISOString(),
-  }));
-  const { data: appointmentDaysData, error: appointmentDaysError } = await sb
-    .from("appointment_days")
-    .insert(appointmentDays)
-    .select();
-  if (appointmentDaysError)
-    console.error("Error inserting appointment_days:", appointmentDaysError);
-  else insertedAppointmentDays = appointmentDaysData || [];
-  console.log(`   - Inserted ${insertedAppointmentDays.length} appointment_days.`);
-
-  // --- 15. Insert Registrations (dependent on Students, Course Instances, Families, School Years, Appointment Days) ---
-  if (
-    insertedStudents.length > 0 &&
-    insertedCourseInstances.length > 0 &&
-    insertedFamilies.length > 0 &&
-    insertedSchoolYears.length > 0
-  ) {
-    const registrationsToInsert = insertedStudents.flatMap(student => {
-      const studentRegistrations: any[] = [];
-      for (let i = 0; i < NUM_REGISTRATIONS / insertedStudents.length; i++) {
-        // Distribute registrations across students
-        studentRegistrations.push({
-          id: faker.string.uuid(),
-          student_id: student.id,
-          course_instance_id: faker.helpers.arrayElement(insertedCourseInstances).id,
-          is_waiting_list: faker.datatype.boolean(),
-          created_at: new Date().toISOString(),
-          status: faker.helpers.arrayElement(["pending", "approved", "rejected"]),
-          family_id: student.family_id,
-          school_year_id: faker.helpers.arrayElement(insertedSchoolYears).id,
-          appointment_day: faker.helpers.arrayElement([
-            faker.date.future({ years: 1 }).toISOString().split("T")[0],
-            null,
-          ]),
-        });
-      }
-      return studentRegistrations;
-    });
-    const { data: registrationsData, error: registrationsError } = await sb
-      .from("registrations")
-      .insert(registrationsToInsert)
-      .select();
-    if (registrationsError) console.error("Error inserting registrations:", registrationsError);
-    else insertedRegistrations = registrationsData || [];
-  }
-  console.log(`   - Inserted ${insertedRegistrations.length} registrations.`);
-
-  // --- 16. Insert Settings ---
+  // --- 8. Insert Settings ---
   const settings = [
     { key: "course_discount", value: JSON.stringify({ mode: "cumulative", step: 25, startAt: 3 }) },
   ];
 
-  const { error: settingsError } = await sb
-    .from("settings")
-    .upsert(settings, { onConflict: "key" }); // Remplace si existe déjà
+  await sb.from("settings").upsert(settings, { onConflict: "key" });
+  console.log(`   ⚙️ Upserted settings`);
 
-  if (settingsError) {
-    console.error("Error upserting settings:", settingsError);
-  } else {
-    console.log(`   - Upserted ${settings.length} settings.`);
-  }
-  console.log("✅ Seed complete.");
+  console.log("✅ Realistic Islamic school data seeded successfully!");
+  console.log(`
+📊 Summary:
+   - ${familiesData?.length} families with realistic Arabic names
+   - ${studentsData?.length} students (aged 4-16)
+   - ${coursesData?.length} courses (Arabe 1-3, Coran 1-3, etc.)
+   - ${enrollmentsData?.length} enrollments with historical data
+   - Fixed price: ${STANDARD_PRICE}€ for all courses
+   - 2 school years (2023-2024, 2024-2025)
+  `);
+
   process.exit(0);
 }
 
