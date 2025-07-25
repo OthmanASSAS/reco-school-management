@@ -181,7 +181,7 @@ export default function FamiliesTable({
                     <div className="flex justify-center space-x-1">
                       <Button variant="outline" size="sm" title="Voir les détails" asChild>
                         <Link href={`/families/${f.id}/edit`}>
-                          <Eye size={14} />
+                          <Edit size={14} />
                         </Link>
                       </Button>
                       <Button
@@ -203,7 +203,7 @@ export default function FamiliesTable({
                           });
                         }}
                       >
-                        <Edit size={14} />
+                        <Eye size={14} />
                       </Button>
                       <Button
                         variant="destructive"
