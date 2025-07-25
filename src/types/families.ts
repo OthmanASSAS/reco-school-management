@@ -1,3 +1,5 @@
+import { MemberFormFieldsProps } from "@/app/(admin)/families/[id]/edit/page";
+
 export interface Course {
   id: string;
   name: string;
@@ -22,7 +24,7 @@ export interface Student {
   first_name: string;
   last_name: string;
   birth_date: string;
-  registration_type: string;
+  registration_type: MemberFormFieldsProps["memberType"];
   level?: string;
   notes?: string;
   enrollments: Enrollment[];

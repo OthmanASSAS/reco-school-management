@@ -78,7 +78,7 @@ export default function FamiliesTable({
                     asChild
                   >
                     <Link href={`/families/${f.id}/edit`}>
-                      <Eye size={16} />
+                      <Edit size={16} />
                     </Link>
                   </Button>
                   <Button
@@ -98,11 +98,11 @@ export default function FamiliesTable({
                     onClick={() => {
                       toast({
                         title: "Fonctionnalité à venir",
-                        description: "La modification des familles sera bientôt disponible.",
+                        description: "Fonctionnalité bientôt disponible.",
                       });
                     }}
                   >
-                    <Edit size={16} />
+                    <Eye size={16} />
                   </Button>
                   <Button
                     variant="ghost"

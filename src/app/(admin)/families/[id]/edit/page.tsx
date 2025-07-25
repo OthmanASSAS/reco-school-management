@@ -164,7 +164,7 @@ export default function EditFamilyPage() {
   const [selectedCourses, setSelectedCourses] = React.useState<string[]>([]);
   const [courseSearch, setCourseSearch] = React.useState("");
   const [popoverOpen, setPopoverOpen] = React.useState(false);
-  const [memberType, setMemberType] = React.useState("child");
+  const [memberType, setMemberType] = React.useState<MemberFormFieldsProps["memberType"]>("child");
 
   // State contrôlé pour le formulaire d'ajout/modification de membre
   const [memberForm, setMemberForm] = React.useState<{
@@ -404,7 +404,6 @@ export default function EditFamilyPage() {
                     {student.enrollments && student.enrollments.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {student.enrollments.map((enrollment: Enrollment) => {
-                          console.log({ enrollment });
                           if (enrollment.status === "active") {
                             return (
                               <Badge
@@ -580,7 +579,7 @@ interface MemberForm {
   birthDate: string;
 }
 
-interface MemberFormFieldsProps {
+export interface MemberFormFieldsProps {
   memberForm: MemberForm;
   setMemberForm: React.Dispatch<React.SetStateAction<MemberForm>>;
   memberType: "child" | "adult";
