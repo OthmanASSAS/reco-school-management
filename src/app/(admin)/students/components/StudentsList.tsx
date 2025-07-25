@@ -178,6 +178,7 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
     if (!window.confirm("Êtes-vous sûr de vouloir terminer ce cours ?")) return;
 
     try {
+      // 1. Met à jour dans Supabase
       const { error } = await supabase
         .from("enrollments")
         .update({
@@ -196,36 +197,53 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
         return;
       }
 
-      // Mettre à jour l'étudiant localement
-      console.log({ selectedStudent });
-      if (selectedStudent) {
-        setStudents(currentStudents =>
-          currentStudents.map(student => {
-            if (student.id === selectedStudent.id) {
-              const updatedEnrollments = student.enrollments.map(e =>
-                e.id === enrollmentId ? { ...e, status: "finished" } : e
-              );
-              const updatedActiveEnrollments = student.activeEnrollments.filter(
-                e => e.id !== enrollmentId
-              );
-              const updatedFinishedEnrollments = [
-                ...student.finishedEnrollments,
-                updatedEnrollments.find(e => e.id === enrollmentId)!,
-              ];
-              return {
-                ...student,
-                enrollments: updatedEnrollments,
-                activeEnrollments: updatedActiveEnrollments,
-                finishedEnrollments: updatedFinishedEnrollments,
-                activeCoursesCount: updatedActiveEnrollments.length,
-                hasHistory: true,
-                hasMultipleCourses: updatedActiveEnrollments.length > 1,
-                course: updatedActiveEnrollments[0]?.courses.name || "Non assigné",
-              };
-            }
-            return student;
-          })
+      // 2. Met à jour la liste globale des étudiants
+      setStudents(currentStudents =>
+        currentStudents.map(student => {
+          if (student.enrollments.some(e => e.id === enrollmentId)) {
+            const updatedEnrollments = student.enrollments.map(e =>
+              e.id === enrollmentId ? { ...e, status: "finished" } : e
+            );
+
+            const updatedActiveEnrollments = updatedEnrollments.filter(e => e.status === "active");
+            const updatedFinishedEnrollments = updatedEnrollments.filter(
+              e => e.status === "finished"
+            );
+
+            return {
+              ...student,
+              enrollments: updatedEnrollments,
+              activeEnrollments: updatedActiveEnrollments,
+              finishedEnrollments: updatedFinishedEnrollments,
+              activeCoursesCount: updatedActiveEnrollments.length,
+              hasMultipleCourses: updatedActiveEnrollments.length > 1,
+              hasHistory: updatedFinishedEnrollments.length > 0,
+              course: updatedActiveEnrollments[0]?.courses?.name || "Non assigné",
+            };
+          }
+          return student;
+        })
+      );
+
+      // 3. Met à jour l'étudiant affiché dans la modale
+      if (selectedStudent?.enrollments.some(e => e.id === enrollmentId)) {
+        const updatedEnrollments = selectedStudent.enrollments.map(e =>
+          e.id === enrollmentId ? { ...e, status: "finished" } : e
         );
+
+        const updatedActiveEnrollments = updatedEnrollments.filter(e => e.status === "active");
+        const updatedFinishedEnrollments = updatedEnrollments.filter(e => e.status === "finished");
+
+        setSelectedStudent({
+          ...selectedStudent,
+          enrollments: updatedEnrollments,
+          activeEnrollments: updatedActiveEnrollments,
+          finishedEnrollments: updatedFinishedEnrollments,
+          activeCoursesCount: updatedActiveEnrollments.length,
+          hasMultipleCourses: updatedActiveEnrollments.length > 1,
+          hasHistory: updatedFinishedEnrollments.length > 0,
+          course: updatedActiveEnrollments[0]?.courses?.name || "Non assigné",
+        });
       }
 
       toast({

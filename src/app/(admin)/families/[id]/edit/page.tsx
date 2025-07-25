@@ -379,65 +379,62 @@ export default function EditFamilyPage() {
           {/* Liste des étudiants existants */}
           {family.students && family.students.length > 0 ? (
             <div className="space-y-2">
-              {family.students.map((student: Student) => {
-                console.log({ student });
-                return (
-                  <div
-                    key={student.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium">
-                          {student.first_name} {student.last_name}
-                        </span>
-                        <Badge
-                          className="text-xs"
-                          variant={student.registration_type === "child" ? "default" : "secondary"}
-                        >
-                          {student.registration_type === "child" ? "Enfant" : "Adulte"}
-                        </Badge>
-                      </div>
-                      {student.birth_date && (
-                        <p className="text-sm text-gray-500">
-                          Né(e) le {new Date(student.birth_date).toLocaleDateString("fr-FR")}
-                        </p>
-                      )}
-                      {student.enrollments && student.enrollments.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {student.enrollments.map((enrollment: Enrollment) => {
-                            console.log({ enrollment });
-                            if (enrollment.status === "active") {
-                              return (
-                                <Badge
-                                  key={enrollment.course_id}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {enrollment.courses?.label || enrollment.courses?.name}
-                                </Badge>
-                              );
-                            }
-                          })}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditMember(student)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteMember(student)}
-                        className="text-red-600 hover:text-red-700"
+              {family.students.map((student: Student) => (
+                <div
+                  key={student.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium">
+                        {student.first_name} {student.last_name}
+                      </span>
+                      <Badge
+                        className="text-xs"
+                        variant={student.registration_type === "child" ? "default" : "secondary"}
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                        {student.registration_type === "child" ? "Enfant" : "Adulte"}
+                      </Badge>
                     </div>
+                    {student.birth_date && (
+                      <p className="text-sm text-gray-500">
+                        Né(e) le {new Date(student.birth_date).toLocaleDateString("fr-FR")}
+                      </p>
+                    )}
+                    {student.enrollments && student.enrollments.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {student.enrollments.map((enrollment: Enrollment) => {
+                          console.log({ enrollment });
+                          if (enrollment.status === "active") {
+                            return (
+                              <Badge
+                                key={enrollment.course_id}
+                                variant="outline"
+                                className="text-xs"
+                              >
+                                {enrollment.courses?.label || enrollment.courses?.name}
+                              </Badge>
+                            );
+                          }
+                        })}
+                      </div>
+                    )}
                   </div>
-                );
-              })}
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleEditMember(student)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteMember(student)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <p className="text-gray-500">Aucun membre dans cette famille</p>

@@ -78,7 +78,7 @@ export default function CourseDiscountSettingsForm() {
             name="startAt"
             type="number"
             min={1}
-            value={settings.startAt}
+            value={settings.startAt || ""}
             onChange={handleChange}
             className="mt-1"
             disabled={loading}

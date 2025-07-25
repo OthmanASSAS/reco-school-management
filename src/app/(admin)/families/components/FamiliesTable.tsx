@@ -61,7 +61,7 @@ export default function FamiliesTable({
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
-                    {f.first_name} {f.last_name.toUpperCase()}
+                    Famille {f.last_name.toUpperCase()}
                   </CardTitle>
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className="text-xs">
