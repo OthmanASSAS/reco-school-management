@@ -11,6 +11,8 @@ import Link from "next/link";
 
 interface FamiliesTableProps {
   families: Family[];
+  schoolYears: any[];
+  currentSchoolYear: string | null;
   onPaymentManagement: (family: Family) => void;
   onFamilyDetails: (family: Family) => void;
   onRefresh: () => void;
@@ -19,6 +21,8 @@ interface FamiliesTableProps {
 
 export default function FamiliesTable({
   families,
+  schoolYears,
+  currentSchoolYear,
   onPaymentManagement,
   onFamilyDetails,
   onRefresh,
@@ -67,6 +71,20 @@ export default function FamiliesTable({
                     <Badge variant="outline" className="text-xs">
                       {f.students.length} étudiant{f.students.length > 1 ? "s" : ""}
                     </Badge>
+                    {/* Badge année scolaire */}
+                    {currentSchoolYear &&
+                      (() => {
+                        // Afficher l'année sélectionnée
+                        const selectedYearLabel = schoolYears.find(
+                          y => y.id === currentSchoolYear
+                        )?.label;
+
+                        return selectedYearLabel ? (
+                          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                            {selectedYearLabel}
+                          </Badge>
+                        ) : null;
+                      })()}
                   </div>
                 </div>
                 <div className="flex gap-1">

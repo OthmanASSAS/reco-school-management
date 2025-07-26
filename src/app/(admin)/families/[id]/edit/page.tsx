@@ -403,11 +403,11 @@ export default function EditFamilyPage() {
                     )}
                     {student.enrollments && student.enrollments.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {student.enrollments.map((enrollment: Enrollment) => {
+                        {student.enrollments.map((enrollment: Enrollment, index: number) => {
                           if (enrollment.status === "active") {
                             return (
                               <Badge
-                                key={enrollment.course_id}
+                                key={`${enrollment.id || "no-id"}-${enrollment.course_id || "no-course"}-${index}`}
                                 variant="outline"
                                 className="text-xs"
                               >
@@ -415,6 +415,7 @@ export default function EditFamilyPage() {
                               </Badge>
                             );
                           }
+                          return null;
                         })}
                       </div>
                     )}
@@ -629,7 +630,7 @@ function MemberFormFields({
         onChange={e => setMemberForm(f => ({ ...f, birthDate: e.target.value }))}
       />
       <label className="block text-sm font-medium mb-1">Type</label>
-      <Select onValueChange={setMemberType} value={memberType}>
+      <Select onValueChange={value => setMemberType(value as "child" | "adult")} value={memberType}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Type de membre" />
         </SelectTrigger>

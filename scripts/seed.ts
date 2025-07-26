@@ -166,10 +166,12 @@ const REALISTIC_DATA = {
     ],
   },
 
-  // Périodes de cours réalistes
+  // Périodes de cours réalistes - 4 années pour tester le filtrage
   schoolPeriods: [
+    { label: "2022-2023", start: "2022-09-01", end: "2023-06-30" },
     { label: "2023-2024", start: "2023-09-01", end: "2024-06-30" },
     { label: "2024-2025", start: "2024-09-01", end: "2025-06-30" },
+    { label: "2025-2026", start: "2025-09-01", end: "2026-06-30" },
   ],
 };
 
@@ -396,9 +398,51 @@ async function main() {
     created_at: string;
   };
 
-  const enrollments = studentsData!.flatMap(student => {
+  // Répartir les familles sur les différentes années scolaires
+  // Certaines familles restent plusieurs années (plus réaliste)
+  const familyYearDistribution = [
+    { year: "2022-2023", familyCount: 3 }, // 3 familles (début)
+    { year: "2023-2024", familyCount: 4 }, // 4 familles (2 nouvelles + 2 qui continuent)
+    { year: "2024-2025", familyCount: 5 }, // 5 familles (1 nouvelle + 4 qui continuent)
+    { year: "2025-2026", familyCount: 6 }, // 6 familles (1 nouvelle + 5 qui continuent)
+  ];
+
+  console.log("🔍 Family year distribution:", familyYearDistribution);
+  console.log("🔍 Total families:", NUM_FAMILIES);
+  console.log("🔍 Students per family:", NUM_STUDENTS_PER_FAMILY);
+  console.log("🔍 Total students:", studentsData!.length);
+
+  const enrollments = studentsData!.flatMap((student, studentIndex) => {
     const studentAge = new Date().getFullYear() - new Date(student.birth_date).getFullYear();
     const studentEnrollments: EnrollmentToInsert[] = [];
+
+    // Déterminer les années scolaires pour cette famille (plusieurs années possibles)
+    const familyIndex = Math.floor(studentIndex / NUM_STUDENTS_PER_FAMILY);
+
+    // Logique pour déterminer les années de la famille
+    let familyYears: string[] = [];
+
+    // Familles 0-2 : commencent en 2022-2023 et continuent
+    if (familyIndex <= 2) {
+      familyYears = ["2022-2023", "2023-2024", "2024-2025", "2025-2026"];
+    }
+    // Familles 3-4 : commencent en 2023-2024 et continuent
+    else if (familyIndex <= 4) {
+      familyYears = ["2023-2024", "2024-2025", "2025-2026"];
+    }
+    // Familles 5-6 : commencent en 2024-2025 et continuent
+    else if (familyIndex <= 6) {
+      familyYears = ["2024-2025", "2025-2026"];
+    }
+    // Familles 7+ : commencent en 2025-2026
+    else {
+      familyYears = ["2025-2026"];
+    }
+
+    // Log pour debug
+    if (studentIndex % NUM_STUDENTS_PER_FAMILY === 0) {
+      console.log(`🔍 Family ${familyIndex}: assigned to years ${familyYears.join(", ")}`);
+    }
 
     // Cours appropriés selon l'âge et le type
     const appropriateCourses = coursesData!.filter(course => {
@@ -407,54 +451,45 @@ async function main() {
       return course.type === "enfants";
     });
 
-    // Nombre de cours selon l'âge (1-3 cours)
-    const numCourses = studentAge <= 6 ? 1 : faker.number.int({ min: 1, max: 3 });
+    // Nombre de cours selon l'âge (1-3 cours) - éviter les doublons
+    const numCourses =
+      studentAge <= 6
+        ? 1
+        : faker.number.int({ min: 1, max: Math.min(3, appropriateCourses.length) });
     const selectedCourses = faker.helpers.arrayElements(appropriateCourses, numCourses);
 
-    selectedCourses.forEach(course => {
-      // Cours actuel (année 2024-2025) avec durées variées
-      const courseDuration = faker.helpers.arrayElement([
-        { months: 3, endDate: "2024-12-01" }, // Cours de 3 mois
-        { months: 6, endDate: "2025-03-01" }, // Cours de 6 mois
-        { months: 9, endDate: "2025-06-01" }, // Cours de 9 mois
-        { months: 12, endDate: null }, // Cours annuel
-      ]);
+    // Créer des enrollments pour chaque année de la famille avec des cours différents
+    familyYears.forEach((familyYear, yearIndex) => {
+      // Sélectionner des cours différents pour chaque année (progression)
+      const yearCourses = appropriateCourses.slice(yearIndex, yearIndex + 2);
+      if (yearCourses.length === 0) return;
 
-      studentEnrollments.push({
-        id: faker.string.uuid(),
-        student_id: student.id,
-        course_id: course.id,
-        school_year_id:
-          schoolYearsData!.find(y => y.label === "2024-2025")?.id || schoolYearsData![0].id,
-        start_date: "2024-09-01",
-        end_date: courseDuration.endDate,
-        status: "active",
-        created_at: new Date().toISOString(),
+      yearCourses.forEach(course => {
+        const schoolYearId = schoolYearsData!.find(y => y.label === familyYear)?.id;
+        if (schoolYearId) {
+          const courseDuration = faker.helpers.arrayElement([
+            { months: 3, endDate: `${familyYear.split("-")[1]}-12-01` },
+            { months: 6, endDate: `${familyYear.split("-")[1]}-03-01` },
+            { months: 9, endDate: `${familyYear.split("-")[1]}-06-01` },
+            { months: 12, endDate: null },
+          ]);
+
+          const startDate = `${familyYear.split("-")[0]}-09-01`;
+          const status =
+            familyYear === "2024-2025" || familyYear === "2025-2026" ? "active" : "finished";
+
+          studentEnrollments.push({
+            id: faker.string.uuid(),
+            student_id: student.id,
+            course_id: course.id,
+            school_year_id: schoolYearId,
+            start_date: startDate,
+            end_date: courseDuration.endDate,
+            status: status,
+            created_at: new Date(startDate).toISOString(),
+          });
+        }
       });
-
-      // Historique (année précédente) pour 40% des étudiants
-      if (faker.datatype.boolean({ probability: 0.4 })) {
-        const historicalDuration = faker.helpers.arrayElement([
-          { months: 3, endDate: "2023-12-01" },
-          { months: 6, endDate: "2024-03-01" },
-          { months: 9, endDate: "2024-06-01" },
-          { months: 12, endDate: "2024-06-30" },
-        ]);
-
-        studentEnrollments.push({
-          id: faker.string.uuid(),
-          student_id: student.id,
-          course_id: course.id,
-          school_year_id:
-            schoolYearsData!.find(y => y.label === "2023-2024")?.id ||
-            schoolYearsData![1]?.id ||
-            schoolYearsData![0].id,
-          start_date: "2023-09-01",
-          end_date: historicalDuration.endDate,
-          status: "finished",
-          created_at: new Date("2023-09-01").toISOString(),
-        });
-      }
     });
 
     return studentEnrollments;
@@ -469,6 +504,104 @@ async function main() {
     console.log("   📝 Enrollments to insert:", enrollments.length);
   } else {
     console.log(`   📝 Inserted ${enrollmentsData?.length || 0} enrollments (with history)`);
+  }
+
+  // --- 7. Insert Payments (sans school_year_id pour l'instant) ---
+  console.log("   💰 Creating payments...");
+
+  const payments = familiesData!.flatMap(family => {
+    const familyPayments: any[] = [];
+
+    // Déterminer les années de la famille (même logique que pour les enrollments)
+    const familyIndex = familiesData!.findIndex(f => f.id === family.id);
+    let familyYears: string[] = [];
+
+    // Familles 0-2 : commencent en 2022-2023 et continuent
+    if (familyIndex <= 2) {
+      familyYears = ["2022-2023", "2023-2024", "2024-2025", "2025-2026"];
+    }
+    // Familles 3-4 : commencent en 2023-2024 et continuent
+    else if (familyIndex <= 4) {
+      familyYears = ["2023-2024", "2024-2025", "2025-2026"];
+    }
+    // Familles 5-6 : commencent en 2024-2025 et continuent
+    else if (familyIndex <= 6) {
+      familyYears = ["2024-2025", "2025-2026"];
+    }
+    // Familles 7+ : commencent en 2025-2026
+    else {
+      familyYears = ["2025-2026"];
+    }
+
+    // Créer des paiements pour chaque année de la famille
+    familyYears.forEach(year => {
+      const schoolYearId = schoolYearsData!.find(y => y.label === year)?.id;
+      if (!schoolYearId) return;
+
+      // Créer 1-3 paiements pour cette année
+      const numPayments = faker.number.int({ min: 1, max: 3 });
+      const months = [
+        `${year.split("-")[0]}-09`,
+        `${year.split("-")[0]}-12`,
+        `${year.split("-")[1]}-03`,
+        `${year.split("-")[1]}-06`,
+      ];
+
+      for (let i = 0; i < numPayments; i++) {
+        const paymentMonth = faker.helpers.arrayElement(months);
+        const paymentDate = `${paymentMonth}-${faker.number.int({ min: 1, max: 28 })}`;
+        const paymentAmount = faker.number.int({ min: 100, max: 500 });
+
+        familyPayments.push({
+          id: faker.string.uuid(),
+          family_id: family.id,
+          // school_year_id sera ajouté plus tard
+          amount_cash: faker.datatype.boolean({ probability: 0.3 })
+            ? faker.number.int({ min: 50, max: paymentAmount })
+            : 0,
+          amount_card: faker.datatype.boolean({ probability: 0.4 })
+            ? faker.number.int({ min: 50, max: paymentAmount })
+            : 0,
+          amount_transfer: faker.datatype.boolean({ probability: 0.2 })
+            ? faker.number.int({ min: 50, max: paymentAmount })
+            : 0,
+          refund_amount: faker.datatype.boolean({ probability: 0.1 })
+            ? faker.number.int({ min: 10, max: 50 })
+            : 0,
+          books: faker.datatype.boolean({ probability: 0.2 }),
+          remarks: faker.datatype.boolean({ probability: 0.3 }) ? faker.lorem.sentence() : null,
+          cheques: faker.datatype.boolean({ probability: 0.3 })
+            ? JSON.stringify([
+                {
+                  nom: family.last_name,
+                  banque: faker.helpers.arrayElement([
+                    "Société Générale",
+                    "BNP Paribas",
+                    "Crédit Agricole",
+                    "Banque Populaire",
+                  ]),
+                  count: faker.number.int({ min: 1, max: 3 }),
+                  amount: faker.number.int({ min: 50, max: 200 }),
+                },
+              ])
+            : null,
+          created_at: new Date(paymentDate).toISOString(),
+        });
+      }
+    });
+
+    return familyPayments;
+  });
+
+  const { data: paymentsData, error: paymentsError } = await sb
+    .from("payments")
+    .insert(payments)
+    .select();
+
+  if (paymentsError) {
+    console.error("   ❌ Error inserting payments:", paymentsError);
+  } else {
+    console.log(`   💰 Inserted ${paymentsData?.length || 0} payments across school years`);
   }
 
   // --- 8. Insert Settings ---
@@ -486,8 +619,9 @@ async function main() {
    - ${studentsData?.length} students (aged 4-16)
    - ${coursesData?.length} courses (Arabe 1-3, Coran 1-3, etc.)
    - ${enrollmentsData?.length} enrollments with historical data
+   - ${paymentsData?.length || 0} payments across school years
    - Fixed price: ${STANDARD_PRICE}€ for all courses
-   - 2 school years (2023-2024, 2024-2025)
+   - 4 school years (2022-2023, 2023-2024, 2024-2025, 2025-2026)
   `);
 
   process.exit(0);

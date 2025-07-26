@@ -34,6 +34,7 @@ export default function PaymentModal({
       // Paiement global famille : on insère un seul paiement avec family_id
       const paymentToCreate = {
         family_id: family.id,
+        // school_year_id sera ajouté plus tard
         ...paymentData,
       };
 

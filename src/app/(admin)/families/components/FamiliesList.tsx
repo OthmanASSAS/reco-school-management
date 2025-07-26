@@ -62,12 +62,23 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
   }, [currentSchoolYear]);
 
   // Fonction utilitaire pour filtrer les paiements par année scolaire
-  const filterPaymentsBySchoolYear = (payments: any[], schoolYearStart: number) => {
+  const filterPaymentsBySchoolYear = (payments: any[], schoolYear: any) => {
+    if (!schoolYear) return payments;
+
+    // Utiliser la logique scolaire (septembre-août) pour les paiements
+    const schoolYearStart = new Date(schoolYear.start_date).getFullYear();
+    const schoolYearEnd = schoolYear.end_date
+      ? new Date(schoolYear.end_date).getFullYear()
+      : schoolYearStart + 1;
+
     return payments.filter(payment => {
-      const paymentYear = new Date(payment.created_at).getFullYear();
-      const isCurrentYear = paymentYear === schoolYearStart;
-      const isNextYear = paymentYear === schoolYearStart + 1;
-      return isCurrentYear || isNextYear;
+      const paymentDate = new Date(payment.created_at);
+      const paymentMonth = paymentDate.getMonth() + 1; // 1-12
+      const paymentYear = paymentDate.getFullYear();
+
+      // Logique scolaire : si paiement entre septembre (9) et août (8)
+      const paymentSchoolYear = paymentMonth >= 9 ? paymentYear : paymentYear - 1;
+      return paymentSchoolYear === schoolYearStart;
     });
   };
 
@@ -146,14 +157,11 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
 
     // ✅ FILTRAGE: Par année scolaire pour enrollments et payments
     const selectedSchoolYear = schoolYears.find(year => year.id === currentSchoolYear);
-    const schoolYearStart = selectedSchoolYear
-      ? new Date(selectedSchoolYear.start_date).getFullYear()
-      : new Date().getFullYear();
 
     const filteredData = mergedFamilies.map(family => ({
       ...family,
-      // Filtrer les paiements par année (année courante ET année suivante)
-      payments: filterPaymentsBySchoolYear(family.payments, schoolYearStart),
+      // Filtrer les paiements par année scolaire
+      payments: filterPaymentsBySchoolYear(family.payments, selectedSchoolYear),
     })) as EnrichedFamily[];
 
     setFamilies(filteredData);
@@ -180,16 +188,41 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
     setFamilyDetailsModalOpen(true);
   };
 
+  // Fonction pour vérifier si une famille a des enrollments pour une année
+  const hasEnrollmentsForYear = (family: EnrichedFamily, schoolYearId: string | null) => {
+    if (!schoolYearId) return true;
+
+    return family.students?.some(student =>
+      student.enrollments?.some(enrollment => {
+        return enrollment.school_year_id === schoolYearId;
+      })
+    );
+  };
+
+  // Compter les familles qui ont des enrollments pour l'année sélectionnée
+  const familiesForCurrentYear = families.filter(f =>
+    hasEnrollmentsForYear(f, currentSchoolYear)
+  ).length;
+
+  // Filtrer les familles par année scolaire ET par recherche
   const filtered = families.filter(f => {
+    // Filtre par recherche
     const fullName = `${f?.first_name || ""} ${f?.last_name || ""}`.trim().toLowerCase();
     const email = (f?.email || "").toLowerCase();
     const phone = f?.phone || "";
 
-    return (
+    const matchesSearch =
       fullName.includes(search.toLowerCase()) ||
       email.includes(search.toLowerCase()) ||
-      phone.includes(search)
-    );
+      phone.includes(search);
+
+    if (!matchesSearch) return false;
+
+    // Si aucune année scolaire n'est sélectionnée, montrer toutes les familles
+    if (!currentSchoolYear) return true;
+
+    // Filtrer par année scolaire
+    return hasEnrollmentsForYear(f, currentSchoolYear);
   });
 
   return (
@@ -203,13 +236,27 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
 
       <Card>
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <CardTitle>Familles ({families.length})</CardTitle>
+          <CardTitle>
+            Familles ({filtered.length}/
+            {currentSchoolYear ? familiesForCurrentYear : families.length})
+            {currentSchoolYear && (
+              <span className="text-sm font-normal text-gray-500 ml-2">
+                • {schoolYears.find(y => y.id === currentSchoolYear)?.label}
+              </span>
+            )}
+          </CardTitle>
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full sm:w-auto">
-            <Select value={currentSchoolYear || ""} onValueChange={setCurrentSchoolYear}>
+            <Select
+              value={currentSchoolYear || "all"}
+              onValueChange={value => {
+                setCurrentSchoolYear(value === "all" ? null : value);
+              }}
+            >
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Sélectionner l'année" />
+                <SelectValue placeholder="Toutes les années" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">Toutes les années</SelectItem>
                 {schoolYears.map(year => (
                   <SelectItem key={year.id} value={year.id}>
                     {year.label ||
@@ -233,6 +280,8 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
         <CardContent>
           <FamiliesTable
             families={filtered}
+            schoolYears={schoolYears}
+            currentSchoolYear={currentSchoolYear}
             onPaymentManagement={handlePaymentManagement}
             onFamilyDetails={handleFamilyDetails}
             onRefresh={fetchFamilyDetails}
