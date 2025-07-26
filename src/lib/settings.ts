@@ -7,5 +7,8 @@ export async function fetchCourseDiscountSettings() {
     .eq("key", "course_discount")
     .single();
   if (error) throw error;
-  return data?.value || { startAt: 3, step: 25, mode: "cumulative" };
+  console.log({ data });
+  return (
+    (data?.value ? JSON.parse(data.value) : null) || { startAt: 3, step: 25, mode: "cumulative" }
+  );
 }

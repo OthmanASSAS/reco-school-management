@@ -56,10 +56,14 @@ export default function PaymentSummary({
     );
 
     let total = 0;
+    console.log({ total });
+    console.log({ allEnrollments });
     allEnrollments.forEach((enrollment, idx) => {
-      let price = Number(enrollment.courses?.price) || 0;
+      console.log({ enrollment });
+      let price = enrollment.courses?.price ? parseFloat(enrollment.courses.price as any) : 0;
       if (idx >= startAt - 1) {
         const reduction = mode === "cumulative" ? (idx - (startAt - 2)) * step : step;
+        console.log({ price, reduction, startAt, step, mode });
         price = Math.max(0, price - reduction);
       }
       total += price;
