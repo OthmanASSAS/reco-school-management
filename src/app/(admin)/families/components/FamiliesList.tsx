@@ -16,6 +16,7 @@ import { AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 import { Family, SchoolYear, Student, Enrollment, Course, Payment } from "@/types/families";
+import { filterEnrollmentsBySchoolYear } from "@/lib/utils/payment-calculations";
 import FamiliesTable from "./FamiliesTable";
 import FamilyFormModal from "./FamilyFormModal";
 import PaymentModal from "./PaymentModal";
@@ -59,38 +60,6 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
       fetchFamilyDetails();
     }
   }, [currentSchoolYear]);
-
-  // Fonction utilitaire pour filtrer les enrollments par année scolaire
-  const filterEnrollmentsBySchoolYear = (enrollments: any[], schoolYearId: string | null) => {
-    if (!schoolYearId) return enrollments.filter(e => e.status === "active");
-
-    return enrollments.filter(enrollment => {
-      const isActive = enrollment.status === "active";
-      const isCorrectSchoolYear = enrollment.school_year_id === schoolYearId;
-
-      // Fallback pour les enrollments sans school_year_id (anciens)
-      if (!enrollment.school_year_id) {
-        const enrollmentStartYear = new Date(enrollment.start_date).getFullYear();
-        const enrollmentEndYear = enrollment.end_date
-          ? new Date(enrollment.end_date).getFullYear()
-          : enrollmentStartYear;
-
-        const schoolYearStart = new Date().getFullYear();
-        const schoolYearEnd = schoolYearStart + 1;
-
-        // Le cours chevauche l'année scolaire si :
-        // - Il commence pendant l'année scolaire OU
-        // - Il se termine pendant l'année scolaire OU
-        // - Il commence avant et se termine après l'année scolaire
-        const overlapsSchoolYear =
-          enrollmentStartYear <= schoolYearEnd && enrollmentEndYear >= schoolYearStart;
-
-        return isActive && overlapsSchoolYear;
-      }
-
-      return isActive && isCorrectSchoolYear;
-    });
-  };
 
   // Fonction utilitaire pour filtrer les paiements par année scolaire
   const filterPaymentsBySchoolYear = (payments: any[], schoolYearStart: number) => {
@@ -183,11 +152,6 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
 
     const filteredData = mergedFamilies.map(family => ({
       ...family,
-      // Filtrer les étudiants et leurs cours par année
-      students: family.students.map(student => ({
-        ...student,
-        enrollments: filterEnrollmentsBySchoolYear(student.enrollments, currentSchoolYear),
-      })),
       // Filtrer les paiements par année (année courante ET année suivante)
       payments: filterPaymentsBySchoolYear(family.payments, schoolYearStart),
     })) as EnrichedFamily[];
