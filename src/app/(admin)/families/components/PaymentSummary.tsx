@@ -38,6 +38,38 @@ export default function PaymentSummary({
       .catch(() => setLoading(false));
   }, []);
 
+  // Fonction utilitaire pour filtrer les enrollments par année scolaire
+  const filterEnrollmentsBySchoolYear = (enrollments: any[], schoolYearId: string | null) => {
+    if (!schoolYearId) return enrollments.filter(e => e.status === "active");
+
+    return enrollments.filter(enrollment => {
+      const isActive = enrollment.status === "active";
+      const isCorrectSchoolYear = enrollment.school_year_id === schoolYearId;
+
+      // Fallback pour les enrollments sans school_year_id (anciens)
+      if (!enrollment.school_year_id) {
+        const enrollmentStartYear = new Date(enrollment.start_date).getFullYear();
+        const enrollmentEndYear = enrollment.end_date
+          ? new Date(enrollment.end_date).getFullYear()
+          : enrollmentStartYear;
+
+        const schoolYearStart = new Date().getFullYear();
+        const schoolYearEnd = schoolYearStart + 1;
+
+        // Le cours chevauche l'année scolaire si :
+        // - Il commence pendant l'année scolaire OU
+        // - Il se termine pendant l'année scolaire OU
+        // - Il commence avant et se termine après l'année scolaire
+        const overlapsSchoolYear =
+          enrollmentStartYear <= schoolYearEnd && enrollmentEndYear >= schoolYearStart;
+
+        return isActive && overlapsSchoolYear;
+      }
+
+      return isActive && isCorrectSchoolYear;
+    });
+  };
+
   // Calcule le total des cours pour l'année sélectionnée avec dégressif dynamique
   const calculateTotalAmount = (family: Family) => {
     const currentYearObj = currentSchoolYear
@@ -49,21 +81,14 @@ export default function PaymentSummary({
 
     const { startAt, step, mode } = discountSettings;
     const allEnrollments = family.students.flatMap(student =>
-      student.enrollments.filter(enrollment => {
-        const enrollmentYear = new Date(enrollment.start_date).getFullYear();
-        return enrollment.status === "active" && enrollmentYear === schoolYearStart;
-      })
+      filterEnrollmentsBySchoolYear(student.enrollments, currentSchoolYear)
     );
 
     let total = 0;
-    console.log({ total });
-    console.log({ allEnrollments });
     allEnrollments.forEach((enrollment, idx) => {
-      console.log({ enrollment });
       let price = enrollment.courses?.price ? parseFloat(enrollment.courses.price as any) : 0;
       if (idx >= startAt - 1) {
         const reduction = mode === "cumulative" ? (idx - (startAt - 2)) * step : step;
-        console.log({ price, reduction, startAt, step, mode });
         price = Math.max(0, price - reduction);
       }
       total += price;
@@ -81,9 +106,16 @@ export default function PaymentSummary({
       ? new Date(currentYearObj.start_date).getFullYear()
       : new Date().getFullYear();
 
+    // Log removed for cleaner output
+
     (family.payments || []).forEach(payment => {
       const paymentYear = new Date(payment.created_at).getFullYear();
-      if (paymentYear === schoolYearStart) {
+      const isCurrentYear = paymentYear === schoolYearStart;
+      const isNextYear = paymentYear === schoolYearStart + 1;
+
+      // Log removed for cleaner output
+
+      if (isCurrentYear || isNextYear) {
         paid += payment.amount_cash || 0;
         paid += payment.amount_card || 0;
         paid += payment.amount_transfer || 0;
@@ -103,13 +135,14 @@ export default function PaymentSummary({
         }
       }
     });
+
+    // Log removed for cleaner output
     return paid;
   };
 
   const totalAmount = calculateTotalAmount(family);
   const paidAmount = calculatePaidAmount(family);
   const remainingAmount = totalAmount - paidAmount;
-
   return (
     <div className="space-y-6">
       {/* Récapitulatif famille */}
@@ -131,58 +164,73 @@ export default function PaymentSummary({
             : "courante"}
         </h4>
         <div className="space-y-3">
-          {family.students.map(student => (
-            <div key={student.id} className="p-3 bg-gray-50 rounded-lg">
-              <h5 className="font-medium text-sm">
-                {student.first_name} {student.last_name}
-                <span className="text-xs text-gray-500 ml-2">
-                  ({student.registration_type === "child" ? "Enfant" : "Adulte"})
-                </span>
-              </h5>
-              {student.enrollments.length > 0 ? (
-                <div className="mt-2 space-y-1">
-                  {student.enrollments.map(enrollment => (
-                    <div
-                      key={enrollment.id}
-                      className="flex items-center justify-between p-2 bg-white rounded"
-                    >
-                      <div>
-                        <span className="font-medium">{enrollment.courses?.name}</span>
-                        <div className="text-sm text-gray-600">{enrollment.courses?.type}</div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-lg">
-                          {enrollment.courses?.price || 0}€
-                        </span>
-                        {/* Statut de paiement global */}
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-medium ${
-                            paidAmount >= totalAmount && totalAmount > 0
-                              ? "bg-green-100 text-green-800"
+          {family.students.map(student => {
+            // Appliquer le même filtrage que dans calculateTotalAmount
+            const currentYearObj = currentSchoolYear
+              ? schoolYears.find(y => y.id === currentSchoolYear)
+              : null;
+            const schoolYearStart = currentYearObj
+              ? new Date(currentYearObj.start_date).getFullYear()
+              : new Date().getFullYear();
+
+            const filteredEnrollments = filterEnrollmentsBySchoolYear(
+              student.enrollments,
+              currentSchoolYear
+            );
+
+            return (
+              <div key={student.id} className="p-3 bg-gray-50 rounded-lg">
+                <h5 className="font-medium text-sm">
+                  {student.first_name} {student.last_name}
+                  <span className="text-xs text-gray-500 ml-2">
+                    ({student.registration_type === "child" ? "Enfant" : "Adulte"})
+                  </span>
+                </h5>
+                {filteredEnrollments.length > 0 ? (
+                  <div className="mt-2 space-y-1">
+                    {filteredEnrollments.map(enrollment => (
+                      <div
+                        key={enrollment.id}
+                        className="flex items-center justify-between p-2 bg-white rounded"
+                      >
+                        <div>
+                          <span className="font-medium">{enrollment.courses?.name}</span>
+                          <div className="text-sm text-gray-600">{enrollment.courses?.type}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-lg">
+                            {enrollment.courses?.price || 0}€
+                          </span>
+                          {/* Statut de paiement global */}
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${
+                              paidAmount >= totalAmount && totalAmount > 0
+                                ? "bg-green-100 text-green-800"
+                                : paidAmount > 0
+                                  ? "bg-orange-100 text-orange-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                            }`}
+                          >
+                            {paidAmount >= totalAmount && totalAmount > 0
+                              ? "Payé"
                               : paidAmount > 0
-                                ? "bg-orange-100 text-orange-800"
-                                : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {paidAmount >= totalAmount && totalAmount > 0
-                            ? "Payé"
-                            : paidAmount > 0
-                              ? "Partiel"
-                              : "En attente"}
-                        </span>
+                                ? "Partiel"
+                                : "En attente"}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
-                  <p className="text-xs text-yellow-700">
-                    ⚠️ Aucun cours inscrit pour cette année scolaire
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+                    <p className="text-xs text-yellow-700">
+                      ⚠️ Aucun cours inscrit pour cette année scolaire
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
         {/* Affichage du dégressif */}
         <div className="mt-4 text-xs text-blue-700 italic">
@@ -236,106 +284,129 @@ export default function PaymentSummary({
           Historique des paiements famille
         </h5>
         <div className="space-y-3">
-          {(family.payments || []).length === 0 && (
-            <div className="text-gray-500">Aucun paiement enregistré pour cette famille.</div>
-          )}
-          {(family.payments || []).map(payment => {
-            const paymentMethods = [];
-            if (payment.amount_cash && payment.amount_cash > 0) {
-              paymentMethods.push(
-                <span
-                  key="cash"
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium"
-                >
-                  💵 {payment.amount_cash}€ espèces
-                </span>
+          {(() => {
+            const currentYearObj = currentSchoolYear
+              ? schoolYears.find(y => y.id === currentSchoolYear)
+              : null;
+            const schoolYearStart = currentYearObj
+              ? new Date(currentYearObj.start_date).getFullYear()
+              : new Date().getFullYear();
+
+            const filteredPayments = (family.payments || []).filter(payment => {
+              const paymentYear = new Date(payment.created_at).getFullYear();
+              const isCurrentYear = paymentYear === schoolYearStart;
+              const isNextYear = paymentYear === schoolYearStart + 1;
+              return isCurrentYear || isNextYear;
+            });
+
+            // Log removed for cleaner output
+
+            if (filteredPayments.length === 0) {
+              return (
+                <div className="text-gray-500">
+                  Aucun paiement enregistré pour cette année scolaire.
+                </div>
               );
             }
-            if (payment.amount_card && payment.amount_card > 0) {
-              paymentMethods.push(
-                <span
-                  key="card"
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium"
-                >
-                  💳 {payment.amount_card}€ carte
-                </span>
-              );
-            }
-            if (payment.amount_transfer && payment.amount_transfer > 0) {
-              paymentMethods.push(
-                <span
-                  key="transfer"
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
-                >
-                  📤 {payment.amount_transfer}€ virement
-                </span>
-              );
-            }
-            if (payment.cheques) {
-              let cheques = payment.cheques;
-              if (typeof cheques === "string") {
-                try {
-                  cheques = JSON.parse(cheques);
-                } catch {
-                  cheques = [];
+
+            return filteredPayments.map(payment => {
+              const paymentMethods = [];
+              if (payment.amount_cash && payment.amount_cash > 0) {
+                paymentMethods.push(
+                  <span
+                    key="cash"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium"
+                  >
+                    💵 {payment.amount_cash}€ espèces
+                  </span>
+                );
+              }
+              if (payment.amount_card && payment.amount_card > 0) {
+                paymentMethods.push(
+                  <span
+                    key="card"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium"
+                  >
+                    💳 {payment.amount_card}€ carte
+                  </span>
+                );
+              }
+              if (payment.amount_transfer && payment.amount_transfer > 0) {
+                paymentMethods.push(
+                  <span
+                    key="transfer"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
+                  >
+                    📤 {payment.amount_transfer}€ virement
+                  </span>
+                );
+              }
+              if (payment.cheques) {
+                let cheques = payment.cheques;
+                if (typeof cheques === "string") {
+                  try {
+                    cheques = JSON.parse(cheques);
+                  } catch {
+                    cheques = [];
+                  }
+                }
+                if (Array.isArray(cheques) && cheques.length > 0) {
+                  cheques.forEach((lot: any, idx: number) => {
+                    if (lot.count && lot.amount) {
+                      paymentMethods.push(
+                        <span
+                          key={`cheque-${idx}`}
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium"
+                        >
+                          🏪 {lot.count} chèque{lot.count > 1 ? "s" : ""} de {lot.amount}€ (
+                          {lot.banque})
+                        </span>
+                      );
+                    }
+                  });
                 }
               }
-              if (Array.isArray(cheques) && cheques.length > 0) {
-                cheques.forEach((lot: any, idx: number) => {
-                  if (lot.count && lot.amount) {
-                    paymentMethods.push(
-                      <span
-                        key={`cheque-${idx}`}
-                        className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium"
-                      >
-                        🏪 {lot.count} chèque{lot.count > 1 ? "s" : ""} de {lot.amount}€ (
-                        {lot.banque})
-                      </span>
-                    );
-                  }
-                });
+              if (payment.refund_amount && payment.refund_amount > 0) {
+                paymentMethods.push(
+                  <span
+                    key="refund"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium"
+                  >
+                    💸 Remboursement {payment.refund_amount}€
+                  </span>
+                );
               }
-            }
-            if (payment.refund_amount && payment.refund_amount > 0) {
-              paymentMethods.push(
-                <span
-                  key="refund"
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium"
-                >
-                  💸 Remboursement {payment.refund_amount}€
-                </span>
-              );
-            }
-            if (payment.books) {
-              paymentMethods.push(
-                <span
-                  key="books"
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium"
-                >
-                  📚 Livres inclus
-                </span>
-              );
-            }
-            return (
-              <div key={payment.id} className="border-l-2 border-blue-200 pl-3">
-                <div className="text-xs text-gray-500 mb-1">
-                  {new Date(payment.created_at).toLocaleDateString("fr-FR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-                <div className="flex flex-wrap gap-1">{paymentMethods}</div>
-                {payment.remarks && (
-                  <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                    💬 {payment.remarks}
+              if (payment.books) {
+                paymentMethods.push(
+                  <span
+                    key="books"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium"
+                  >
+                    📚 Livres inclus
+                  </span>
+                );
+              }
+              return (
+                <div key={payment.id} className="border-l-2 border-blue-200 pl-3">
+                  <div className="text-xs text-gray-500 mb-1">
+                    {new Date(payment.created_at).toLocaleDateString("fr-FR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </div>
-                )}
-              </div>
-            );
-          })}
+                  <div className="flex flex-wrap gap-1">{paymentMethods}</div>
+                  {payment.remarks && (
+                    <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                      💬 {payment.remarks}
+                    </div>
+                  )}
+                </div>
+              );
+            });
+          })()}
         </div>
       </div>
 

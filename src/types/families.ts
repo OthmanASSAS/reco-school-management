@@ -12,6 +12,7 @@ export interface Course {
 export interface Enrollment {
   id: string;
   course_id: string; // La clé étrangère vers le cours
+  school_year_id?: string; // La clé étrangère vers l'année scolaire
   status: string;
   start_date: string;
   end_date?: string;

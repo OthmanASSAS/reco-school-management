@@ -60,6 +60,48 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
     }
   }, [currentSchoolYear]);
 
+  // Fonction utilitaire pour filtrer les enrollments par année scolaire
+  const filterEnrollmentsBySchoolYear = (enrollments: any[], schoolYearId: string | null) => {
+    if (!schoolYearId) return enrollments.filter(e => e.status === "active");
+
+    return enrollments.filter(enrollment => {
+      const isActive = enrollment.status === "active";
+      const isCorrectSchoolYear = enrollment.school_year_id === schoolYearId;
+
+      // Fallback pour les enrollments sans school_year_id (anciens)
+      if (!enrollment.school_year_id) {
+        const enrollmentStartYear = new Date(enrollment.start_date).getFullYear();
+        const enrollmentEndYear = enrollment.end_date
+          ? new Date(enrollment.end_date).getFullYear()
+          : enrollmentStartYear;
+
+        const schoolYearStart = new Date().getFullYear();
+        const schoolYearEnd = schoolYearStart + 1;
+
+        // Le cours chevauche l'année scolaire si :
+        // - Il commence pendant l'année scolaire OU
+        // - Il se termine pendant l'année scolaire OU
+        // - Il commence avant et se termine après l'année scolaire
+        const overlapsSchoolYear =
+          enrollmentStartYear <= schoolYearEnd && enrollmentEndYear >= schoolYearStart;
+
+        return isActive && overlapsSchoolYear;
+      }
+
+      return isActive && isCorrectSchoolYear;
+    });
+  };
+
+  // Fonction utilitaire pour filtrer les paiements par année scolaire
+  const filterPaymentsBySchoolYear = (payments: any[], schoolYearStart: number) => {
+    return payments.filter(payment => {
+      const paymentYear = new Date(payment.created_at).getFullYear();
+      const isCurrentYear = paymentYear === schoolYearStart;
+      const isNextYear = paymentYear === schoolYearStart + 1;
+      return isCurrentYear || isNextYear;
+    });
+  };
+
   async function fetchFamilyDetails() {
     if (!currentSchoolYear) return;
 
@@ -78,12 +120,20 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
         ),
         students(
           id,
+          first_name,
+          last_name,
+          birth_date,
+          registration_type,
+          level,
+          notes,
           enrollments(
             id,
+            course_id,
             status,
             start_date,
             end_date,
             created_at,
+            school_year_id,
             courses:course_id(
               id,
               name,
@@ -102,21 +152,24 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
       return;
     }
 
+    // Log removed for cleaner output
+
     // Fusionner les données détaillées avec les données de base
     const mergedFamilies = initialFamilies.map(family => {
       const details = data?.find(d => d.id === family.id);
+
       return {
         ...family,
         payments: (details?.payments || []) as Payment[],
-        students: family.students.map(student => {
-          const detailedStudent = details?.students?.find(s => s.id === student.id);
-          const enrichedEnrollments = (detailedStudent?.enrollments || []).map(e => ({
+        students: (details?.students || []).map(detailedStudent => {
+          const enrichedEnrollments = (detailedStudent.enrollments || []).map(e => ({
             ...e,
-            courses: e.courses, // plus besoin de [0], c'est un objet
+            courses: e.courses,
           }));
+
           return {
-            ...student,
-            enrollments: enrichedEnrollments as EnrichedEnrollment[],
+            ...detailedStudent,
+            enrollments: enrichedEnrollments as any, // Type assertion pour éviter les erreurs
           };
         }),
       };
@@ -133,24 +186,29 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
       // Filtrer les étudiants et leurs cours par année
       students: family.students.map(student => ({
         ...student,
-        enrollments: student.enrollments.filter(enrollment => {
-          const enrollmentYear = new Date(enrollment.start_date).getFullYear();
-          return enrollment.status === "active" && enrollmentYear === schoolYearStart;
-        }),
+        enrollments: filterEnrollmentsBySchoolYear(student.enrollments, currentSchoolYear),
       })),
-      // Filtrer les paiements par année
-      payments: family.payments.filter(payment => {
-        const paymentYear = new Date(payment.created_at).getFullYear();
-        return paymentYear === schoolYearStart;
-      }),
+      // Filtrer les paiements par année (année courante ET année suivante)
+      payments: filterPaymentsBySchoolYear(family.payments, schoolYearStart),
     })) as EnrichedFamily[];
 
     setFamilies(filteredData);
   }
 
-  const handlePaymentManagement = (family: Family) => {
-    setSelectedFamily(family);
-    setPaymentModalOpen(true);
+  const handlePaymentManagement = async (family: Family) => {
+    // S'assurer que les données détaillées sont chargées
+    await fetchFamilyDetails();
+
+    // Trouver la famille mise à jour dans la liste
+    const updatedFamily = families.find(f => f.id === family.id);
+    if (updatedFamily) {
+      setSelectedFamily(updatedFamily);
+      setPaymentModalOpen(true);
+    } else {
+      // Fallback: utiliser la famille originale
+      setSelectedFamily(family);
+      setPaymentModalOpen(true);
+    }
   };
 
   const handleFamilyDetails = (family: Family) => {

@@ -142,6 +142,7 @@ export async function createRegistration(
           {
             student_id: studentData.id,
             course_id: registration.courseInstanceId, // Utiliser directement comme course_id
+            school_year_id: registration.schoolYearId, // Ajouter l'année scolaire
             start_date: new Date().toISOString().split("T")[0],
             status: registration.isWaitingList ? "pending" : "active",
           },
@@ -186,6 +187,7 @@ export async function createRegistration(
           {
             student_id: studentData.id,
             course_id: courseInstanceData.course_id, // Utiliser le course_id de l'instance
+            school_year_id: registration.schoolYearId, // Ajouter l'année scolaire
             start_date: new Date().toISOString().split("T")[0], // Date d'aujourd'hui
             status: registration.isWaitingList ? "pending" : "active",
           },

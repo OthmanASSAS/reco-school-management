@@ -22,6 +22,7 @@ import {
   Users,
 } from "lucide-react";
 import React, { useState } from "react";
+import { preRegister } from "@/lib/actions/pre-registration";
 import { useToast } from "@/hooks/use-toast";
 
 type FamilyInfo = {
@@ -64,23 +65,18 @@ export default function PreRegistrationForm() {
   const handleBack = () => setStep(s => s - 1);
 
   const handleSubmit = async () => {
-    const response = await fetch("/api/pre-registration", {
-      method: "POST",
-      body: JSON.stringify({
-        family,
-        students,
-        appointmentDay: appointmentDay?.toISOString().split("T")[0],
-      }),
-      headers: { "Content-Type": "application/json" },
-    });
+    const formData = new FormData();
+    formData.append("family", JSON.stringify(family));
+    formData.append("students", JSON.stringify(students));
+    formData.append("appointmentDay", appointmentDay?.toISOString().split("T")[0] || "");
 
-    const result = await response.json();
+    const result = await preRegister(formData);
 
-    if (response.ok) {
+    if (result.success) {
       toast({
         variant: "default",
         title: "Préinscription envoyée !",
-        description: result.message || "Votre demande a bien été enregistrée.",
+        description: result.messages.join(" ") || "Votre demande a bien été enregistrée.",
       });
       // Réinitialise le formulaire
       setFamily({

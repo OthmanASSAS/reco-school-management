@@ -12,6 +12,7 @@ const AddStudentSchema = z.object({
   birthDate: z.string().min(1, "La date de naissance est requise"),
   studentType: z.enum(["child", "adult"], { message: "Type d'élève requis" }),
   appointmentDay: z.string().optional().nullable(),
+  schoolYearId: z.string().min(1, "Année scolaire requise"),
 });
 
 export type AddStudentState = {
@@ -39,6 +40,7 @@ export async function addStudent(
     birthDate: formData.get("birthDate"),
     studentType: formData.get("studentType"),
     appointmentDay: formData.get("appointmentDay") || null,
+    schoolYearId: formData.get("schoolYearId"),
   });
   if (!validatedFields.success) {
     const formattedErrors = validatedFields.error.format();
@@ -55,7 +57,7 @@ export async function addStudent(
     };
   }
   const supabase = createClient();
-  const { familyId, firstName, lastName, birthDate, studentType, appointmentDay } =
+  const { familyId, firstName, lastName, birthDate, studentType, appointmentDay, schoolYearId } =
     validatedFields.data;
   try {
     const { data: familyExists, error: familyError } = await supabase
@@ -91,6 +93,7 @@ export async function addStudent(
       const studentCourseInserts = selectedCourses.map(courseId => ({
         student_id: studentData.id,
         course_id: courseId,
+        school_year_id: schoolYearId, // Ajouter l'année scolaire
         start_date: new Date().toISOString().split("T")[0],
         status: "active",
         created_at: new Date().toISOString(),

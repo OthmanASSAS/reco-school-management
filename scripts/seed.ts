@@ -209,6 +209,26 @@ async function main() {
 
   console.log("🌱 Inserting realistic data for Islamic school...");
 
+  // --- 0. Migration: Add school_year_id to enrollments table ---
+  console.log("🔧 Running migrations...");
+
+  // Vérifier si la colonne existe déjà en essayant de la sélectionner
+  try {
+    const { data: testQuery } = await sb.from("enrollments").select("school_year_id").limit(1);
+
+    // Si on arrive ici, la colonne existe
+    console.log("   ✅ school_year_id column already exists in enrollments table");
+  } catch (error) {
+    // Si on a une erreur, la colonne n'existe pas
+    console.log("   📝 Adding school_year_id column to enrollments table...");
+    console.log("   ⚠️  Please run this SQL manually in your Supabase dashboard:");
+    console.log(
+      "   ALTER TABLE enrollments ADD COLUMN school_year_id UUID REFERENCES school_years(id);"
+    );
+    console.log("   Then restart the seed script.");
+    process.exit(1);
+  }
+
   // --- 1. Insert School Years ---
   const schoolYears = REALISTIC_DATA.schoolPeriods.map(period => ({
     id: faker.string.uuid(),
@@ -220,6 +240,37 @@ async function main() {
 
   const { data: schoolYearsData } = await sb.from("school_years").insert(schoolYears).select();
   console.log(`   📅 Inserted ${schoolYearsData?.length} school years`);
+
+  // Mettre à jour les enrollments existants avec school_year_id si nécessaire
+  console.log("   🔄 Updating existing enrollments with school_year_id...");
+  const { data: existingEnrollments } = await sb
+    .from("enrollments")
+    .select("id, start_date, school_year_id")
+    .is("school_year_id", null);
+
+  if (existingEnrollments && existingEnrollments.length > 0) {
+    console.log(
+      `   📝 Found ${existingEnrollments.length} enrollments without school_year_id, updating...`
+    );
+
+    for (const enrollment of existingEnrollments) {
+      const enrollmentYear = new Date(enrollment.start_date).getFullYear();
+      const schoolYear = schoolYearsData!.find(y => {
+        const yearStart = new Date(y.start_date).getFullYear();
+        return yearStart === enrollmentYear;
+      });
+
+      if (schoolYear) {
+        await sb
+          .from("enrollments")
+          .update({ school_year_id: schoolYear.id })
+          .eq("id", enrollment.id);
+      }
+    }
+    console.log("   ✅ Updated existing enrollments with school_year_id");
+  } else {
+    console.log("   ✅ All enrollments already have school_year_id");
+  }
 
   // --- 2. Insert Realistic Teachers ---
   const teachers = REALISTIC_DATA.teachers.map(teacher => ({
@@ -338,6 +389,7 @@ async function main() {
     id: string;
     student_id: string;
     course_id: string;
+    school_year_id: string;
     start_date: string;
     end_date: string | null;
     status: "active" | "finished";
@@ -360,25 +412,45 @@ async function main() {
     const selectedCourses = faker.helpers.arrayElements(appropriateCourses, numCourses);
 
     selectedCourses.forEach(course => {
-      // Cours actuel (année 2024-2025)
+      // Cours actuel (année 2024-2025) avec durées variées
+      const courseDuration = faker.helpers.arrayElement([
+        { months: 3, endDate: "2024-12-01" }, // Cours de 3 mois
+        { months: 6, endDate: "2025-03-01" }, // Cours de 6 mois
+        { months: 9, endDate: "2025-06-01" }, // Cours de 9 mois
+        { months: 12, endDate: null }, // Cours annuel
+      ]);
+
       studentEnrollments.push({
         id: faker.string.uuid(),
         student_id: student.id,
         course_id: course.id,
+        school_year_id:
+          schoolYearsData!.find(y => y.label === "2024-2025")?.id || schoolYearsData![0].id,
         start_date: "2024-09-01",
-        end_date: null,
+        end_date: courseDuration.endDate,
         status: "active",
         created_at: new Date().toISOString(),
       });
 
       // Historique (année précédente) pour 40% des étudiants
       if (faker.datatype.boolean({ probability: 0.4 })) {
+        const historicalDuration = faker.helpers.arrayElement([
+          { months: 3, endDate: "2023-12-01" },
+          { months: 6, endDate: "2024-03-01" },
+          { months: 9, endDate: "2024-06-01" },
+          { months: 12, endDate: "2024-06-30" },
+        ]);
+
         studentEnrollments.push({
           id: faker.string.uuid(),
           student_id: student.id,
           course_id: course.id,
+          school_year_id:
+            schoolYearsData!.find(y => y.label === "2023-2024")?.id ||
+            schoolYearsData![1]?.id ||
+            schoolYearsData![0].id,
           start_date: "2023-09-01",
-          end_date: "2024-06-30",
+          end_date: historicalDuration.endDate,
           status: "finished",
           created_at: new Date("2023-09-01").toISOString(),
         });
@@ -388,8 +460,16 @@ async function main() {
     return studentEnrollments;
   });
 
-  const { data: enrollmentsData } = await sb.from("enrollments").insert(enrollments).select();
-  console.log(`   📝 Inserted ${enrollmentsData?.length} enrollments (with history)`);
+  const { data: enrollmentsData, error: enrollmentsError } = await sb
+    .from("enrollments")
+    .insert(enrollments)
+    .select();
+  if (enrollmentsError) {
+    console.error("   ❌ Error inserting enrollments:", enrollmentsError);
+    console.log("   📝 Enrollments to insert:", enrollments.length);
+  } else {
+    console.log(`   📝 Inserted ${enrollmentsData?.length || 0} enrollments (with history)`);
+  }
 
   // --- 8. Insert Settings ---
   const settings = [

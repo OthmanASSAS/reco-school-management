@@ -12,7 +12,7 @@ export default async function FamilyDetailPage({ params }: { params: { id: strin
     .from("families")
     .select(
       `id, last_name, first_name, email, phone, address, status, students(
-        id, first_name, last_name, birth_date, registration_type, level, notes
+        id, first_name, last_name, birth_date, registration_type, level, notes, enrollments(id, status, start_date, courses(name, type, price))
       )`
     )
     .eq("id", params.id)
