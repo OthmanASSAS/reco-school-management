@@ -145,7 +145,7 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
               activeEnrollments: updatedActiveEnrollments,
               activeCoursesCount: updatedActiveEnrollments.length,
               hasMultipleCourses: updatedActiveEnrollments.length > 1,
-              course: newEnrollment.courses.name,
+              course: newEnrollment.courses?.[0]?.name || "Non assigné",
             };
           }
           return student;
@@ -299,94 +299,131 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
 
   return (
     <div className="space-y-6">
-      {/* Header avec filtres et bouton */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <Input
-            placeholder="Rechercher un élève..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-full sm:w-64"
-          />
-          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="Cours" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem key="all" value="all">
-                Tous les cours
-              </SelectItem>
-              {Array.from(new Set(students.map(s => s.course)))
-                .filter(course => course !== "Non assigné")
-                .sort()
-                .map(course => (
-                  <SelectItem key={`course-${course}`} value={course}>
-                    {course}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">É</span>
+                </div>
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-bold text-gray-900">Élèves</CardTitle>
+                <p className="text-sm text-gray-600 mt-1">
+                  {filteredStudents.length} sur {students.length} élèves
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full lg:w-auto">
+              <div className="relative flex-1 sm:flex-initial">
+                <Input
+                  placeholder="Rechercher un élève..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="w-full sm:w-80 pl-10 bg-white border-gray-200 focus:border-green-300 focus:ring-green-200"
+                />
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+                <SelectTrigger className="w-full sm:w-48 bg-white border-gray-200 focus:border-green-300 focus:ring-green-200">
+                  <SelectValue placeholder="Tous les cours" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem key="all" value="all">
+                    Tous les cours
                   </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="Statut" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem key="status-all" value="all">
-                Tous
-              </SelectItem>
-              <SelectItem key="status-active" value="active">
-                Cours actifs
-              </SelectItem>
-              <SelectItem key="status-no_course" value="no_course">
-                Sans cours
-              </SelectItem>
-              <SelectItem key="status-multiple" value="multiple">
-                Cours multiples
-              </SelectItem>
-              <SelectItem key="status-history" value="history">
-                Avec historique
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+                  {Array.from(new Set(students.map(s => s.course)))
+                    .filter(course => course !== "Non assigné")
+                    .sort()
+                    .map(course => (
+                      <SelectItem key={`course-${course}`} value={course}>
+                        {course}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger className="w-full sm:w-48 bg-white border-gray-200 focus:border-green-300 focus:ring-green-200">
+                  <SelectValue placeholder="Tous les statuts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem key="status-all" value="all">
+                    Tous
+                  </SelectItem>
+                  <SelectItem key="status-active" value="active">
+                    Cours actifs
+                  </SelectItem>
+                  <SelectItem key="status-no_course" value="no_course">
+                    Sans cours
+                  </SelectItem>
+                  <SelectItem key="status-multiple" value="multiple">
+                    Cours multiples
+                  </SelectItem>
+                  <SelectItem key="status-history" value="history">
+                    Avec historique
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="w-full sm:w-auto">
+                <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg">
+                  <UserPlus size={16} className="mr-2" />
+                  Nouvel élève
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
 
-        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 w-full sm:w-auto">
-          <UserPlus size={16} className="mr-2" />
-          Nouvel élève
-        </Button>
-      </div>
-
-      {/* Statistiques */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-blue-600">{students.length}</div>
-          <div className="text-sm text-gray-600">Total élèves</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-green-600">
-            {students.filter(s => s.activeCoursesCount > 0).length}
+        <CardContent>
+          {/* Statistiques */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+              <div className="text-2xl font-bold text-blue-600">{students.length}</div>
+              <div className="text-sm text-blue-700 font-medium">Total élèves</div>
+            </div>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+              <div className="text-2xl font-bold text-green-600">
+                {students.filter(s => s.activeCoursesCount > 0).length}
+              </div>
+              <div className="text-sm text-green-700 font-medium">Avec cours actifs</div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+              <div className="text-2xl font-bold text-purple-600">
+                {students.filter(s => s.hasMultipleCourses).length}
+              </div>
+              <div className="text-sm text-purple-700 font-medium">Cours multiples</div>
+            </div>
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg border border-orange-200">
+              <div className="text-2xl font-bold text-orange-600">
+                {students.filter(s => s.hasHistory).length}
+              </div>
+              <div className="text-sm text-orange-700 font-medium">Avec historique</div>
+            </div>
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
+              <div className="text-2xl font-bold text-gray-600">
+                {students.filter(s => s.activeCoursesCount === 0).length}
+              </div>
+              <div className="text-sm text-gray-700 font-medium">Sans cours</div>
+            </div>
           </div>
-          <div className="text-sm text-gray-600">Avec cours actifs</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-purple-600">
-            {students.filter(s => s.hasMultipleCourses).length}
-          </div>
-          <div className="text-sm text-gray-600">Cours multiples</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-orange-600">
-            {students.filter(s => s.hasHistory).length}
-          </div>
-          <div className="text-sm text-gray-600">Avec historique</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border col-span-2 lg:col-span-1">
-          <div className="text-2xl font-bold text-gray-600">
-            {students.filter(s => s.activeCoursesCount === 0).length}
-          </div>
-          <div className="text-sm text-gray-600">Sans cours</div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Liste des étudiants */}
       {students.length === 0 ? (
