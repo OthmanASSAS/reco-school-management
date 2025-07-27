@@ -13,6 +13,8 @@ import {
   UserPlus,
   Users,
   X,
+  GraduationCap,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,6 +25,8 @@ const menuItems = [
   { id: "courses", label: "Cours", icon: BookOpen, href: "/courses" },
   { id: "families", label: "Familles", icon: Home, href: "/families" },
   { id: "students", label: "Élèves", icon: Users, href: "/students" },
+  { id: "teachers", label: "Professeurs", icon: GraduationCap, href: "/teachers" },
+  { id: "rooms", label: "Salles", icon: MapPin, href: "/rooms" },
   { id: "planning", label: "Planning", icon: Calendar, href: "/planning" },
   { id: "registration", label: "Inscription", icon: UserPlus, href: "/registration" },
   { id: "pre-registration", label: "Pré-inscription", icon: UserPlus, href: "/pre-registration" },
