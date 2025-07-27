@@ -613,8 +613,82 @@ async function main() {
   console.log(`   ⚙️ Upserted settings`);
 
   console.log("✅ Realistic Islamic school data seeded successfully!");
+
+  // --- 9. COMPLÉTER LES DONNÉES (Assigner profs/salles + horaires) ---
+  console.log("\n🔧 Complétion des données...");
+
+  // Assigner professeurs et salles aux cours
+  console.log("👨‍🏫 Assignation des professeurs et salles...");
+  const { data: allCourses } = await sb
+    .from("courses")
+    .select("id, name, type, teacher_id, room_id");
+  const { data: allTeachers } = await sb.from("teachers").select("id, full_name");
+  const { data: allRooms } = await sb.from("rooms").select("id, name");
+
+  for (const course of allCourses || []) {
+    const updates: any = {};
+    let hasUpdates = false;
+
+    // Assigner un professeur si pas déjà assigné
+    if (!course.teacher_id && allTeachers && allTeachers.length > 0) {
+      const randomTeacher = allTeachers[Math.floor(Math.random() * allTeachers.length)];
+      updates.teacher_id = randomTeacher.id;
+      hasUpdates = true;
+      console.log(`   👨‍🏫 ${course.name} → ${randomTeacher.full_name}`);
+    }
+
+    // Assigner une salle si pas déjà assignée
+    if (!course.room_id && allRooms && allRooms.length > 0) {
+      const randomRoom = allRooms[Math.floor(Math.random() * allRooms.length)];
+      updates.room_id = randomRoom.id;
+      hasUpdates = true;
+      console.log(`   🏫 ${course.name} → ${randomRoom.name}`);
+    }
+
+    // Mettre à jour le cours si nécessaire
+    if (hasUpdates) {
+      await sb.from("courses").update(updates).eq("id", course.id);
+    }
+  }
+
+  // Ajouter des horaires aux cours
+  console.log("⏰ Ajout des horaires...");
+  const SCHEDULES = [
+    "Lundi 09:00-11:00",
+    "Lundi 14:00-16:00",
+    "Lundi 16:00-18:00",
+    "Mardi 09:00-11:00",
+    "Mardi 14:00-16:00",
+    "Mardi 16:00-18:00",
+    "Mercredi 09:00-11:00",
+    "Mercredi 14:00-16:00",
+    "Mercredi 16:00-18:00",
+    "Jeudi 09:00-11:00",
+    "Jeudi 14:00-16:00",
+    "Jeudi 16:00-18:00",
+    "Vendredi 09:00-11:00",
+    "Vendredi 14:00-16:00",
+    "Vendredi 16:00-18:00",
+    "Samedi 09:00-11:00",
+    "Samedi 14:00-16:00",
+    "Samedi 16:00-18:00",
+  ];
+
+  for (const course of allCourses || []) {
+    const randomSchedule = SCHEDULES[Math.floor(Math.random() * SCHEDULES.length)];
+
+    await sb.from("courses").update({ schedule: randomSchedule }).eq("id", course.id);
+
+    console.log(`   ⏰ ${course.name} → ${randomSchedule}`);
+  }
+
+  // S'assurer que tous les cours sont actifs
+  console.log("📊 Vérification des statuts...");
+  await sb.from("courses").update({ status: "active" }).neq("status", "active");
+
+  console.log("✅ Complétion terminée !");
   console.log(`
-📊 Summary:
+📊 Summary complet:
    - ${familiesData?.length} families with realistic Arabic names
    - ${studentsData?.length} students (aged 4-16)
    - ${coursesData?.length} courses (Arabe 1-3, Coran 1-3, etc.)
@@ -622,6 +696,10 @@ async function main() {
    - ${paymentsData?.length || 0} payments across school years
    - Fixed price: ${STANDARD_PRICE}€ for all courses
    - 4 school years (2022-2023, 2023-2024, 2024-2025, 2025-2026)
+   - ✅ Professeurs assignés aux cours
+   - ✅ Salles assignées aux cours
+   - ✅ Horaires ajoutés aux cours
+   - ✅ Planning prêt à utiliser !
   `);
 
   process.exit(0);
