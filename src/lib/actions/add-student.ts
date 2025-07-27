@@ -4,6 +4,112 @@ import { z } from "zod";
 import supabase from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 
+// Schema pour l'ajout d'un étudiant
+const AddStudentSchema = z.object({
+  familyId: z.string().min(1, "ID famille requis"),
+  firstName: z.string().min(1, "Le prénom est requis"),
+  lastName: z.string().min(1, "Le nom est requis"),
+  birthDate: z.string().min(1, "La date de naissance est requise"),
+  registrationType: z.enum(["child", "adult"], { message: "Type d'élève requis" }),
+});
+
+export type AddStudentState = {
+  errors?: {
+    familyId?: string[];
+    firstName?: string[];
+    lastName?: string[];
+    birthDate?: string[];
+    registrationType?: string[];
+  };
+  message?: string | null;
+  success?: boolean;
+};
+
+export async function addStudent(
+  prevState: AddStudentState,
+  formData: FormData
+): Promise<AddStudentState> {
+  const selectedCourses = formData.getAll("selectedCourses") as string[];
+
+  const validatedFields = AddStudentSchema.safeParse({
+    familyId: formData.get("familyId"),
+    firstName: formData.get("firstName"),
+    lastName: formData.get("lastName"),
+    birthDate: formData.get("birthDate"),
+    registrationType: formData.get("registrationType"),
+  });
+
+  if (!validatedFields.success) {
+    const formattedErrors = validatedFields.error.format();
+    return {
+      errors: {
+        familyId: formattedErrors.familyId?._errors,
+        firstName: formattedErrors.firstName?._errors,
+        lastName: formattedErrors.lastName?._errors,
+        birthDate: formattedErrors.birthDate?._errors,
+        registrationType: formattedErrors.registrationType?._errors,
+      },
+      message: "Champs manquants ou invalides.",
+    };
+  }
+
+  const { familyId, firstName, lastName, birthDate, registrationType } = validatedFields.data;
+
+  try {
+    // Ajouter l'étudiant
+    const { data: newStudent, error: insertError } = await supabase
+      .from("students")
+      .insert({
+        family_id: familyId,
+        first_name: firstName,
+        last_name: lastName,
+        birth_date: birthDate,
+        registration_type: registrationType,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error("Erreur ajout étudiant:", insertError);
+      return {
+        message: `Erreur lors de l'ajout: ${insertError.message}`,
+      };
+    }
+
+    // Ajouter les inscriptions aux cours
+    if (selectedCourses.length > 0) {
+      const enrollmentInserts = selectedCourses.map(courseId => ({
+        student_id: newStudent.id,
+        course_id: courseId,
+        start_date: new Date().toISOString().split("T")[0],
+        status: "active",
+        created_at: new Date().toISOString(),
+      }));
+
+      const { error: enrollmentsError } = await supabase
+        .from("enrollments")
+        .insert(enrollmentInserts);
+
+      if (enrollmentsError) {
+        console.error("Erreur ajout inscriptions:", enrollmentsError);
+      }
+    }
+
+    revalidatePath("/(admin)/families");
+    revalidatePath("/(admin)/students");
+
+    return {
+      message: `${firstName} ${lastName} a été ajouté(e) avec succès !`,
+      success: true,
+    };
+  } catch (error) {
+    console.error("Erreur inattendue:", error);
+    return {
+      message: "Une erreur inattendue s'est produite.",
+    };
+  }
+}
+
 // Schema pour la modification d'un étudiant
 const UpdateStudentSchema = z.object({
   studentId: z.string().min(1, "ID étudiant requis"),

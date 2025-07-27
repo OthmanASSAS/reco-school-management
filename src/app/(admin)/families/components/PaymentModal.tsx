@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { Family } from "@/types/families";
 import PaymentSummary from "./PaymentSummary";
 import PaymentForm from "./PaymentForm";
@@ -15,7 +15,7 @@ interface PaymentModalProps {
   onOpenChange: (open: boolean) => void;
   onPaymentSaved: () => void;
   currentSchoolYear: string | null;
-  schoolYears: any[];
+  schoolYears: { id: string; label?: string; start_date: string; end_date?: string }[];
 }
 
 export default function PaymentModal({
@@ -29,7 +29,15 @@ export default function PaymentModal({
   const { toast } = useToast();
   const [showPaymentForm, setShowPaymentForm] = useState(false);
 
-  const handlePaymentSave = async (paymentData: any) => {
+  const handlePaymentSave = async (paymentData: {
+    cash_amount: number;
+    card_amount: number;
+    bank_transfer_amount: number;
+    books: boolean;
+    cheque_lots: { count: string | number; amount: string | number; banque: string; nom: string }[];
+    refund_amount: number;
+    remarks: string;
+  }) => {
     try {
       // Paiement global famille : on insère un seul paiement avec family_id
       const paymentToCreate = {
@@ -38,7 +46,7 @@ export default function PaymentModal({
         ...paymentData,
       };
 
-      const { data, error } = await supabase.from("payments").insert([paymentToCreate]).select();
+      const { error } = await supabase.from("payments").insert([paymentToCreate]).select();
 
       if (error) {
         toast({

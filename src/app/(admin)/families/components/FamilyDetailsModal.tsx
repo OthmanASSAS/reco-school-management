@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { User, Users, CreditCard, BookOpen } from "lucide-react";
+import { User, Users } from "lucide-react";
 import { Family } from "@/types/families";
 
 interface FamilyDetailsModalProps {

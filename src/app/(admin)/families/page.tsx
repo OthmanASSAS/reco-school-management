@@ -1,6 +1,6 @@
 import FamiliesList from "./components/FamiliesList";
 import supabase from "@/lib/supabase";
-import { Family, SchoolYear, Student } from "@/types/families";
+import { Family, SchoolYear } from "@/types/families";
 
 export default async function FamiliesPage() {
   // Charger les données de base côté serveur

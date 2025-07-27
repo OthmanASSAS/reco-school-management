@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -12,11 +12,26 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { updateFamily, type FamilyState } from "@/lib/actions/families";
 
 import supabase from "@/lib/supabase";
-import { Check, ChevronsUpDown, X, Edit, Trash2, UserPlus } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  X,
+  Edit,
+  Trash2,
+  UserPlus,
+  Users,
+  Mail,
+  Home,
+  Phone,
+  ArrowLeft,
+  Save,
+} from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useActionState } from "react";
 import {
@@ -256,320 +271,553 @@ export default function EditFamilyPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [popoverOpen]);
 
-  if (loading) return <div className="p-8 text-center">Chargement…</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+
   if (error || !family)
-    return <div className="p-8 text-center text-red-600">Famille introuvable</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="p-3 bg-red-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <X className="h-8 w-8 text-red-600" />
+          </div>
+          <p className="text-red-600 text-lg font-medium">Famille introuvable</p>
+        </div>
+      </div>
+    );
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 md:p-8 space-y-8">
-      {/* Formulaire famille */}
-
-      <Card>
-        <CardContent className="p-6 space-y-4">
-          <h1 className="text-2xl font-bold mb-4">Éditer la famille</h1>
-          {state.message && (
-            <div className={`mb-2 text-sm ${state.success ? "text-green-600" : "text-red-600"}`}>
-              {state.message}
-            </div>
-          )}
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-4" action={handleSubmit}>
-            <div>
-              <label className="block text-sm font-medium mb-1">Nom</label>
-              <Input
-                name="lastName"
-                value={form.lastName}
-                onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))}
-              />
-              {state.errors?.lastName && (
-                <p className="text-xs text-red-600">{state.errors.lastName}</p>
-              )}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-8">
+        {/* Header avec bouton retour */}
+        <div className="flex items-center gap-4 mb-8">
+          <Button
+            variant="outline"
+            onClick={() => router.back()}
+            className="flex items-center gap-2 hover:bg-white/80"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour
+          </Button>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Users className="h-6 w-6 text-blue-600" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Prénom</label>
-              <Input
-                name="firstName"
-                value={form.firstName}
-                onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
-              />
-              {state.errors?.firstName && (
-                <p className="text-xs text-red-600">{state.errors.firstName}</p>
-              )}
+              <h1 className="text-2xl font-bold text-gray-900">Éditer la famille</h1>
+              <p className="text-sm text-gray-600">
+                {family.first_name} {family.last_name}
+              </p>
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Email</label>
-              <Input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-              />
-              {state.errors?.email && <p className="text-xs text-red-600">{state.errors.email}</p>}
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Téléphone</label>
-              <Input
-                name="phone"
-                value={form.phone}
-                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-              />
-              {state.errors?.phone && <p className="text-xs text-red-600">{state.errors.phone}</p>}
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Adresse</label>
-              <Input
-                name="address"
-                value={form.address}
-                onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-              />
-              {state.errors?.address && (
-                <p className="text-xs text-red-600">{state.errors.address}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Code postal</label>
-              <Input
-                name="postalCode"
-                value={form.postalCode}
-                onChange={e => setForm(f => ({ ...f, postalCode: e.target.value }))}
-              />
-              {state.errors?.postalCode && (
-                <p className="text-xs text-red-600">{state.errors.postalCode}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Ville</label>
-              <Input
-                name="city"
-                value={form.city}
-                onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
-              />
-              {state.errors?.city && <p className="text-xs text-red-600">{state.errors.city}</p>}
-            </div>
-            <div className="md:col-span-2 flex justify-end mt-2">
-              <Button type="submit">Enregistrer</Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Liste des membres */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Membres</h2>
-            <Button variant="outline" onClick={handleAddMember}>
-              <UserPlus className="w-4 h-4 mr-2" />
-              Ajouter un membre
-            </Button>
           </div>
+        </div>
 
-          {/* Messages pour les actions sur les membres */}
-          {(addState.message || updateState.message || deleteState.message) && (
-            <div
-              className={`mb-4 text-sm ${
-                addState.success || updateState.success || deleteState.success
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
-            >
-              {addState.message || updateState.message || deleteState.message}
-            </div>
-          )}
-
-          {/* Liste des étudiants existants */}
-          {family.students && family.students.length > 0 ? (
-            <div className="space-y-2">
-              {family.students.map((student: Student) => (
-                <div
-                  key={student.id}
-                  className="flex items-center justify-between p-3 border rounded-lg"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium">
-                        {student.first_name} {student.last_name}
-                      </span>
-                      <Badge
-                        className="text-xs"
-                        variant={student.registration_type === "child" ? "default" : "secondary"}
-                      >
-                        {student.registration_type === "child" ? "Enfant" : "Adulte"}
-                      </Badge>
-                    </div>
-                    {student.birth_date && (
-                      <p className="text-sm text-gray-500">
-                        Né(e) le {new Date(student.birth_date).toLocaleDateString("fr-FR")}
-                      </p>
-                    )}
-                    {student.enrollments && student.enrollments.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {student.enrollments.map((enrollment: Enrollment, index: number) => {
-                          if (enrollment.status === "active") {
-                            return (
-                              <Badge
-                                key={`${enrollment.id || "no-id"}-${enrollment.course_id || "no-course"}-${index}`}
-                                variant="outline"
-                                className="text-xs"
-                              >
-                                {enrollment.courses?.label || enrollment.courses?.name}
-                              </Badge>
-                            );
-                          }
-                          return null;
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleEditMember(student)}>
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteMember(student)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">Aucun membre dans cette famille</p>
-          )}
-
-          {/* Modale d'ajout de membre */}
-          <Dialog open={addMemberOpen} onOpenChange={setAddMemberOpen}>
-            <DialogContent className="max-w-md w-full" aria-describedby="add-member-desc">
-              <DialogHeader>
-                <DialogTitle>Ajouter un membre</DialogTitle>
-              </DialogHeader>
-              <div id="add-member-desc" className="sr-only">
-                Remplissez les informations du membre et sélectionnez un ou plusieurs cours à
-                attribuer.
+        {/* Formulaire famille */}
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+            <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Users className="h-5 w-5 text-blue-600" />
               </div>
-              <form
-                className="space-y-4"
-                onSubmit={e => {
-                  e.preventDefault();
-                  setAdding(true);
-                  const formData = new FormData();
-                  formData.set("familyId", familyId);
-                  formData.set("firstName", memberForm.firstName);
-                  formData.set("lastName", memberForm.lastName);
-                  formData.set("birthDate", memberForm.birthDate);
-                  formData.set("studentType", memberType);
-                  selectedCourses.forEach(courseId => {
-                    formData.append("selectedCourses", courseId);
-                  });
-                  React.startTransition(() => {
-                    addAction(formData);
-                  });
-                }}
+              Informations de la famille
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 space-y-6">
+            {state.message && (
+              <Alert
+                className={
+                  state.success
+                    ? "border-green-500 bg-green-50 shadow-lg"
+                    : "border-red-500 bg-red-50 shadow-lg"
+                }
               >
-                <MemberFormFields
-                  memberForm={memberForm}
-                  setMemberForm={setMemberForm}
-                  memberType={memberType}
-                  setMemberType={setMemberType}
-                  selectedCourses={selectedCourses}
-                  setSelectedCourses={setSelectedCourses}
-                  availableCourses={availableCourses}
-                  courseSearch={courseSearch}
-                  setCourseSearch={setCourseSearch}
-                  popoverOpen={popoverOpen}
-                  setPopoverOpen={setPopoverOpen}
-                />
-                <div className="flex justify-end mt-4">
-                  <Button type="submit" disabled={adding}>
-                    {adding ? "Ajout en cours..." : "Ajouter"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+                <AlertDescription className={state.success ? "text-green-800" : "text-red-800"}>
+                  {state.message}
+                </AlertDescription>
+              </Alert>
+            )}
 
-          {/* Modale de modification de membre */}
-          <Dialog open={editMemberOpen} onOpenChange={setEditMemberOpen}>
-            <DialogContent className="max-w-md w-full">
-              <DialogHeader>
-                <DialogTitle>Modifier le membre</DialogTitle>
-              </DialogHeader>
-              <form
-                className="space-y-4"
-                onSubmit={e => {
-                  e.preventDefault();
-                  setUpdating(true);
-                  const formData = new FormData();
-                  formData.set("studentId", selectedStudent?.id || "");
-                  formData.set("firstName", memberForm.firstName);
-                  formData.set("lastName", memberForm.lastName);
-                  formData.set("birthDate", memberForm.birthDate);
-                  formData.set("registrationType", memberType);
-                  selectedCourses.forEach(courseId => {
-                    formData.append("selectedCourses", courseId);
-                  });
-                  React.startTransition(() => {
-                    updateAction(formData);
-                  });
-                }}
-              >
-                <MemberFormFields
-                  memberForm={memberForm}
-                  setMemberForm={setMemberForm}
-                  memberType={memberType}
-                  setMemberType={setMemberType}
-                  selectedCourses={selectedCourses}
-                  setSelectedCourses={setSelectedCourses}
-                  availableCourses={availableCourses}
-                  courseSearch={courseSearch}
-                  setCourseSearch={setCourseSearch}
-                  popoverOpen={popoverOpen}
-                  setPopoverOpen={setPopoverOpen}
-                />
-                <div className="flex justify-end mt-4">
-                  <Button type="submit" disabled={updating}>
-                    {updating ? "Modification en cours..." : "Modifier"}
-                  </Button>
+            <form className="space-y-6" action={handleSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                    Nom *
+                  </Label>
+                  <Input
+                    id="lastName"
+                    name="lastName"
+                    value={form.lastName}
+                    onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))}
+                    className="h-11 border-gray-200 focus:border-blue-300 focus:ring-blue-200"
+                    required
+                  />
+                  {state.errors?.lastName && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <X className="h-3 w-3" />
+                      {state.errors.lastName}
+                    </p>
+                  )}
                 </div>
-              </form>
-            </DialogContent>
-          </Dialog>
 
-          {/* Dialogue de confirmation de suppression */}
-          <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Supprimer le membre</DialogTitle>
-                <DialogDescription>
-                  Êtes-vous sûr de vouloir supprimer {selectedStudent?.first_name}{" "}
-                  {selectedStudent?.last_name} ? Cette action est irréversible et supprimera
-                  également toutes ses inscriptions aux cours.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button>Annuler</Button>
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                    Prénom *
+                  </Label>
+                  <Input
+                    id="firstName"
+                    name="firstName"
+                    value={form.firstName}
+                    onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
+                    className="h-11 border-gray-200 focus:border-blue-300 focus:ring-blue-200"
+                    required
+                  />
+                  {state.errors?.firstName && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <X className="h-3 w-3" />
+                      {state.errors.firstName}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  Email *
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                  className="h-11 border-gray-200 focus:border-green-300 focus:ring-green-200"
+                  required
+                />
+                {state.errors?.email && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <X className="h-3 w-3" />
+                    {state.errors.email}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                  Téléphone
+                </Label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                    <Phone className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    value={form.phone}
+                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                    className="h-11 pl-10 border-gray-200 focus:border-green-300 focus:ring-green-200"
+                  />
+                </div>
+                {state.errors?.phone && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <X className="h-3 w-3" />
+                    {state.errors.phone}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="address" className="text-sm font-medium text-gray-700">
+                  Adresse
+                </Label>
+                <Input
+                  id="address"
+                  name="address"
+                  value={form.address}
+                  onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+                  className="h-11 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
+                />
+                {state.errors?.address && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <X className="h-3 w-3" />
+                    {state.errors.address}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="postalCode" className="text-sm font-medium text-gray-700">
+                    Code postal
+                  </Label>
+                  <Input
+                    id="postalCode"
+                    name="postalCode"
+                    value={form.postalCode}
+                    onChange={e => setForm(f => ({ ...f, postalCode: e.target.value }))}
+                    className="h-11 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
+                  />
+                  {state.errors?.postalCode && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <X className="h-3 w-3" />
+                      {state.errors.postalCode}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="city" className="text-sm font-medium text-gray-700">
+                    Ville
+                  </Label>
+                  <Input
+                    id="city"
+                    name="city"
+                    value={form.city}
+                    onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+                    className="h-11 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
+                  />
+                  {state.errors?.city && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <X className="h-3 w-3" />
+                      {state.errors.city}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-6 border-t border-gray-200">
                 <Button
-                  onClick={() => {
-                    setDeleting(true);
+                  type="submit"
+                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Enregistrer
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Liste des membres */}
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <UserPlus className="h-5 w-5 text-green-600" />
+                </div>
+                Membres de la famille
+              </CardTitle>
+              <Button
+                variant="outline"
+                onClick={handleAddMember}
+                className="bg-white/80 hover:bg-white border-green-200 hover:border-green-300"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Ajouter un membre
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            {/* Messages pour les actions sur les membres */}
+            {(addState.message || updateState.message || deleteState.message) && (
+              <Alert
+                className={`mb-6 ${
+                  addState.success || updateState.success || deleteState.success
+                    ? "border-green-500 bg-green-50 shadow-lg"
+                    : "border-red-500 bg-red-50 shadow-lg"
+                }`}
+              >
+                <AlertDescription
+                  className={
+                    addState.success || updateState.success || deleteState.success
+                      ? "text-green-800"
+                      : "text-red-800"
+                  }
+                >
+                  {addState.message || updateState.message || deleteState.message}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Liste des étudiants existants */}
+            {family.students && family.students.length > 0 ? (
+              <div className="space-y-4">
+                {family.students.map((student: Student) => (
+                  <div
+                    key={student.id}
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-white/50 hover:bg-white/80 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                          {student.first_name?.[0]}
+                          {student.last_name?.[0]}
+                        </div>
+                        <div>
+                          <span className="font-semibold text-gray-900">
+                            {student.first_name} {student.last_name}
+                          </span>
+                          <Badge
+                            className="ml-2 text-xs"
+                            variant={
+                              student.registration_type === "child" ? "default" : "secondary"
+                            }
+                          >
+                            {student.registration_type === "child" ? "Enfant" : "Adulte"}
+                          </Badge>
+                        </div>
+                      </div>
+                      {student.birth_date && (
+                        <p className="text-sm text-gray-600 ml-12">
+                          Né(e) le {new Date(student.birth_date).toLocaleDateString("fr-FR")}
+                        </p>
+                      )}
+                      {student.enrollments && student.enrollments.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3 ml-12">
+                          {student.enrollments.map((enrollment: Enrollment, index: number) => {
+                            if (enrollment.status === "active") {
+                              return (
+                                <Badge
+                                  key={`${enrollment.id || "no-id"}-${enrollment.course_id || "no-course"}-${index}`}
+                                  variant="outline"
+                                  className="text-xs bg-blue-50 border-blue-200 text-blue-700"
+                                >
+                                  {enrollment.courses?.label || enrollment.courses?.name}
+                                </Badge>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditMember(student)}
+                        className="border-gray-300 hover:bg-gray-50"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteMember(student)}
+                        className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="p-4 bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                  <Users className="h-8 w-8 text-gray-400" />
+                </div>
+                <p className="text-gray-500 text-lg font-medium">Aucun membre dans cette famille</p>
+                <p className="text-gray-400 text-sm mt-1">
+                  Ajoutez le premier membre pour commencer
+                </p>
+              </div>
+            )}
+
+            {/* Modale d'ajout de membre */}
+            <Dialog open={addMemberOpen} onOpenChange={setAddMemberOpen}>
+              <DialogContent className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 to-blue-50">
+                <DialogHeader className="text-center pb-4 sticky top-0 bg-gradient-to-br from-slate-50 to-blue-50 z-10">
+                  <div className="flex items-center justify-center gap-3 mb-2">
+                    <div className="p-2 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-lg">
+                      <UserPlus className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                        Ajouter un membre
+                      </DialogTitle>
+                    </div>
+                  </div>
+                </DialogHeader>
+                <div id="add-member-desc" className="sr-only">
+                  Remplissez les informations du membre et sélectionnez un ou plusieurs cours à
+                  attribuer.
+                </div>
+                <form
+                  className="space-y-4"
+                  onSubmit={e => {
+                    e.preventDefault();
+                    setAdding(true);
                     const formData = new FormData();
-                    formData.set("studentId", selectedStudent?.id || "");
+                    formData.set("familyId", familyId);
+                    formData.set("firstName", memberForm.firstName);
+                    formData.set("lastName", memberForm.lastName);
+                    formData.set("birthDate", memberForm.birthDate);
+                    formData.set("studentType", memberType);
+                    selectedCourses.forEach(courseId => {
+                      formData.append("selectedCourses", courseId);
+                    });
                     React.startTransition(() => {
-                      deleteAction(formData);
+                      addAction(formData);
                     });
                   }}
-                  className="bg-red-600 hover:bg-red-700"
-                  disabled={deleting}
                 >
-                  {deleting ? "Suppression..." : "Supprimer"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </CardContent>
-      </Card>
+                  <MemberFormFields
+                    memberForm={memberForm}
+                    setMemberForm={setMemberForm}
+                    memberType={memberType}
+                    setMemberType={setMemberType}
+                    selectedCourses={selectedCourses}
+                    setSelectedCourses={setSelectedCourses}
+                    availableCourses={availableCourses}
+                    courseSearch={courseSearch}
+                    setCourseSearch={setCourseSearch}
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
+                  <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 sticky bottom-0 bg-gradient-to-br from-slate-50 to-blue-50">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setAddMemberOpen(false)}
+                      className="px-6 py-2 border-gray-300 hover:bg-gray-50"
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={adding}
+                      className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <UserPlus size={16} className="mr-2" />
+                      {adding ? "Ajout en cours..." : "Ajouter le membre"}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            {/* Modale de modification de membre */}
+            <Dialog open={editMemberOpen} onOpenChange={setEditMemberOpen}>
+              <DialogContent className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 to-blue-50">
+                <DialogHeader className="text-center pb-4 sticky top-0 bg-gradient-to-br from-slate-50 to-blue-50 z-10">
+                  <div className="flex items-center justify-center gap-3 mb-2">
+                    <div className="p-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
+                      <Edit className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <DialogTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        Modifier le membre
+                      </DialogTitle>
+                    </div>
+                  </div>
+                </DialogHeader>
+                <form
+                  className="space-y-4"
+                  onSubmit={e => {
+                    e.preventDefault();
+                    setUpdating(true);
+                    const formData = new FormData();
+                    formData.set("studentId", selectedStudent?.id || "");
+                    formData.set("firstName", memberForm.firstName);
+                    formData.set("lastName", memberForm.lastName);
+                    formData.set("birthDate", memberForm.birthDate);
+                    formData.set("registrationType", memberType);
+                    selectedCourses.forEach(courseId => {
+                      formData.append("selectedCourses", courseId);
+                    });
+                    React.startTransition(() => {
+                      updateAction(formData);
+                    });
+                  }}
+                >
+                  <MemberFormFields
+                    memberForm={memberForm}
+                    setMemberForm={setMemberForm}
+                    memberType={memberType}
+                    setMemberType={setMemberType}
+                    selectedCourses={selectedCourses}
+                    setSelectedCourses={setSelectedCourses}
+                    availableCourses={availableCourses}
+                    courseSearch={courseSearch}
+                    setCourseSearch={setCourseSearch}
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
+                  <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 sticky bottom-0 bg-gradient-to-br from-slate-50 to-blue-50">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setEditMemberOpen(false)}
+                      className="px-6 py-2 border-gray-300 hover:bg-gray-50"
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={updating}
+                      className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <Edit size={16} className="mr-2" />
+                      {updating ? "Modification en cours..." : "Modifier le membre"}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            {/* Dialogue de confirmation de suppression */}
+            <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+              <DialogContent className="bg-white/95 backdrop-blur-sm">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-red-600">
+                    <Trash2 className="h-5 w-5" />
+                    Supprimer le membre
+                  </DialogTitle>
+                  <DialogDescription className="text-gray-600">
+                    Êtes-vous sûr de vouloir supprimer{" "}
+                    <strong>
+                      {selectedStudent?.first_name} {selectedStudent?.last_name}
+                    </strong>{" "}
+                    ? Cette action est irréversible et supprimera également toutes ses inscriptions
+                    aux cours.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setDeleteConfirmOpen(false)}
+                    className="border-gray-300 hover:bg-gray-50"
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setDeleting(true);
+                      const formData = new FormData();
+                      formData.set("studentId", selectedStudent?.id || "");
+                      React.startTransition(() => {
+                        deleteAction(formData);
+                      });
+                    }}
+                    className="bg-red-600 hover:bg-red-700 shadow-lg"
+                    disabled={deleting}
+                  >
+                    {deleting ? "Suppression..." : "Supprimer"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -609,123 +857,214 @@ function MemberFormFields({
   setPopoverOpen,
 }: MemberFormFieldsProps) {
   return (
-    <div className="flex flex-col gap-2">
-      <label className="block text-sm font-medium mb-1">Prénom</label>
-      <Input
-        name="firstName"
-        value={memberForm.firstName}
-        onChange={e => setMemberForm(f => ({ ...f, firstName: e.target.value }))}
-      />
-      <label className="block text-sm font-medium mb-1">Nom</label>
-      <Input
-        name="lastName"
-        value={memberForm.lastName}
-        onChange={e => setMemberForm(f => ({ ...f, lastName: e.target.value }))}
-      />
-      <label className="block text-sm font-medium mb-1">Date de naissance</label>
-      <Input
-        name="birthDate"
-        type="date"
-        value={memberForm.birthDate}
-        onChange={e => setMemberForm(f => ({ ...f, birthDate: e.target.value }))}
-      />
-      <label className="block text-sm font-medium mb-1">Type</label>
-      <Select onValueChange={value => setMemberType(value as "child" | "adult")} value={memberType}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Type de membre" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="child">Enfant</SelectItem>
-          <SelectItem value="adult">Adulte</SelectItem>
-        </SelectContent>
-      </Select>
-
-      <label className="block text-sm font-medium mb-1">Cours (optionnel)</label>
-      <div className="space-y-2" data-course-selector>
-        <Button
-          variant="outline"
-          className="w-full justify-between"
-          type="button"
-          onClick={() => setPopoverOpen(!popoverOpen)}
-        >
-          {selectedCourses.length === 0
-            ? "Sélectionner des cours"
-            : `${selectedCourses.length} cours sélectionné(s)`}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-
-        {popoverOpen && (
-          <div className="border rounded-md bg-white shadow-lg max-h-60 overflow-y-auto z-50 relative">
-            <div className="p-2 border-b">
+    <div className="space-y-4">
+      {/* Informations personnelles */}
+      <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 py-4">
+          <CardTitle className="flex items-center gap-3 text-base font-semibold text-gray-900">
+            <div className="p-1.5 bg-blue-100 rounded-lg">
+              <Users className="h-4 w-4 text-blue-600" />
+            </div>
+            Informations personnelles
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                Prénom *
+              </Label>
               <Input
-                placeholder="Chercher un cours..."
-                value={courseSearch}
-                onChange={e => setCourseSearch(e.target.value)}
-                className="h-8"
+                id="firstName"
+                name="firstName"
+                value={memberForm.firstName}
+                onChange={e => setMemberForm(f => ({ ...f, firstName: e.target.value }))}
+                className="h-10 border-gray-200 focus:border-blue-300 focus:ring-blue-200"
+                placeholder="Prénom"
+                required
               />
             </div>
-            <div className="p-1">
-              {availableCourses.length === 0 ? (
-                <div className="p-2 text-sm text-gray-500">Aucun cours disponible</div>
-              ) : (
-                availableCourses
-                  .filter((course: any) =>
-                    (course.label || course.name || "")
-                      ?.toLowerCase()
-                      .includes(courseSearch.toLowerCase())
-                  )
-                  .map((course: any) => (
-                    <div
-                      key={course.id}
-                      className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
-                      onClick={() => {
-                        setSelectedCourses((prev: string[]) =>
-                          prev.includes(course.id)
-                            ? prev.filter((id: string) => id !== course.id)
-                            : [...prev, course.id]
-                        );
-                      }}
-                    >
-                      <Check
-                        className={`h-4 w-4 ${
-                          selectedCourses.includes(course.id) ? "opacity-100" : "opacity-0"
-                        }`}
-                      />
-                      <span className="flex-1">{course.label || course.name}</span>
-                      {course.category && (
-                        <Badge variant="outline" className="text-xs">
-                          {course.category}
-                        </Badge>
-                      )}
-                    </div>
-                  ))
+            <div className="space-y-1.5">
+              <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                Nom *
+              </Label>
+              <Input
+                id="lastName"
+                name="lastName"
+                value={memberForm.lastName}
+                onChange={e => setMemberForm(f => ({ ...f, lastName: e.target.value }))}
+                className="h-10 border-gray-200 focus:border-blue-300 focus:ring-blue-200"
+                placeholder="Nom de famille"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="birthDate" className="text-sm font-medium text-gray-700">
+                Date de naissance *
+              </Label>
+              <Input
+                id="birthDate"
+                name="birthDate"
+                type="date"
+                value={memberForm.birthDate}
+                onChange={e => setMemberForm(f => ({ ...f, birthDate: e.target.value }))}
+                className="h-10 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="studentType" className="text-sm font-medium text-gray-700">
+                Type de membre *
+              </Label>
+              <Select
+                onValueChange={value => setMemberType(value as "child" | "adult")}
+                value={memberType}
+                required
+              >
+                <SelectTrigger className="w-full h-10 border-gray-200 focus:border-purple-300 focus:ring-purple-200">
+                  <SelectValue placeholder="Sélectionner un type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="child">Enfant</SelectItem>
+                  <SelectItem value="adult">Adulte</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Sélection des cours */}
+      <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100 py-4">
+          <CardTitle className="flex items-center gap-3 text-base font-semibold text-gray-900">
+            <div className="p-1.5 bg-green-100 rounded-lg">
+              <Check className="h-4 w-4 text-green-600" />
+            </div>
+            Inscription aux cours (optionnel)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="courses" className="text-sm font-medium text-gray-700">
+              Cours disponibles
+            </Label>
+            <div className="space-y-1.5" data-course-selector>
+              <Button
+                variant="outline"
+                className="w-full justify-between h-10 border-gray-200 focus:border-green-300 focus:ring-green-200 bg-white"
+                type="button"
+                onClick={() => setPopoverOpen(!popoverOpen)}
+              >
+                {selectedCourses.length === 0
+                  ? "Sélectionner des cours"
+                  : `${selectedCourses.length} cours sélectionné(s)`}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+
+              {popoverOpen && (
+                <div className="border rounded-lg bg-white shadow-xl max-h-48 overflow-y-auto z-50 relative">
+                  <div className="p-2 border-b bg-gray-50">
+                    <Input
+                      placeholder="Chercher un cours..."
+                      value={courseSearch}
+                      onChange={e => setCourseSearch(e.target.value)}
+                      className="h-9 border-gray-200 focus:border-green-300 focus:ring-green-200"
+                    />
+                  </div>
+                  <div className="p-1">
+                    {availableCourses.length === 0 ? (
+                      <div className="p-3 text-center text-gray-500">
+                        <Users className="h-6 w-6 mx-auto mb-1 text-gray-300" />
+                        <p className="text-xs">Aucun cours disponible</p>
+                      </div>
+                    ) : (
+                      availableCourses
+                        .filter((course: any) =>
+                          (course.label || course.name || "")
+                            ?.toLowerCase()
+                            .includes(courseSearch.toLowerCase())
+                        )
+                        .map((course: any) => (
+                          <div
+                            key={course.id}
+                            className="flex items-center gap-2 p-2 hover:bg-green-50 cursor-pointer rounded transition-colors"
+                            onClick={() => {
+                              setSelectedCourses((prev: string[]) =>
+                                prev.includes(course.id)
+                                  ? prev.filter((id: string) => id !== course.id)
+                                  : [...prev, course.id]
+                              );
+                            }}
+                          >
+                            <div
+                              className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                                selectedCourses.includes(course.id)
+                                  ? "bg-green-600 border-green-600"
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {selectedCourses.includes(course.id) && (
+                                <Check className="h-2.5 w-2.5 text-white" />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <span className="font-medium text-gray-900 text-sm">
+                                {course.label || course.name}
+                              </span>
+                              {course.category && (
+                                <Badge
+                                  variant="outline"
+                                  className="ml-1 text-xs bg-blue-50 border-blue-200 text-blue-700"
+                                >
+                                  {course.category}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </div>
-        )}
-      </div>
 
-      {/* Affichage des cours sélectionnés */}
-      {selectedCourses.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-2">
-          {selectedCourses.map((courseId: string) => {
-            const course = availableCourses.find((c: any) => c.id === courseId);
-            return (
-              <Badge key={courseId} variant="secondary" className="text-xs">
-                {course?.label}
-                <X
-                  className="ml-1 h-3 w-3 cursor-pointer"
-                  onClick={() =>
-                    setSelectedCourses((prev: string[]) =>
-                      prev.filter((id: string) => id !== courseId)
-                    )
-                  }
-                />
-              </Badge>
-            );
-          })}
-        </div>
-      )}
+          {/* Affichage des cours sélectionnés */}
+          {selectedCourses.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">
+                Cours sélectionnés ({selectedCourses.length})
+              </Label>
+              <div className="flex flex-wrap gap-1.5 p-2 bg-green-50 rounded-lg border border-green-200">
+                {selectedCourses.map((courseId: string) => {
+                  const course = availableCourses.find((c: any) => c.id === courseId);
+                  return (
+                    <Badge
+                      key={courseId}
+                      variant="secondary"
+                      className="text-xs bg-green-100 text-green-800 border-green-200 hover:bg-green-200"
+                    >
+                      {course?.label || course?.name}
+                      <X
+                        className="ml-1 h-3 w-3 cursor-pointer hover:text-green-900"
+                        onClick={() =>
+                          setSelectedCourses((prev: string[]) =>
+                            prev.filter((id: string) => id !== courseId)
+                          )
+                        }
+                      />
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

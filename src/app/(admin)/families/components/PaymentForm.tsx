@@ -5,15 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
-import { Family, ChequeLot } from "@/types/families";
+import { Family } from "@/types/families";
 import { useToast } from "@/hooks/use-toast";
 
 // Type pour les chèques dans le formulaire (accepte des chaînes vides)
@@ -42,7 +36,15 @@ const BANKS = [
 
 interface PaymentFormProps {
   family: Family;
-  onSave: (paymentData: any) => Promise<void>;
+  onSave: (paymentData: {
+    cash_amount: number;
+    card_amount: number;
+    bank_transfer_amount: number;
+    books: boolean;
+    cheque_lots: ChequeLotForm[];
+    refund_amount: number;
+    remarks: string;
+  }) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -75,7 +77,7 @@ export default function PaymentForm({ family, onSave, onCancel }: PaymentFormPro
 
   const removeChequeLot = (idx: number) => setChequeLots(chequeLots.filter((_, i) => i !== idx));
 
-  const updateChequeLot = (idx: number, field: keyof ChequeLot, value: any) =>
+  const updateChequeLot = (idx: number, field: keyof ChequeLotForm, value: any) =>
     setChequeLots(chequeLots.map((c, i) => (i === idx ? { ...c, [field]: value } : c)));
 
   // Fonctions utilitaires pour convertir les chaînes en nombres
@@ -108,13 +110,13 @@ export default function PaymentForm({ family, onSave, onCancel }: PaymentFormPro
       }
 
       const paymentData = {
-        amount_cash: cashAmount,
-        amount_card: cardAmount,
-        amount_transfer: transferAmount,
+        cash_amount: cashAmount,
+        card_amount: cardAmount,
+        bank_transfer_amount: transferAmount,
         refund_amount: refundAmount,
         books: paymentForm.books,
         remarks: remarques,
-        cheques: chequeLots
+        cheque_lots: chequeLots
           .filter(lot => parseNumber(lot.count) > 0 && parseNumber(lot.amount) > 0)
           .map(lot => ({
             count: parseNumber(lot.count),

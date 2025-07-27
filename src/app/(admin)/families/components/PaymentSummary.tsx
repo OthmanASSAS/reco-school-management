@@ -17,7 +17,7 @@ import PaymentHistoryCard from "./PaymentHistoryCard";
 interface PaymentSummaryProps {
   family: Family;
   currentSchoolYear: string | null;
-  schoolYears: any[];
+  schoolYears: { id: string; label?: string; start_date: string; end_date?: string }[];
   onStartPayment: () => void;
   onClose: () => void;
 }
@@ -74,7 +74,7 @@ export default function PaymentSummary({
           Famille {family.first_name} {family.last_name}
         </h4>
         <p className="text-sm text-blue-600">{family.email}</p>
-        <p className="text-sm text-blue-600">{family.phone}</p>
+        <p className="text-sm text-blue-600">{family.phone || "Non renseigné"}</p>
       </div>
 
       {/* Cours par étudiant */}

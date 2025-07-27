@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { UserPlus, AlertCircle, Users, Mail, Phone, MapPin } from "lucide-react";
+import { UserPlus, AlertCircle, Users, Mail, MapPin, Home, Phone } from "lucide-react";
 import { createFamily, FamilyState } from "@/lib/actions/families";
 
 interface FamilyFormModalProps {
@@ -77,7 +77,7 @@ export default function FamilyFormModal({ onFamilyCreated, triggerButton }: Fami
   };
 
   const defaultTrigger = (
-    <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300">
       <UserPlus size={16} className="mr-2" />
       Nouvelle famille
     </Button>
@@ -87,12 +87,18 @@ export default function FamilyFormModal({ onFamilyCreated, triggerButton }: Fami
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{triggerButton || defaultTrigger}</DialogTrigger>
 
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Users size={24} />
-            Nouvelle famille
-          </DialogTitle>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 to-blue-50">
+        <DialogHeader className="text-center pb-6">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
+              <Users className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Nouvelle famille
+              </DialogTitle>
+            </div>
+          </div>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -100,7 +106,9 @@ export default function FamilyFormModal({ onFamilyCreated, triggerButton }: Fami
           {state.message && (
             <Alert
               className={
-                state.success ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"
+                state.success
+                  ? "border-green-500 bg-green-50 shadow-lg"
+                  : "border-red-500 bg-red-50 shadow-lg"
               }
             >
               <AlertCircle
@@ -114,40 +122,54 @@ export default function FamilyFormModal({ onFamilyCreated, triggerButton }: Fami
 
           <form action={handleSubmit} className="space-y-6">
             {/* Informations de la famille */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users size={20} />
+            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+                <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Users className="h-5 w-5 text-blue-600" />
+                  </div>
                   Informations de la famille
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="parentFirstName">Prénom du parent *</Label>
+                    <Label htmlFor="parentFirstName" className="text-sm font-medium text-gray-700">
+                      Prénom du parent *
+                    </Label>
                     <Input
                       id="parentFirstName"
                       value={family.parentFirstName}
                       onChange={e => setFamily({ ...family, parentFirstName: e.target.value })}
                       placeholder="Prénom"
+                      className="h-11 border-gray-200 focus:border-blue-300 focus:ring-blue-200"
                       required
                     />
                     {state.errors?.firstName && (
-                      <p className="text-sm text-red-600">{state.errors.firstName}</p>
+                      <p className="text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {state.errors.firstName}
+                      </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="familyName">Nom de famille *</Label>
+                    <Label htmlFor="familyName" className="text-sm font-medium text-gray-700">
+                      Nom de famille *
+                    </Label>
                     <Input
                       id="familyName"
                       value={family.familyName}
                       onChange={e => setFamily({ ...family, familyName: e.target.value })}
                       placeholder="Nom de famille"
+                      className="h-11 border-gray-200 focus:border-blue-300 focus:ring-blue-200"
                       required
                     />
                     {state.errors?.lastName && (
-                      <p className="text-sm text-red-600">{state.errors.lastName}</p>
+                      <p className="text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {state.errors.lastName}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -155,91 +177,130 @@ export default function FamilyFormModal({ onFamilyCreated, triggerButton }: Fami
             </Card>
 
             {/* Informations de contact */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail size={20} />
+            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
+                <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Mail className="h-5 w-5 text-green-600" />
+                  </div>
                   Informations de contact
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="contactEmail">Email *</Label>
+                  <Label htmlFor="contactEmail" className="text-sm font-medium text-gray-700">
+                    Email *
+                  </Label>
                   <Input
                     id="contactEmail"
                     type="email"
                     value={family.contactEmail}
                     onChange={e => setFamily({ ...family, contactEmail: e.target.value })}
                     placeholder="email@exemple.com"
+                    className="h-11 border-gray-200 focus:border-green-300 focus:ring-green-200"
                     required
                   />
                   {state.errors?.email && (
-                    <p className="text-sm text-red-600">{state.errors.email}</p>
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {state.errors.email}
+                    </p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contactPhone">Téléphone</Label>
-                  <Input
-                    id="contactPhone"
-                    type="tel"
-                    value={family.contactPhone}
-                    onChange={e => setFamily({ ...family, contactPhone: e.target.value })}
-                    placeholder="06 12 34 56 78"
-                  />
+                  <Label htmlFor="contactPhone" className="text-sm font-medium text-gray-700">
+                    Téléphone
+                  </Label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                      <Phone className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <Input
+                      id="contactPhone"
+                      type="tel"
+                      value={family.contactPhone}
+                      onChange={e => setFamily({ ...family, contactPhone: e.target.value })}
+                      placeholder="06 12 34 56 78"
+                      className="h-11 pl-10 border-gray-200 focus:border-green-300 focus:ring-green-200"
+                    />
+                  </div>
                   {state.errors?.phone && (
-                    <p className="text-sm text-red-600">{state.errors.phone}</p>
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {state.errors.phone}
+                    </p>
                   )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Adresse */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin size={20} />
+            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100">
+                <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Home className="h-5 w-5 text-purple-600" />
+                  </div>
                   Adresse
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="address">Adresse</Label>
+                  <Label htmlFor="address" className="text-sm font-medium text-gray-700">
+                    Adresse
+                  </Label>
                   <Input
                     id="address"
                     value={family.address}
                     onChange={e => setFamily({ ...family, address: e.target.value })}
                     placeholder="123 Rue de la Paix"
+                    className="h-11 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                   />
                   {state.errors?.address && (
-                    <p className="text-sm text-red-600">{state.errors.address}</p>
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {state.errors.address}
+                    </p>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="postalCode">Code postal</Label>
+                    <Label htmlFor="postalCode" className="text-sm font-medium text-gray-700">
+                      Code postal
+                    </Label>
                     <Input
                       id="postalCode"
                       value={family.postalCode}
                       onChange={e => setFamily({ ...family, postalCode: e.target.value })}
                       placeholder="75001"
+                      className="h-11 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
                     {state.errors?.postalCode && (
-                      <p className="text-sm text-red-600">{state.errors.postalCode}</p>
+                      <p className="text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {state.errors.postalCode}
+                      </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="city">Ville</Label>
+                    <Label htmlFor="city" className="text-sm font-medium text-gray-700">
+                      Ville
+                    </Label>
                     <Input
                       id="city"
                       value={family.city}
                       onChange={e => setFamily({ ...family, city: e.target.value })}
                       placeholder="Paris"
+                      className="h-11 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
                     {state.errors?.city && (
-                      <p className="text-sm text-red-600">{state.errors.city}</p>
+                      <p className="text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {state.errors.city}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -247,11 +308,21 @@ export default function FamilyFormModal({ onFamilyCreated, triggerButton }: Fami
             </Card>
 
             {/* Boutons d'action */}
-            <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                className="px-6 py-2 border-gray-300 hover:bg-gray-50"
+              >
                 Annuler
               </Button>
-              <Button type="submit" disabled={state.success}>
+              <Button
+                type="submit"
+                disabled={state.success}
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <UserPlus size={16} className="mr-2" />
                 Créer la famille
               </Button>
             </div>

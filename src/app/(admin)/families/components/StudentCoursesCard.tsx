@@ -1,8 +1,8 @@
 import { User } from "lucide-react";
 
 interface StudentCoursesCardProps {
-  student: any;
-  enrollments: any[];
+  student: { first_name: string; last_name: string; registration_type: string };
+  enrollments: { id: string; courses?: { name?: string; type?: string; price?: number } }[];
   totalPaid: number;
   totalDue: number;
 }
