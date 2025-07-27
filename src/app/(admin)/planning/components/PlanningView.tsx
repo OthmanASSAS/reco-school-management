@@ -49,7 +49,7 @@ export default function PlanningView() {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [rooms, setRooms] = useState<string[]>([]);
 
-  const weekDays = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+  const weekDays = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
 
   // Créer les blocs de 4h
   const timeBlocks = [
@@ -66,6 +66,50 @@ export default function PlanningView() {
       label: `${day} ${block.short}`,
     }))
   );
+
+  // Fonction pour obtenir la couleur de fond selon le jour
+  const getDayBackgroundColor = (day: string) => {
+    switch (day) {
+      case "Lundi":
+        return "bg-blue-50";
+      case "Mardi":
+        return "bg-green-50";
+      case "Mercredi":
+        return "bg-yellow-50";
+      case "Jeudi":
+        return "bg-purple-50";
+      case "Vendredi":
+        return "bg-orange-50";
+      case "Samedi":
+        return "bg-pink-50";
+      case "Dimanche":
+        return "bg-red-50";
+      default:
+        return "bg-gray-50";
+    }
+  };
+
+  // Fonction pour obtenir la couleur de bordure selon le jour
+  const getDayBorderColor = (day: string) => {
+    switch (day) {
+      case "Lundi":
+        return "border-blue-200";
+      case "Mardi":
+        return "border-green-200";
+      case "Mercredi":
+        return "border-yellow-200";
+      case "Jeudi":
+        return "border-purple-200";
+      case "Vendredi":
+        return "border-orange-200";
+      case "Samedi":
+        return "border-pink-200";
+      case "Dimanche":
+        return "border-red-200";
+      default:
+        return "border-gray-200";
+    }
+  };
 
   useEffect(() => {
     fetchCourses();
@@ -311,8 +355,13 @@ export default function PlanningView() {
               {/* Grille des jours/horaires */}
               {timeRows.map(row => (
                 <div key={row.label} className="contents">
-                  <div className="p-3 border-r bg-gray-50 text-xs text-gray-600 flex items-center justify-center font-medium">
-                    {row.label}
+                  <div
+                    className={`p-3 border-r text-xs text-gray-700 flex items-center justify-center font-medium ${getDayBackgroundColor(row.day)} ${getDayBorderColor(row.day)}`}
+                  >
+                    <div className="text-center">
+                      <div className="font-bold">{row.day}</div>
+                      <div className="text-xs opacity-75">{row.block.short}</div>
+                    </div>
                   </div>
                   {rooms.map(room => {
                     const coursesInRoom = schedule.filter(
@@ -329,7 +378,7 @@ export default function PlanningView() {
                     return (
                       <div
                         key={`${room}-${row.label}`}
-                        className="relative p-1 border-r border-b min-h-[120px] bg-gray-25 hover:bg-gray-50 transition-colors"
+                        className={`relative p-1 border-r border-b min-h-[120px] ${getDayBackgroundColor(row.day)} ${getDayBorderColor(row.day)} hover:opacity-80 transition-all`}
                       >
                         {coursesInRoom.map(course => (
                           <div

@@ -672,6 +672,9 @@ async function main() {
     "Samedi 09:00-11:00",
     "Samedi 14:00-16:00",
     "Samedi 16:00-18:00",
+    "Dimanche 09:00-11:00",
+    "Dimanche 14:00-16:00",
+    "Dimanche 16:00-18:00",
   ];
 
   for (const course of allCourses || []) {
