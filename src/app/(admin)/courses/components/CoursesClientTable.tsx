@@ -92,9 +92,18 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      active: { label: "Actif", className: "bg-green-100 text-green-800" },
-      inactive: { label: "Inactif", className: "bg-gray-100 text-gray-800" },
-      finished: { label: "Terminé", className: "bg-blue-100 text-blue-800" },
+      active: {
+        label: "Actif",
+        className: "bg-green-100 text-green-800 text-xs px-1.5 py-0.5 h-5",
+      },
+      inactive: {
+        label: "Inactif",
+        className: "bg-gray-100 text-gray-800 text-xs px-1.5 py-0.5 h-5",
+      },
+      finished: {
+        label: "Terminé",
+        className: "bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5 h-5",
+      },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.inactive;
@@ -108,8 +117,14 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
 
   const getTypeBadge = (type: string) => {
     const typeConfig = {
-      enfants: { label: "Enfants", className: "bg-orange-100 text-orange-800" },
-      adultes: { label: "Adultes", className: "bg-purple-100 text-purple-800" },
+      enfants: {
+        label: "Enfants",
+        className: "bg-orange-100 text-orange-800 text-xs px-1.5 py-0.5 h-5",
+      },
+      adultes: {
+        label: "Adultes",
+        className: "bg-purple-100 text-purple-800 text-xs px-1.5 py-0.5 h-5",
+      },
     };
 
     const config = typeConfig[type as keyof typeof typeConfig] || typeConfig.adultes;
@@ -182,34 +197,34 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                 </p>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[1000px]">
                   <thead>
                     <tr className="bg-gray-50/50">
-                      <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wide">
+                      <th className="text-left py-4 px-3 font-semibold text-gray-700 text-sm uppercase tracking-wide w-64">
                         Cours
                       </th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wide">
+                      <th className="text-left py-4 px-3 font-semibold text-gray-700 text-sm uppercase tracking-wide w-24">
                         Type
                       </th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wide">
+                      <th className="text-left py-4 px-3 font-semibold text-gray-700 text-sm uppercase tracking-wide w-48">
                         Professeur
                       </th>
-                      <th className="text-left py-4 px-6 font-6 font-semibold text-gray-700 text-sm uppercase tracking-wide">
+                      <th className="text-left py-4 px-3 font-semibold text-gray-700 text-sm uppercase tracking-wide w-48">
                         Salle
                       </th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wide">
+                      <th className="text-left py-4 px-3 font-semibold text-gray-700 text-sm uppercase tracking-wide w-32">
                         Prix
                       </th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wide">
+                      <th className="text-left py-4 px-3 font-semibold text-gray-700 text-sm uppercase tracking-wide w-20">
                         Capacité
                       </th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wide">
+                      <th className="text-left py-4 px-3 font-semibold text-gray-700 text-sm uppercase tracking-wide w-20">
                         Inscrits
                       </th>
-                      <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wide">
+                      <th className="text-left py-4 px-3 font-semibold text-gray-700 text-sm uppercase tracking-wide w-20">
                         Statut
                       </th>
-                      <th className="text-right py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wide">
+                      <th className="text-right py-4 px-3 font-semibold text-gray-700 text-sm uppercase tracking-wide w-24">
                         Actions
                       </th>
                     </tr>
@@ -220,7 +235,7 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                         key={course.id}
                         className="group hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-200"
                       >
-                        <td className="py-5 px-6">
+                        <td className="py-4 px-3">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:shadow-xl transition-all duration-200">
                               {course.name
@@ -241,9 +256,9 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                             </div>
                           </div>
                         </td>
-                        <td className="py-5 px-6">{getTypeBadge(course.type)}</td>
-                        <td className="py-5 px-6">
-                          <div className="flex items-center gap-3 p-2 bg-purple-50/50 rounded-lg group-hover:bg-purple-100/50 transition-colors">
+                        <td className="py-4 px-3">{getTypeBadge(course.type)}</td>
+                        <td className="py-4 px-3">
+                          <div className="flex items-center gap-2 p-1.5 bg-purple-50/50 rounded-lg group-hover:bg-purple-100/50 transition-colors">
                             <div className="p-1 bg-purple-100 rounded-md flex-shrink-0 w-6 h-6 flex items-center justify-center">
                               <Users size={12} className="text-purple-600" />
                             </div>
@@ -252,8 +267,8 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                             </span>
                           </div>
                         </td>
-                        <td className="py-5 px-6">
-                          <div className="flex items-center gap-3 p-2 bg-green-50/50 rounded-lg group-hover:bg-green-100/50 transition-colors">
+                        <td className="py-4 px-3">
+                          <div className="flex items-center gap-2 p-1.5 bg-green-50/50 rounded-lg group-hover:bg-green-100/50 transition-colors">
                             <div className="p-1 bg-green-100 rounded-md flex-shrink-0 w-6 h-6 flex items-center justify-center">
                               <MapPin size={12} className="text-green-600" />
                             </div>
@@ -262,8 +277,8 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                             </span>
                           </div>
                         </td>
-                        <td className="py-5 px-6">
-                          <div className="flex items-center gap-3 p-2 bg-yellow-50/50 rounded-lg group-hover:bg-yellow-100/50 transition-colors">
+                        <td className="py-4 px-3">
+                          <div className="flex items-center gap-2 p-1.5 bg-yellow-50/50 rounded-lg group-hover:bg-yellow-100/50 transition-colors">
                             <div className="p-1 bg-yellow-100 rounded-md flex-shrink-0 w-6 h-6 flex items-center justify-center">
                               <Euro size={12} className="text-yellow-600" />
                             </div>
@@ -272,8 +287,8 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                             </span>
                           </div>
                         </td>
-                        <td className="py-5 px-6">
-                          <div className="flex items-center gap-3 p-2 bg-orange-50/50 rounded-lg group-hover:bg-orange-100/50 transition-colors">
+                        <td className="py-4 px-3">
+                          <div className="flex items-center gap-2 p-1.5 bg-orange-50/50 rounded-lg group-hover:bg-orange-100/50 transition-colors">
                             <div className="p-1 bg-orange-100 rounded-md flex-shrink-0 w-6 h-6 flex items-center justify-center">
                               <Users size={12} className="text-orange-600" />
                             </div>
@@ -282,8 +297,8 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                             </span>
                           </div>
                         </td>
-                        <td className="py-5 px-6">
-                          <div className="flex items-center gap-3 p-2 bg-blue-50/50 rounded-lg group-hover:bg-blue-100/50 transition-colors">
+                        <td className="py-4 px-3">
+                          <div className="flex items-center gap-2 p-1.5 bg-blue-50/50 rounded-lg group-hover:bg-blue-100/50 transition-colors">
                             <div className="p-1 bg-blue-100 rounded-md flex-shrink-0 w-6 h-6 flex items-center justify-center">
                               <BookOpen size={12} className="text-blue-600" />
                             </div>
@@ -292,8 +307,8 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                             </span>
                           </div>
                         </td>
-                        <td className="py-5 px-6">{getStatusBadge(course.status)}</td>
-                        <td className="py-5 px-6">
+                        <td className="py-4 px-3">{getStatusBadge(course.status)}</td>
+                        <td className="py-4 px-3">
                           <div className="flex items-center justify-end gap-1">
                             <Button
                               variant="ghost"
