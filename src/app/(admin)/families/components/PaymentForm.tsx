@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
 import { Family } from "@/types/families";
 import { useToast } from "@/hooks/use-toast";
@@ -238,7 +244,9 @@ export default function PaymentForm({ family, onSave, onCancel }: PaymentFormPro
                   value={lot.banque}
                   onValueChange={val => updateChequeLot(idx, "banque", val)}
                 >
-                  <SelectTrigger className="w-full" />
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sélectionner une banque" />
+                  </SelectTrigger>
                   <SelectContent>
                     {BANKS.map(b => (
                       <SelectItem key={b} value={b}>
