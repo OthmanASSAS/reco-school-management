@@ -97,7 +97,7 @@ export default function FamiliesTable() {
     card_amount: 0,
     cheque_count: 0,
     bank_transfer: false,
-    bank_transfer_amount: 0,
+    amount_transfer: 0,
     books: false,
   });
   const [showPaymentForm, setShowPaymentForm] = useState(false);
@@ -280,7 +280,7 @@ export default function FamiliesTable() {
       card_amount: 0,
       cheque_count: 0,
       bank_transfer: false,
-      bank_transfer_amount: 0,
+      amount_transfer: 0,
       books: false,
     });
   };
@@ -293,7 +293,7 @@ export default function FamiliesTable() {
       if (
         paymentForm.cash_amount <= 0 &&
         paymentForm.card_amount <= 0 &&
-        paymentForm.bank_transfer_amount <= 0 &&
+        paymentForm.amount_transfer <= 0 &&
         totalCheques <= 0
       ) {
         toast({
@@ -311,7 +311,7 @@ export default function FamiliesTable() {
           student_id: student.id,
           amount_cash: paymentForm.cash_amount,
           amount_card: paymentForm.card_amount,
-          amount_transfer: paymentForm.bank_transfer_amount,
+          amount_transfer: paymentForm.amount_transfer,
           refund_amount: refund,
           books: paymentForm.books,
           remarks: remarques,
@@ -460,7 +460,7 @@ export default function FamiliesTable() {
       card_amount: 0,
       cheque_count: 0,
       bank_transfer: false,
-      bank_transfer_amount: 0,
+      amount_transfer: 0,
       books: false,
     });
     setChequeLots([
@@ -662,19 +662,17 @@ export default function FamiliesTable() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="bank_transfer_amount">Virement bancaire (€)</Label>
+                      <Label htmlFor="amount_transfer">Virement bancaire (€)</Label>
                       <Input
-                        id="bank_transfer_amount"
+                        id="amount_transfer"
                         type="number"
                         min={0}
-                        value={
-                          paymentForm.bank_transfer ? paymentForm.bank_transfer_amount || 0 : 0
-                        }
+                        value={paymentForm.amount_transfer}
                         onChange={e =>
                           setPaymentForm(prev => ({
                             ...prev,
                             bank_transfer: true,
-                            bank_transfer_amount: parseFloat(e.target.value) || 0,
+                            amount_transfer: parseFloat(e.target.value) || 0,
                           }))
                         }
                         placeholder="0.00"

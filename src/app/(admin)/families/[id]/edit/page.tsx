@@ -31,6 +31,7 @@ import {
   Phone,
   ArrowLeft,
   Save,
+  CreditCard,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useActionState } from "react";
@@ -41,7 +42,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Course, Family, Student, Enrollment } from "@/types/families";
+import { Course, Family, Student, Enrollment, SchoolYear } from "@/types/families";
 import {
   addStudent,
   AddStudentState,
@@ -50,6 +51,7 @@ import {
   updateStudent,
   UpdateStudentState,
 } from "@/lib/actions/students-actions";
+import PaymentModal from "../../components/PaymentModal";
 
 export default function EditFamilyPage() {
   const id = String(useParams().id);
@@ -58,6 +60,29 @@ export default function EditFamilyPage() {
   const [family, setFamily] = React.useState<Family | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = React.useState(false);
+  const [schoolYears, setSchoolYears] = React.useState<SchoolYear[]>([]);
+  const [currentSchoolYear, setCurrentSchoolYear] = React.useState<string | null>(null);
+
+  // Charger les années scolaires
+  const fetchSchoolYears = React.useCallback(async () => {
+    const { data, error } = await supabase
+      .from("school_years")
+      .select("*")
+      .order("start_date", { ascending: false });
+
+    if (!error && data) {
+      setSchoolYears(data);
+      // Utiliser l'année courante par défaut
+      const currentYear = data.find(year => {
+        const now = new Date();
+        const startDate = new Date(year.start_date);
+        const endDate = new Date(year.end_date);
+        return now >= startDate && now <= endDate;
+      });
+      setCurrentSchoolYear(currentYear?.id || data[0]?.id || null);
+    }
+  }, []);
 
   // Charger la famille côté client avec les cours des étudiants
   const fetchFamily = React.useCallback(async () => {
@@ -73,11 +98,13 @@ export default function EditFamilyPage() {
           enrollments(
             course_id,
             status,
+            school_year_id,
             courses(
               id,
               name,
               label,
-              category
+              category,
+              price
             )
           )
         )
@@ -91,14 +118,31 @@ export default function EditFamilyPage() {
       setError("Famille introuvable");
       setLoading(false);
     } else {
-      setFamily(data);
+      // Filtrer les enrollments par année scolaire si une année est sélectionnée
+      if (currentSchoolYear) {
+        const filteredData = {
+          ...data,
+          students:
+            data.students?.map((student: any) => ({
+              ...student,
+              enrollments:
+                student.enrollments?.filter(
+                  (enrollment: any) => enrollment.school_year_id === currentSchoolYear
+                ) || [],
+            })) || [],
+        };
+        setFamily(filteredData);
+      } else {
+        setFamily(data);
+      }
       setLoading(false);
     }
-  }, [id]);
+  }, [id, currentSchoolYear]);
 
   React.useEffect(() => {
+    fetchSchoolYears();
     fetchFamily();
-  }, [fetchFamily]);
+  }, [fetchSchoolYears, fetchFamily]);
 
   // Server Action pour update famille
   const initialState: FamilyState = { message: null, errors: {}, success: false };
@@ -297,25 +341,56 @@ export default function EditFamilyPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-8">
         {/* Header avec bouton retour */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="outline"
-            onClick={() => router.back()}
-            className="flex items-center gap-2 hover:bg-white/80"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Retour
-          </Button>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => router.back()}
+              className="flex items-center gap-2 hover:bg-white/80"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Retour
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Éditer la famille</h1>
+                <p className="text-sm text-gray-600">
+                  {family.first_name} {family.last_name}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Users className="h-6 w-6 text-blue-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Éditer la famille</h1>
-              <p className="text-sm text-gray-600">
-                {family.first_name} {family.last_name}
-              </p>
-            </div>
+            <Select
+              value={currentSchoolYear || "all"}
+              onValueChange={value => {
+                setCurrentSchoolYear(value === "all" ? null : value);
+              }}
+            >
+              <SelectTrigger className="w-48 bg-white border-gray-200 focus:border-green-300 focus:ring-green-200">
+                <SelectValue placeholder="Année scolaire" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les années</SelectItem>
+                {schoolYears.map(year => (
+                  <SelectItem key={year.id} value={year.id}>
+                    {year.label ||
+                      `${new Date(year.start_date).getFullYear()}-${new Date(year.start_date).getFullYear() + 1}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={() => setPaymentModalOpen(true)}
+              className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              <CreditCard className="h-4 w-4" />
+              Paiements
+            </Button>
           </div>
         </div>
 
@@ -514,14 +589,23 @@ export default function EditFamilyPage() {
                 </div>
                 Membres de la famille
               </CardTitle>
-              <Button
-                variant="outline"
-                onClick={handleAddMember}
-                className="bg-white/80 hover:bg-white border-green-200 hover:border-green-300"
-              >
-                <UserPlus className="w-4 h-4 mr-2" />
-                Ajouter un membre
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleAddMember}
+                  className="bg-white/80 hover:bg-white border-green-200 hover:border-green-300"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Ajouter un membre
+                </Button>
+                <Button
+                  onClick={() => setPaymentModalOpen(true)}
+                  className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Paiements
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-6">
@@ -818,6 +902,21 @@ export default function EditFamilyPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modale de paiement */}
+      {family && (
+        <PaymentModal
+          family={family}
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          onPaymentSaved={() => {
+            // Optionnel : recharger les données de la famille après un paiement
+            fetchFamily();
+          }}
+          currentSchoolYear={currentSchoolYear}
+          schoolYears={schoolYears}
+        />
+      )}
     </div>
   );
 }

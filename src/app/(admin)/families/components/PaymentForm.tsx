@@ -45,9 +45,9 @@ interface PaymentFormProps {
   onSave: (paymentData: {
     cash_amount: number;
     card_amount: number;
-    bank_transfer_amount: number;
+    amount_transfer: number;
     books: boolean;
-    cheque_lots: ChequeLotForm[];
+    cheques: ChequeLotForm[];
     refund_amount: number;
     remarks: string;
   }) => Promise<void>;
@@ -59,7 +59,7 @@ export default function PaymentForm({ family, onSave, onCancel }: PaymentFormPro
   const [paymentForm, setPaymentForm] = useState({
     cash_amount: "",
     card_amount: "",
-    bank_transfer_amount: "",
+    amount_transfer: "",
     books: false,
   });
 
@@ -103,7 +103,7 @@ export default function PaymentForm({ family, onSave, onCancel }: PaymentFormPro
     try {
       const cashAmount = parseNumber(paymentForm.cash_amount);
       const cardAmount = parseNumber(paymentForm.card_amount);
-      const transferAmount = parseNumber(paymentForm.bank_transfer_amount);
+      const transferAmount = parseNumber(paymentForm.amount_transfer);
       const refundAmount = parseNumber(refund);
 
       if (cashAmount <= 0 && cardAmount <= 0 && transferAmount <= 0 && totalCheques <= 0) {
@@ -118,11 +118,11 @@ export default function PaymentForm({ family, onSave, onCancel }: PaymentFormPro
       const paymentData = {
         cash_amount: cashAmount,
         card_amount: cardAmount,
-        bank_transfer_amount: transferAmount,
+        amount_transfer: transferAmount,
         refund_amount: refundAmount,
         books: paymentForm.books,
         remarks: remarques,
-        cheque_lots: chequeLots
+        cheques: chequeLots
           .filter(lot => parseNumber(lot.count) > 0 && parseNumber(lot.amount) > 0)
           .map(lot => ({
             count: parseNumber(lot.count),
@@ -181,18 +181,18 @@ export default function PaymentForm({ family, onSave, onCancel }: PaymentFormPro
           />
         </div>
         <div>
-          <Label htmlFor="bank_transfer_amount">Virement bancaire (€)</Label>
+          <Label htmlFor="amount_transfer">Virement bancaire (€)</Label>
           <Input
-            id="bank_transfer_amount"
+            id="amount_transfer"
             type="text"
-            value={paymentForm.bank_transfer_amount}
+            value={paymentForm.amount_transfer}
             onChange={e => {
               const value = e.target.value;
               // Permet seulement les chiffres, le point et la virgule
               if (value === "" || /^[0-9.,]*$/.test(value)) {
                 setPaymentForm(prev => ({
                   ...prev,
-                  bank_transfer_amount: value,
+                  amount_transfer: value,
                 }));
               }
             }}
@@ -353,11 +353,11 @@ export default function PaymentForm({ family, onSave, onCancel }: PaymentFormPro
               </span>
             </div>
           )}
-          {parseNumber(paymentForm.bank_transfer_amount) > 0 && (
+          {parseNumber(paymentForm.amount_transfer) > 0 && (
             <div className="flex justify-between">
               <span>Virement:</span>
               <span className="font-medium">
-                {parseNumber(paymentForm.bank_transfer_amount).toFixed(2)}€
+                {parseNumber(paymentForm.amount_transfer).toFixed(2)}€
               </span>
             </div>
           )}
@@ -379,7 +379,7 @@ export default function PaymentForm({ family, onSave, onCancel }: PaymentFormPro
               {(
                 parseNumber(paymentForm.cash_amount) +
                 parseNumber(paymentForm.card_amount) +
-                parseNumber(paymentForm.bank_transfer_amount) +
+                parseNumber(paymentForm.amount_transfer) +
                 totalCheques -
                 parseNumber(refund)
               ).toFixed(2)}

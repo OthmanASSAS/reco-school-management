@@ -32,9 +32,9 @@ export default function PaymentModal({
   const handlePaymentSave = async (paymentData: {
     cash_amount: number;
     card_amount: number;
-    bank_transfer_amount: number;
+    amount_transfer: number;
     books: boolean;
-    cheque_lots: { count: string | number; amount: string | number; banque: string; nom: string }[];
+    cheques: { count: string | number; amount: string | number; banque: string; nom: string }[];
     refund_amount: number;
     remarks: string;
   }) => {

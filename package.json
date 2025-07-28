@@ -15,6 +15,8 @@
     "check-rooms": "tsx -r dotenv/config scripts/check-rooms.ts",
     "seed-all": "tsx -r dotenv/config scripts/seed-all.ts",
     "seed-complete": "tsx -r dotenv/config scripts/seed-complete.ts",
+    "debug-family-data": "tsx -r dotenv/config scripts/debug-family-data.ts",
+    "fix-enrollments": "tsx -r dotenv/config scripts/fix-enrollments-school-year.ts",
     "ai": "gemini",
     "ai:review": "gemini -p 'Review ce code et suggère des améliorations'",
     "ai:fix": "gemini -c -p 'Trouve et corrige tous les bugs'",
