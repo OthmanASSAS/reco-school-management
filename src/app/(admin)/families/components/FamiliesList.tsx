@@ -279,7 +279,7 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
                   ))}
                 </SelectContent>
               </Select>
-              <div className="relative flex-1 sm:flex-initial">
+              <div className="relative flex-1 sm:flex-initial z-30">
                 <Input
                   placeholder="Rechercher une famille..."
                   value={search}

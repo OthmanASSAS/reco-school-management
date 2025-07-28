@@ -317,7 +317,7 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full lg:w-auto">
-              <div className="relative flex-1 sm:flex-initial">
+              <div className="relative flex-1 sm:flex-initial z-30">
                 <Input
                   placeholder="Rechercher un élève..."
                   value={searchTerm}
