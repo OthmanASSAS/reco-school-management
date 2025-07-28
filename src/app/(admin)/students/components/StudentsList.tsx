@@ -145,7 +145,7 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
               activeEnrollments: updatedActiveEnrollments,
               activeCoursesCount: updatedActiveEnrollments.length,
               hasMultipleCourses: updatedActiveEnrollments.length > 1,
-              course: newEnrollment.courses?.[0]?.name || "Non assigné",
+              course: (newEnrollment.courses as any)?.name || "Non assigné",
             };
           }
           return student;
@@ -218,7 +218,7 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
               activeCoursesCount: updatedActiveEnrollments.length,
               hasMultipleCourses: updatedActiveEnrollments.length > 1,
               hasHistory: updatedFinishedEnrollments.length > 0,
-              course: updatedActiveEnrollments[0]?.courses?.name || "Non assigné",
+              course: (updatedActiveEnrollments[0]?.courses as any)?.name || "Non assigné",
             };
           }
           return student;
@@ -242,7 +242,7 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
           activeCoursesCount: updatedActiveEnrollments.length,
           hasMultipleCourses: updatedActiveEnrollments.length > 1,
           hasHistory: updatedFinishedEnrollments.length > 0,
-          course: updatedActiveEnrollments[0]?.courses?.name || "Non assigné",
+          course: (updatedActiveEnrollments[0]?.courses as any)?.name || "Non assigné",
         });
       }
 

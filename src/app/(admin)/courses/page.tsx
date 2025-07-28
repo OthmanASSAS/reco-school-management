@@ -8,13 +8,14 @@ export default async function CoursesPage() {
     id, name, type, status, price, capacity,
     teachers(full_name), rooms(name), enrollments(id), teacher_id, room_id, schedule
   `);
+
   const courses = (data || [])
     .map((c: any) => ({
       id: c.id,
       name: c.name,
       type: c.type,
-      teacher_name: c.teachers?.[0]?.full_name ?? null,
-      room_name: c.rooms?.[0]?.name ?? null,
+      teacher_name: c.teachers?.full_name ?? null,
+      room_name: c.rooms?.name ?? null,
       status: c.status,
       price: c.price,
       capacity: c.capacity,

@@ -140,7 +140,7 @@ export default function PlanningView() {
         id: c.id,
         name: c.name,
         type: c.type,
-        teacher_name: c.teachers?.[0]?.full_name ?? "Non assigné",
+        teacher_name: c.teachers?.full_name ?? "Non assigné",
         room_name: c.room_id ? roomsMap.get(c.room_id) || "Salle inconnue" : "Non assignée",
         schedule: c.schedule || "",
         enrolled_count: c.enrollments ? c.enrollments.length : 0,
@@ -234,7 +234,7 @@ export default function PlanningView() {
   const getCourseHeight = (startTime: string, endTime: string) => {
     const start = parseInt(startTime.split(":")[0]);
     const end = parseInt(endTime.split(":")[0]);
-    return Math.max((end - start) * 20, 80); // Minimum 80px height, 20px per hour for 4h blocks
+    return Math.max((end - start) * 60, 60); // 60px per hour, minimum 60px
   };
 
   const getCoursePosition = (startTime: string) => {
@@ -334,7 +334,8 @@ export default function PlanningView() {
         </TabsList>
 
         <TabsContent value="week" className="space-y-4">
-          <div className="bg-white rounded-lg border overflow-x-auto shadow-sm">
+          {/* Version desktop - Tableau complet */}
+          <div className="hidden lg:block bg-white rounded-lg border overflow-x-auto shadow-sm">
             <div
               className={`grid min-w-[1200px]`}
               style={{ gridTemplateColumns: `200px repeat(${rooms.length}, 1fr)` }}
@@ -385,7 +386,7 @@ export default function PlanningView() {
                             key={course.id}
                             className={`absolute left-1 right-1 p-3 rounded-lg border-2 ${getOccupancyColor(course.enrolled, course.capacity)} shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group`}
                             style={{
-                              top: "4px",
+                              top: "2px",
                               height: `${getCourseHeight(course.startTime, course.endTime)}px`,
                               zIndex: 10,
                             }}
@@ -423,10 +424,61 @@ export default function PlanningView() {
               ))}
             </div>
           </div>
+
+          {/* Version mobile/tablette - Cartes par jour */}
+          <div className="lg:hidden space-y-6">
+            {weekDays.map(day => {
+              const daySchedule = schedule.filter(course => course.day === day);
+              if (daySchedule.length === 0) return null;
+
+              return (
+                <div key={day} className="bg-white rounded-lg border shadow-sm">
+                  <div
+                    className={`p-4 border-b ${getDayBackgroundColor(day)} ${getDayBorderColor(day)}`}
+                  >
+                    <h3 className="font-bold text-lg text-gray-900">{day}</h3>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    {daySchedule.map(course => (
+                      <div
+                        key={course.id}
+                        className={`p-4 rounded-lg border-2 ${getOccupancyColor(course.enrolled, course.capacity)} shadow-sm hover:shadow-md transition-all duration-200`}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="font-bold text-lg mb-1">{course.course}</div>
+                            <div className="text-sm opacity-80 mb-1">👨‍🏫 {course.teacher}</div>
+                            <div className="text-sm opacity-80 mb-2">🏫 {course.room}</div>
+                          </div>
+                          <div
+                            className={`text-xs px-2 py-1 rounded-full ${
+                              course.type === "enfants"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-purple-100 text-purple-800"
+                            }`}
+                          >
+                            {course.type}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="font-medium">
+                            {course.startTime} - {course.endTime}
+                          </div>
+                          <div className="text-sm font-medium">
+                            {course.enrolled}/{course.capacity} élèves
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </TabsContent>
 
         <TabsContent value="day" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {schedule
               .filter(item => item.day === "Lundi") // Example: show Monday's schedule
               .map(course => (
@@ -482,7 +534,7 @@ export default function PlanningView() {
         </TabsContent>
 
         <TabsContent value="room" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from(new Set(schedule.map(course => course.room))).map(room => {
               const roomSchedule = schedule.filter(course => course.room === room);
               return (

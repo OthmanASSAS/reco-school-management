@@ -40,13 +40,13 @@ async function checkRooms() {
       console.log(`     Status: ${course.status}`);
       console.log(`     Schedule: "${course.schedule}"`);
       console.log(`     Room ID: ${course.room_id || "null"}`);
-      console.log(`     Room Name: ${course.rooms?.[0]?.name || "Non assignée"}`);
+      console.log(`     Room Name: ${(course.rooms as any)?.name || "Non assignée"}`);
     });
 
     // Compter les cours par salle
     const roomCounts = courses?.reduce(
       (acc, course) => {
-        const roomName = course.rooms?.[0]?.name || "Non assignée";
+        const roomName = (course.rooms as any)?.name || "Non assignée";
         acc[roomName] = (acc[roomName] || 0) + 1;
         return acc;
       },
