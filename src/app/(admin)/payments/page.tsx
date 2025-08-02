@@ -1,4 +1,4 @@
-import PaymentsFormClientWrapper from "@/components/PaymentsFormWrapper";
+import PaymentsFormClientWrapper from "@/app/(admin)/payments/components/PaymentsFormWrapper";
 
 export default function PaymentsPage() {
   return (
