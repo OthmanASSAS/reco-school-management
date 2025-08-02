@@ -22,6 +22,8 @@ import {
   Users,
 } from "lucide-react";
 import React, { useState } from "react";
+import { preRegister } from "@/lib/actions/pre-registration";
+import { useToast } from "@/hooks/use-toast";
 
 type FamilyInfo = {
   familyName: string;
@@ -40,6 +42,7 @@ type StudentInfo = {
 };
 
 export default function PreRegistrationForm() {
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [family, setFamily] = useState<FamilyInfo>({
     familyName: "",
@@ -62,20 +65,19 @@ export default function PreRegistrationForm() {
   const handleBack = () => setStep(s => s - 1);
 
   const handleSubmit = async () => {
-    const response = await fetch("/api/pre-registration", {
-      method: "POST",
-      body: JSON.stringify({
-        family,
-        students,
-        appointmentDay: appointmentDay?.toISOString().split("T")[0],
-      }),
-      headers: { "Content-Type": "application/json" },
-    });
+    const formData = new FormData();
+    formData.append("family", JSON.stringify(family));
+    formData.append("students", JSON.stringify(students));
+    formData.append("appointmentDay", appointmentDay?.toISOString().split("T")[0] || "");
 
-    const result = await response.json();
+    const result = await preRegister(formData);
 
-    if (response.ok) {
-      setSuccessMessage(result.message || "Votre demande a bien été enregistrée.");
+    if (result.success) {
+      toast({
+        variant: "default",
+        title: "Préinscription envoyée !",
+        description: result.messages.join(" ") || "Votre demande a bien été enregistrée.",
+      });
       // Réinitialise le formulaire
       setFamily({
         familyName: "",
@@ -90,7 +92,11 @@ export default function PreRegistrationForm() {
       setAppointmentDay(null);
       setStep(1);
     } else {
-      alert(result.error || "Erreur lors de l'envoi.");
+      toast({
+        variant: "destructive",
+        title: "Erreur d'envoi",
+        description: result.error || "Erreur lors de l'envoi.",
+      });
     }
   };
 
@@ -109,46 +115,80 @@ export default function PreRegistrationForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto py-12 px-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="w-full">
+        <div className="w-full md:max-w-4xl md:mx-auto">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+          <div className="text-center mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
               Préinscription en ligne
             </h1>
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600 text-base md:text-lg">
               Commencez votre parcours avec nous en quelques étapes simples
             </p>
           </div>
 
-          {/* Progress Steps */}
-          <div className="mb-8">
-            <div className="flex items-center justify-center space-x-4 mb-6">
-              {steps.map((stepInfo, index) => (
-                <div key={stepInfo.id} className="flex items-center">
-                  <div
-                    className={cn(
-                      "flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300",
-                      step >= stepInfo.id
-                        ? "bg-gradient-to-r from-blue-600 to-purple-600 border-blue-600 text-white"
-                        : "border-gray-300 text-gray-400"
-                    )}
-                  >
-                    <stepInfo.icon size={20} />
-                  </div>
-                  {index < steps.length - 1 && (
+          {/* Progress Steps - Responsive */}
+          <div className="mb-6 md:mb-8">
+            {/* Version mobile - Étapes simplifiées */}
+            <div className="block md:hidden mb-4">
+              <div className="flex items-center justify-center space-x-2">
+                {steps.map((stepInfo, index) => (
+                  <div key={stepInfo.id} className="flex items-center">
                     <div
                       className={cn(
-                        "w-12 h-1 mx-2 transition-all duration-300",
-                        step > stepInfo.id
-                          ? "bg-gradient-to-r from-blue-600 to-purple-600"
-                          : "bg-gray-200"
+                        "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300 text-xs",
+                        step >= stepInfo.id
+                          ? "bg-gradient-to-r from-blue-600 to-purple-600 border-blue-600 text-white"
+                          : "border-gray-300 text-gray-400"
                       )}
-                    />
-                  )}
-                </div>
-              ))}
+                    >
+                      {stepInfo.id}
+                    </div>
+                    {index < steps.length - 1 && (
+                      <div
+                        className={cn(
+                          "w-6 h-1 mx-1 transition-all duration-300",
+                          step > stepInfo.id
+                            ? "bg-gradient-to-r from-blue-600 to-purple-600"
+                            : "bg-gray-200"
+                        )}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
+
+            {/* Version desktop - Étapes complètes */}
+            <div className="hidden md:block">
+              <div className="flex items-center justify-center space-x-4 mb-6">
+                {steps.map((stepInfo, index) => (
+                  <div key={stepInfo.id} className="flex items-center">
+                    <div
+                      className={cn(
+                        "flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300",
+                        step >= stepInfo.id
+                          ? "bg-gradient-to-r from-blue-600 to-purple-600 border-blue-600 text-white"
+                          : "border-gray-300 text-gray-400"
+                      )}
+                    >
+                      <stepInfo.icon size={20} />
+                    </div>
+                    {index < steps.length - 1 && (
+                      <div
+                        className={cn(
+                          "w-12 h-1 mx-2 transition-all duration-300",
+                          step > stepInfo.id
+                            ? "bg-gradient-to-r from-blue-600 to-purple-600"
+                            : "bg-gray-200"
+                        )}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="text-center">
               <Badge variant="outline" className="text-sm">
                 Étape {step} sur {steps.length}: {steps[step - 1]?.title}
@@ -163,8 +203,8 @@ export default function PreRegistrationForm() {
 
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-2">
-              <CardTitle className="flex items-center justify-center gap-2 text-2xl">
-                {React.createElement(steps[step - 1]?.icon, { size: 24 })}
+              <CardTitle className="flex items-center justify-center gap-2 text-xl md:text-2xl">
+                {React.createElement(steps[step - 1]?.icon, { size: 20 })}
                 {steps[step - 1]?.title}
               </CardTitle>
             </CardHeader>
@@ -173,7 +213,7 @@ export default function PreRegistrationForm() {
               {/* Step 1: Family Information */}
               {step === 1 && (
                 <div className="space-y-6 animate-fade-in">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div>
                       <Label htmlFor="parentFirstName">Prénom du parent *</Label>
                       <Input
@@ -253,10 +293,10 @@ export default function PreRegistrationForm() {
               {step === 2 && (
                 <div className="space-y-6 animate-fade-in">
                   {students.map((student, index) => (
-                    <Card key={index} className="p-6 border-2 border-dashed border-gray-200">
+                    <Card key={index} className="p-4 md:p-6 border-2 border-dashed border-gray-200">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                          <User size={20} />
+                        <h3 className="text-base md:text-lg font-semibold flex items-center gap-2">
+                          <User size={18} />
                           Élève {index + 1}
                         </h3>
                         {students.length > 1 && (
@@ -328,7 +368,7 @@ export default function PreRegistrationForm() {
                           { firstName: "", lastName: "", birthDate: "" },
                         ])
                       }
-                      className="border-2 border-dashed border-blue-300 text-blue-600 hover:bg-blue-50 h-12 px-6"
+                      className="border-2 border-dashed border-blue-300 text-blue-600 hover:bg-blue-50 h-12 px-4 md:px-6 w-full md:w-auto"
                     >
                       <Plus size={20} className="mr-2" />
                       Ajouter un enfant
@@ -356,7 +396,7 @@ export default function PreRegistrationForm() {
                         }
                         onChange={() => setAppointmentDay(new Date("2025-06-28"))}
                       />
-                      Samedi 28 juin 2025
+                      <span className="text-sm md:text-base">Samedi 28 juin 2025</span>
                     </label>
                     <label className="flex items-center gap-3 border rounded-lg px-4 py-3 bg-white shadow-sm">
                       <input
@@ -368,12 +408,12 @@ export default function PreRegistrationForm() {
                         }
                         onChange={() => setAppointmentDay(new Date("2025-06-29"))}
                       />
-                      Dimanche 29 juin 2025
+                      <span className="text-sm md:text-base">Dimanche 29 juin 2025</span>
                     </label>
                   </div>
                   {appointmentDay && (
                     <div className="text-center">
-                      <Badge className="bg-green-100 text-green-800 text-base px-4 py-2">
+                      <Badge className="bg-green-100 text-green-800 text-sm md:text-base px-4 py-2">
                         Jour sélectionné :{" "}
                         {format(appointmentDay, "EEEE d MMMM yyyy", { locale: fr })}
                       </Badge>
@@ -386,18 +426,20 @@ export default function PreRegistrationForm() {
               {step === 4 && (
                 <div className="space-y-6 animate-fade-in">
                   <div className="text-center mb-6">
-                    <CheckCircle size={48} className="mx-auto text-green-600 mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Vérification des informations</h3>
-                    <p className="text-gray-600">
+                    <CheckCircle size={40} className="mx-auto text-green-600 mb-4" />
+                    <h3 className="text-lg md:text-xl font-semibold mb-2">
+                      Vérification des informations
+                    </h3>
+                    <p className="text-gray-600 text-sm md:text-base">
                       Merci de vérifier vos informations avant de soumettre votre demande.
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     {/* Family Info */}
-                    <Card className="p-6 bg-blue-50 border-blue-200">
+                    <Card className="p-4 md:p-6 bg-blue-50 border-blue-200">
                       <h4 className="font-semibold text-blue-800 mb-4 flex items-center gap-2">
-                        <Users size={20} />
+                        <Users size={18} />
                         Informations famille
                       </h4>
                       <div className="space-y-2 text-sm">
@@ -416,9 +458,9 @@ export default function PreRegistrationForm() {
                     </Card>
 
                     {/* Students Info */}
-                    <Card className="p-6 bg-purple-50 border-purple-200">
+                    <Card className="p-4 md:p-6 bg-purple-50 border-purple-200">
                       <h4 className="font-semibold text-purple-800 mb-4 flex items-center gap-2">
-                        <User size={20} />
+                        <User size={18} />
                         Élèves ({students.length})
                       </h4>
                       <div className="space-y-2 text-sm">
@@ -439,9 +481,9 @@ export default function PreRegistrationForm() {
                   </div>
 
                   {/* Appointment Info */}
-                  <Card className="p-6 bg-green-50 border-green-200">
+                  <Card className="p-4 md:p-6 bg-green-50 border-green-200">
                     <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
-                      <CalendarIcon size={20} />
+                      <CalendarIcon size={18} />
                       Rendez-vous
                     </h4>
                     <p className="text-sm">
@@ -453,10 +495,14 @@ export default function PreRegistrationForm() {
                 </div>
               )}
 
-              {/* Navigation Buttons */}
-              <div className="flex justify-between pt-8 mt-8 border-t">
+              {/* Navigation Buttons - Responsive */}
+              <div className="flex flex-col sm:flex-row justify-between gap-4 pt-8 mt-8 border-t">
                 {step > 1 ? (
-                  <Button variant="outline" onClick={handleBack} className="h-12 px-6">
+                  <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    className="h-12 px-4 md:px-6 w-full sm:w-auto"
+                  >
                     <ArrowLeft size={16} className="mr-2" />
                     Retour
                   </Button>
@@ -466,7 +512,7 @@ export default function PreRegistrationForm() {
                 {step < 4 ? (
                   <Button
                     onClick={handleNext}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-12 px-6"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-12 px-4 md:px-6 w-full sm:w-auto"
                   >
                     Suivant
                     <ArrowRight size={16} className="ml-2" />
@@ -474,7 +520,7 @@ export default function PreRegistrationForm() {
                 ) : (
                   <Button
                     onClick={handleSubmit}
-                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 h-12 px-6"
+                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 h-12 px-4 md:px-6 w-full sm:w-auto"
                   >
                     <Send size={16} className="mr-2" />
                     Envoyer la demande
@@ -485,8 +531,8 @@ export default function PreRegistrationForm() {
           </Card>
 
           {/* Footer */}
-          <div className="text-center mt-8 text-gray-600">
-            <p className="text-sm">
+          <div className="text-center mt-6 md:mt-8 text-gray-600">
+            <p className="text-xs md:text-sm">
               Une question ? Contactez-nous au <strong>01 23 45 67 89</strong> ou à{" "}
               <strong>contact@ecole.fr</strong>
             </p>

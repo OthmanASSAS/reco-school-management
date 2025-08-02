@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import supabase from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 import { Course } from "@/types";
@@ -53,3 +54,7 @@ export async function deleteCourse(formData: FormData) {
   await supabase.from("courses").delete().eq("id", id);
   revalidatePath("/courses");
 }
+=======
+export * from "./actions.server";
+// Ce fichier ne contient plus de Server Actions. Utilisez actions.server.ts pour les Server Actions Next.js.
+>>>>>>> main

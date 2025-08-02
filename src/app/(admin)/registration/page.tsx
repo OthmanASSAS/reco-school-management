@@ -1,4 +1,4 @@
-import RegistrationForm from "@/components/registration-form";
+import RegistrationForm from "@/app/(admin)/registration/components/registration-form";
 import supabase from "@/lib/supabase";
 
 export default async function RegistrationPage() {
@@ -17,11 +17,6 @@ export default async function RegistrationPage() {
       .eq("status", "active"),
   ]);
 
-  console.log("=== DEBUG PAGE ===");
-  console.log("familiesData:", familiesData);
-  console.log("schoolYearsData:", schoolYearsData);
-  console.log("coursesData:", coursesData);
-
   if (familiesError || schoolYearsError || coursesError) {
     console.error("Erreur lors du chargement des données:", {
       familiesError,
@@ -29,7 +24,7 @@ export default async function RegistrationPage() {
       coursesError,
     });
     return (
-      <div className="p-6 text-red-500">
+      <div className="p-4 md:p-6 text-red-500">
         Erreur lors du chargement des données nécessaires pour le formulaire.
       </div>
     );
@@ -62,12 +57,10 @@ export default async function RegistrationPage() {
     price: course.price || 0,
   }));
 
-  console.log("courseInstances transformées:", courseInstances);
-
   return (
-    <div className="p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Nouvelle inscription</h1>
+    <div className="w-full p-4 md:p-6">
+      <div className="w-full md:max-w-4xl md:mx-auto">
+        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Nouvelle inscription</h1>
         <RegistrationForm
           families={families}
           schoolYears={schoolYears}

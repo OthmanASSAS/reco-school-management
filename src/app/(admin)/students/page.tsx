@@ -1,78 +1,59 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import supabase from "@/lib/supabase";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, Edit, Eye, Trash2, History, Plus, Calendar, X } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Student, Course } from "@/types/families";
+import StudentsList from "./components/StudentsList";
 
-export default function StudentsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("active");
-  const [students, setStudents] = useState<any[]>([]);
-  const [availableCourses, setAvailableCourses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedCourseForEdit, setSelectedCourseForEdit] = useState<string>("");
-  const [enrollmentLoading, setEnrollmentLoading] = useState(false);
-
-  // Fonction pour calculer l'âge
-  const calculateAge = (birthDate: string | null): number | null => {
-    if (!birthDate) return null;
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
+interface StudentWithFamily extends Omit<Student, "enrollments"> {
+  family: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
   };
+  enrollments: any[];
+  created_at: string;
+  activeEnrollments: any[];
+  finishedEnrollments: any[];
+  activeCoursesCount: number;
+  hasHistory: boolean;
+  hasMultipleCourses: boolean;
+  course: string;
+}
 
-  // Fonction pour récupérer toutes les données
-  const fetchData = async () => {
-    setLoading(true);
-
-    try {
-      // Récupérer les familles et étudiants avec enrollments
-      const { data, error } = await supabase.from("families").select(`
-          *,
-          students(
-            *,
-            enrollments(
-              id,
+export default async function StudentsPage() {
+  // Récupérer les données de base des étudiants côté serveur
+  const { data: families, error: familiesError } = await supabase
+    .from("families")
+    .select(
+      `
+      id,
+      last_name,
+      first_name,
+      email,
+      phone,
+      students!inner (
+        id,
+        first_name,
+        last_name,
+        birth_date,
+        registration_type,
+        level,
+        notes,
+        created_at,
+        enrollments (
+          id,
+          status,
               start_date,
               end_date,
-              status,
               created_at,
-              courses(
+          courses:course_id (
                 id,
                 name,
                 type,
                 category,
-                label
-              )
-            )
+            label,
+            status
           )
+<<<<<<< HEAD
         `);
 
       if (error) {
@@ -215,417 +196,72 @@ export default function StudentsPage() {
             course_id: selectedCourseForEdit,
             start_date: new Date().toISOString().split("T")[0],
             status: "active",
+=======
+        )
+      )
+    `
+    )
+    .order("last_name");
+
+  if (familiesError) {
+    console.error("Error fetching families:", familiesError);
+    return null;
+  }
+
+  // Récupérer les cours disponibles
+  const { data: courses, error: coursesError } = await supabase
+    .from("courses")
+    .select("id, name, type, category, label, status, price")
+    .eq("status", "active")
+    .order("name");
+
+  if (coursesError) {
+    console.error("Error fetching courses:", coursesError);
+    return null;
+  }
+
+  // Transformer les données pour le composant client
+  const students: StudentWithFamily[] =
+    families?.flatMap(family =>
+      family.students.map(student => {
+        const enrollments = student.enrollments || [];
+        const activeEnrollments = enrollments.filter(e => e.status === "active");
+        const finishedEnrollments = enrollments.filter(e => e.status === "finished");
+        const primaryCourse = activeEnrollments[0]?.courses;
+
+        return {
+          id: student.id,
+          first_name: student.first_name,
+          last_name: student.last_name,
+          birth_date: student.birth_date,
+          registration_type: student.registration_type,
+          level: student.level,
+          notes: student.notes,
+          created_at: student.created_at,
+          enrollments,
+          activeEnrollments,
+          finishedEnrollments,
+          activeCoursesCount: activeEnrollments.length,
+          hasHistory: finishedEnrollments.length > 0,
+          hasMultipleCourses: activeEnrollments.length > 1,
+          course: primaryCourse?.name || "Non assigné",
+          family: {
+            id: family.id,
+            name: `${family.last_name} ${family.first_name}`,
+            email: family.email,
+            phone: family.phone,
+>>>>>>> main
           },
-        ])
-        .select("*")
-        .single();
-
-      if (error) {
-        console.error("Erreur création enrollment:", error);
-        alert("Erreur lors de l'attribution du cours");
-        return;
-      }
-
-      // Recharger les données
-      await fetchData();
-
-      // Fermer la modal et reset
-      setEditModalOpen(false);
-      setSelectedCourseForEdit("");
-      setSelectedStudent(null);
-
-      alert("Cours attribué avec succès !");
-    } catch (error) {
-      console.error("Erreur inattendue:", error);
-      alert("Une erreur inattendue s'est produite");
-    } finally {
-      setEnrollmentLoading(false);
-    }
-  };
-
-  // Fonction pour terminer un cours (mettre end_date)
-  const finishCourse = async (enrollmentId: string) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir terminer ce cours ?")) return;
-
-    try {
-      const { error } = await supabase
-        .from("enrollments")
-        .update({
-          end_date: new Date().toISOString().split("T")[0],
-          status: "finished",
-        })
-        .eq("id", enrollmentId);
-
-      if (error) {
-        console.error("Erreur fin de cours:", error);
-        alert("Erreur lors de la fin du cours");
-        return;
-      }
-
-      // Recharger les données
-      await fetchData();
-      alert("Cours terminé avec succès !");
-    } catch (error) {
-      console.error("Erreur inattendue:", error);
-      alert("Une erreur inattendue s'est produite");
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // Filtres
-  const allCourses = Array.from(new Set(students.map(s => s.course))).filter(Boolean);
-
-  const filteredStudents = students.filter(student => {
-    const matchesSearch =
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.family?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.course.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesCourse = selectedCourse === "all" || student.course === selectedCourse;
-
-    const matchesStatus =
-      selectedStatus === "all" ||
-      (selectedStatus === "active" && student.activeCoursesCount > 0) ||
-      (selectedStatus === "no_course" && student.activeCoursesCount === 0) ||
-      (selectedStatus === "multiple" && student.hasMultipleCourses) ||
-      (selectedStatus === "history" && student.hasHistory);
-
-    return matchesSearch && matchesCourse && matchesStatus;
-  });
-
-  const getTypeDisplay = (type: string, age: number | null) => {
-    if (type === "adult") return "Adulte";
-    if (type === "child" && age) return `${age} ans`;
-    if (type === "child") return "Enfant";
-    return "Non défini";
-  };
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
-  // Modal d'attribution de cours
-  const CourseAssignmentModal = () => (
-    <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Plus size={20} />
-            Attribuer un cours
-          </DialogTitle>
-        </DialogHeader>
-
-        {selectedStudent && (
-          <div className="space-y-4">
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <h4 className="font-medium text-blue-800">{selectedStudent.name}</h4>
-              <p className="text-sm text-blue-600">
-                {getTypeDisplay(selectedStudent.type, selectedStudent.age)}
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="course-select">Sélectionner un cours</Label>
-              <Select value={selectedCourseForEdit} onValueChange={setSelectedCourseForEdit}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choisir un cours..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableCourses.map(course => {
-                    // Vérifier si l'étudiant suit déjà ce cours
-                    const alreadyEnrolled = selectedStudent.activeCourses.some(
-                      (ac: any) => ac.name === course.name
-                    );
-
-                    return (
-                      <SelectItem key={course.id} value={course.id} disabled={alreadyEnrolled}>
-                        <div className="flex flex-col">
-                          <span className="font-medium">
-                            {course.label || course.name}
-                            {alreadyEnrolled && " (déjà inscrit)"}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {course.type} • {course.category}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {selectedStudent.activeCourses.length > 0 && (
-              <div className="p-3 bg-yellow-50 rounded-lg">
-                <h5 className="text-sm font-medium text-yellow-800 mb-2">Cours actuels :</h5>
-                <div className="space-y-1">
-                  {selectedStudent.activeCourses.map((course: any) => (
-                    <div key={course.id} className="flex items-center justify-between text-sm">
-                      <span className="text-yellow-700">{course.label}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => finishCourse(course.enrollmentId)}
-                        className="text-red-600 hover:text-red-800 h-6 px-2"
-                      >
-                        <X size={12} />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-2 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setEditModalOpen(false);
-                  setSelectedCourseForEdit("");
-                  setSelectedStudent(null);
-                }}
-                className="flex-1"
-              >
-                Annuler
-              </Button>
-              <Button
-                onClick={assignCourseToStudent}
-                disabled={!selectedCourseForEdit || enrollmentLoading}
-                className="flex-1"
-              >
-                {enrollmentLoading ? "Attribution..." : "Attribuer"}
-              </Button>
-            </div>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-
-  const StudentDetailsModal = ({ student }: { student: any }) => (
-    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-      <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
-          <span>{student.name}</span>
-          <Badge variant="outline">{getTypeDisplay(student.type, student.age)}</Badge>
-        </DialogTitle>
-      </DialogHeader>
-
-      <div className="space-y-6">
-        {/* Informations générales */}
-        <div>
-          <h3 className="font-semibold mb-2">Informations générales</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-600">Nom :</span> {student.lastName}
-            </div>
-            <div>
-              <span className="text-gray-600">Prénom :</span> {student.firstName}
-            </div>
-            <div>
-              <span className="text-gray-600">Âge :</span>{" "}
-              {student.age ? `${student.age} ans` : "-"}
-            </div>
-            <div>
-              <span className="text-gray-600">Date de naissance :</span>{" "}
-              {formatDate(student.birthDate)}
-            </div>
-            <div>
-              <span className="text-gray-600">Niveau :</span> {student.level || "-"}
-            </div>
-            <div>
-              <span className="text-gray-600">Type :</span> {student.type}
-            </div>
-          </div>
-          {student.notes && (
-            <div className="mt-2">
-              <span className="text-gray-600">Notes :</span>
-              <p className="text-sm mt-1 p-2 bg-gray-50 rounded">{student.notes}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Famille */}
-        <div>
-          <h3 className="font-semibold mb-2">Famille</h3>
-          <div className="text-sm space-y-1">
-            <div>
-              <span className="text-gray-600">Nom :</span> {student.family}
-            </div>
-            <div>
-              <span className="text-gray-600">Email :</span> {student.familyEmail || "-"}
-            </div>
-            <div>
-              <span className="text-gray-600">Téléphone :</span> {student.familyPhone || "-"}
-            </div>
-          </div>
-        </div>
-
-        {/* Cours actifs */}
-        {student.activeCourses.length > 0 && (
-          <div>
-            <h3 className="font-semibold mb-2 flex items-center gap-2">
-              <span>Cours actifs ({student.activeCourses.length})</span>
-            </h3>
-            <div className="space-y-2">
-              {student.activeCourses.map((course: any, index: number) => (
-                <div
-                  key={course.id}
-                  className="flex items-center justify-between p-3 bg-green-50 rounded-lg"
-                >
-                  <div>
-                    <div className="font-medium text-green-800">{course.label}</div>
-                    <div className="text-sm text-green-600">
-                      Depuis le {formatDate(course.startDate)}
-                    </div>
-                  </div>
-                  <Badge className="bg-green-100 text-green-800">Actif</Badge>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Historique */}
-        {student.courseHistory.length > 0 && (
-          <div>
-            <h3 className="font-semibold mb-2 flex items-center gap-2">
-              <History size={16} />
-              <span>Historique des cours ({student.courseHistory.length})</span>
-            </h3>
-            <div className="space-y-2">
-              {student.courseHistory.map((course: any) => (
-                <div
-                  key={course.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <div>
-                    <div className="font-medium text-gray-800">{course.label}</div>
-                    <div className="text-sm text-gray-600">
-                      Du {formatDate(course.startDate)} au {formatDate(course.endDate)}
-                    </div>
-                  </div>
-                  <Badge variant="secondary">Terminé</Badge>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Dates importantes */}
-        <div>
-          <h3 className="font-semibold mb-2">Dates importantes</h3>
-          <div className="text-sm space-y-1">
-            <div>
-              <span className="text-gray-600">Première inscription :</span>{" "}
-              {formatDate(student.firstEnrollment)}
-            </div>
-            {student.latestEnrollment && (
-              <div>
-                <span className="text-gray-600">Dernière inscription :</span>{" "}
-                {formatDate(student.latestEnrollment)}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </DialogContent>
-  );
+        };
+      })
+    ) || [];
 
   return (
-    <div className="space-y-6">
-      {/* En-tête avec filtres */}
-      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:flex-1 lg:max-w-4xl">
-          <div className="relative flex-1">
-            <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={16}
-            />
-            <Input
-              placeholder="Rechercher un élève, famille ou cours..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          <div className="flex gap-2">
-            <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Cours" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les cours</SelectItem>
-                {allCourses.map(course => (
-                  <SelectItem key={course} value={course}>
-                    {course}
-                  </SelectItem>
-                ))}
-                <SelectItem value="Non assigné">Non assigné</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous</SelectItem>
-                <SelectItem value="active">Cours actifs</SelectItem>
-                <SelectItem value="no_course">Sans cours</SelectItem>
-                <SelectItem value="multiple">Cours multiples</SelectItem>
-                <SelectItem value="history">Avec historique</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-          <UserPlus size={16} className="mr-2" />
-          Nouvel élève
-        </Button>
+    <div className="w-full p-4 md:p-6">
+      <div className="w-full md:max-w-7xl md:mx-auto">
+        <StudentsList initialStudents={students} availableCourses={courses || []} />
       </div>
-
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-blue-600">{students.length}</div>
-          <div className="text-sm text-gray-600">Total élèves</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-green-600">
-            {students.filter(s => s.activeCoursesCount > 0).length}
-          </div>
-          <div className="text-sm text-gray-600">Avec cours actifs</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-purple-600">
-            {students.filter(s => s.hasMultipleCourses).length}
-          </div>
-          <div className="text-sm text-gray-600">Cours multiples</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-orange-600">
-            {students.filter(s => s.hasHistory).length}
-          </div>
-          <div className="text-sm text-gray-600">Avec historique</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-gray-600">
-            {students.filter(s => s.activeCoursesCount === 0).length}
-          </div>
-          <div className="text-sm text-gray-600">Sans cours</div>
-        </div>
-      </div>
+<<<<<<< HEAD
 
       {/* Tableau */}
       {loading ? (
@@ -774,6 +410,8 @@ export default function StudentsPage() {
 
       {/* Modals */}
       <CourseAssignmentModal />
+=======
+>>>>>>> main
     </div>
   );
 }

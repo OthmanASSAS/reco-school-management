@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Send } from "lucide-react";
-import { Alert, AlertDescription } from "./ui/alert";
+import { Alert, AlertDescription } from "../../../../components/ui/alert";
 import { createRegistration, RegistrationState } from "@/lib/actions/registrations";
 import { useEffect, useRef, useState } from "react";
-import { Textarea } from "./ui/textarea";
+import { Textarea } from "../../../../components/ui/textarea";
 
 interface DataProps {
   families: { id: string; name: string }[];
@@ -64,53 +64,16 @@ export default function RegistrationForm({ families, schoolYears, courseInstance
     }
   }, [state]);
 
-  // DEBUG: Afficher les données reçues
-  console.log("=== DEBUG FORM ===");
-  console.log("courseInstances reçues:", courseInstances);
-  console.log("selectedType:", selectedType);
-  console.log("families:", families);
-  console.log("schoolYears:", schoolYears);
-
   const typeMap = { Enfant: "enfants", Adulte: "adultes" };
   const filteredCourses = selectedType
     ? courseInstances.filter(instance => {
-        console.log(
-          `Filtrage: instance.course.type=${instance.course.type}, recherché=${typeMap[selectedType as "Enfant" | "Adulte"]}`
-        );
         return instance.course.type === typeMap[selectedType as "Enfant" | "Adulte"];
       })
     : [];
 
-  console.log("filteredCourses:", filteredCourses);
-
   return (
-    <div className="space-y-6">
-      {/* DEBUG: Affichage des données */}
-      <Card className="bg-gray-50 border-dashed">
-        <CardHeader>
-          <CardTitle className="text-sm text-gray-600">🐛 Debug Info</CardTitle>
-        </CardHeader>
-        <CardContent className="text-xs">
-          <p>Total course instances: {courseInstances.length}</p>
-          <p>Selected type: {selectedType}</p>
-          <p>Filtered courses: {filteredCourses.length}</p>
-          {courseInstances.slice(0, 2).map(instance => (
-            <div key={instance.id} className="mt-2 p-2 bg-white rounded">
-              <p>ID: {instance.id}</p>
-              <p>
-                Course: {instance.course.name} (type: {instance.course.type})
-              </p>
-              <p>Teacher: {instance.teacher?.name || "Aucun"}</p>
-              <p>
-                Time: {instance.timeSlot?.day} {instance.timeSlot?.startTime}-
-                {instance.timeSlot?.endTime}
-              </p>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <form ref={formRef} action={dispatch} className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
+      <form ref={formRef} action={dispatch} className="space-y-4 md:space-y-6">
         {/* Champs cachés pour les valeurs des Select */}
         <input type="hidden" name="registrationType" value={selectedType} />
         <input type="hidden" name="familyId" value={selectedFamily} />
@@ -138,7 +101,7 @@ export default function RegistrationForm({ families, schoolYears, courseInstance
 
         <Card>
           <CardHeader>
-            <CardTitle>Informations sur l'étudiant</CardTitle>
+            <CardTitle className="text-lg md:text-xl">Informations sur l'étudiant</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
@@ -146,7 +109,6 @@ export default function RegistrationForm({ families, schoolYears, courseInstance
               <Select
                 value={selectedType}
                 onValueChange={value => {
-                  console.log("Type sélectionné:", value);
                   setSelectedType(value as "Enfant" | "Adulte" | "");
                   setSelectedCourse(""); // Reset course selection
                 }}
@@ -189,28 +151,43 @@ export default function RegistrationForm({ families, schoolYears, courseInstance
               )}
             </div>
 
-            <div className="flex items-center space-x-2 pt-6">
-              <Checkbox id="alreadyRegistered" name="alreadyRegistered" />
-              <Label htmlFor="alreadyRegistered">Déjà inscrit l'année dernière ?</Label>
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="alreadyRegistered" name="alreadyRegistered" />
+                <Label htmlFor="alreadyRegistered" className="text-sm">
+                  Déjà inscrit l'année précédente
+                </Label>
+              </div>
+              {state.errors?.student?.alreadyRegistered && (
+                <p className="text-sm text-red-500">{state.errors.student.alreadyRegistered[0]}</p>
+              )}
             </div>
 
             <div className="md:col-span-2">
               <Label htmlFor="notes">Notes</Label>
-              <Textarea id="notes" name="notes" placeholder="Informations complémentaires..." />
+              <Textarea
+                id="notes"
+                name="notes"
+                placeholder="Informations supplémentaires..."
+                className="min-h-[80px]"
+              />
+              {state.errors?.student?.notes && (
+                <p className="text-sm text-red-500">{state.errors.student.notes[0]}</p>
+              )}
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Détails de l'inscription</CardTitle>
+            <CardTitle className="text-lg md:text-xl">Informations d'inscription</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <Label htmlFor="familyId">Famille *</Label>
               <Select value={selectedFamily} onValueChange={setSelectedFamily} required>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une famille..." />
+                  <SelectValue placeholder="Sélectionner une famille" />
                 </SelectTrigger>
                 <SelectContent>
                   {families.map(family => (
@@ -229,7 +206,7 @@ export default function RegistrationForm({ families, schoolYears, courseInstance
               <Label htmlFor="schoolYearId">Année scolaire *</Label>
               <Select value={selectedSchoolYear} onValueChange={setSelectedSchoolYear} required>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une année..." />
+                  <SelectValue placeholder="Sélectionner l'année" />
                 </SelectTrigger>
                 <SelectContent>
                   {schoolYears.map(year => (
@@ -245,48 +222,15 @@ export default function RegistrationForm({ families, schoolYears, courseInstance
             </div>
 
             <div className="md:col-span-2">
-              <Label htmlFor="courseInstanceId">Cours disponibles *</Label>
-              <Select
-                value={selectedCourse}
-                onValueChange={setSelectedCourse}
-                required
-                disabled={!selectedType}
-              >
+              <Label htmlFor="courseInstanceId">Cours *</Label>
+              <Select value={selectedCourse} onValueChange={setSelectedCourse} required>
                 <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      !selectedType
-                        ? "Sélectionnez d'abord le type d'inscription..."
-                        : filteredCourses.length === 0
-                          ? "Aucun cours disponible pour ce type"
-                          : "Sélectionner un cours..."
-                    }
-                  />
+                  <SelectValue placeholder="Sélectionner un cours" />
                 </SelectTrigger>
                 <SelectContent>
-                  {filteredCourses.map(instance => (
-                    <SelectItem key={instance.id} value={instance.id}>
-                      <div className="flex flex-col text-left w-full">
-                        <span className="font-medium text-base">
-                          {instance.course.label || instance.course.name}
-                        </span>
-                        <span className="text-sm text-gray-600 mt-1">
-                          {instance.timeSlot && (
-                            <span className="inline-block mr-3">
-                              📅 {instance.timeSlot.day} {instance.timeSlot.startTime.slice(0, 5)}-
-                              {instance.timeSlot.endTime.slice(0, 5)}
-                            </span>
-                          )}
-                          {instance.teacher && (
-                            <span className="inline-block mr-3">👨‍🏫 {instance.teacher.name}</span>
-                          )}
-                          {instance.room && (
-                            <span className="inline-block mr-3">🏠 {instance.room.name}</span>
-                          )}
-                          <span className="inline-block mr-3">💰 {instance.price}€</span>
-                          <span className="inline-block">👥 {instance.capacity} places</span>
-                        </span>
-                      </div>
+                  {filteredCourses.map(course => (
+                    <SelectItem key={course.id} value={course.id}>
+                      {course.course.label} - {course.price}€
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -298,22 +242,37 @@ export default function RegistrationForm({ families, schoolYears, courseInstance
               )}
             </div>
 
-            <div>
-              <Label htmlFor="appointmentDay">Date de rendez-vous</Label>
-              <Input type="date" id="appointmentDay" name="appointmentDay" />
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="isWaitingList" name="isWaitingList" />
+                <Label htmlFor="isWaitingList" className="text-sm">
+                  Mettre sur liste d'attente
+                </Label>
+              </div>
+              {state.errors?.registration?.isWaitingList && (
+                <p className="text-sm text-red-500">{state.errors.registration.isWaitingList[0]}</p>
+              )}
             </div>
 
-            <div className="flex items-center space-x-2 pt-6">
-              <Checkbox id="isWaitingList" name="isWaitingList" />
-              <Label htmlFor="isWaitingList">Inscrire sur la liste d'attente</Label>
+            <div className="md:col-span-2">
+              <Label htmlFor="appointmentDay">Jour de rendez-vous</Label>
+              <Input type="date" id="appointmentDay" name="appointmentDay" />
+              {state.errors?.registration?.appointmentDay && (
+                <p className="text-sm text-red-500">
+                  {state.errors.registration.appointmentDay[0]}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <div className="pt-6">
-          <Button type="submit" className="w-full">
+        <div className="flex justify-center">
+          <Button
+            type="submit"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-12 px-6 w-full md:w-auto"
+          >
             <Send size={16} className="mr-2" />
-            Valider l'inscription
+            Créer l'inscription
           </Button>
         </div>
       </form>

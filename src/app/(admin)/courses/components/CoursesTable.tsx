@@ -7,7 +7,11 @@ import { deleteCourse } from "../actions/actions";
 interface Props {
   courses: Course[];
 }
+<<<<<<< HEAD
 
+=======
+// TODO
+>>>>>>> main
 export function CoursesTable({ courses }: Props) {
   const handleDelete = async (courseId: string) => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce cours ?")) return;

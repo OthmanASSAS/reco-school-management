@@ -1,9 +1,12 @@
-import { NextResponse } from "next/server";
+"use server";
+
 import supabase from "@/lib/supabase";
 
-export async function POST(req: Request) {
-  const body = await req.json();
-  const { family, students, appointmentDay } = body;
+export async function preRegister(formData: FormData) {
+  console.log({ formData });
+  const family = JSON.parse(formData.get("family") as string);
+  const students = JSON.parse(formData.get("students") as string);
+  const appointmentDay = formData.get("appointmentDay") as string | null;
 
   // Étape 1 : vérifier si la famille existe déjà via email
   let { data: familySelect, error: familySelectError } = await supabase
@@ -13,7 +16,7 @@ export async function POST(req: Request) {
     .single();
 
   if (familySelectError && familySelectError.code !== "PGRST116") {
-    return NextResponse.json({ error: familySelectError.message }, { status: 400 });
+    return { error: familySelectError.message, status: 400 };
   }
 
   // Créer si elle n'existe pas
@@ -33,7 +36,7 @@ export async function POST(req: Request) {
       .single();
 
     if (familyInsertError) {
-      return NextResponse.json({ error: familyInsertError.message }, { status: 400 });
+      return { error: familyInsertError.message, status: 400 };
     }
     familySelect = familyInsert;
   }
@@ -49,7 +52,7 @@ export async function POST(req: Request) {
     .single();
 
   if (yearError) {
-    return NextResponse.json({ error: yearError.message }, { status: 400 });
+    return { error: yearError.message, status: 400 };
   }
 
   const schoolYearId = schoolYear.id;
@@ -84,7 +87,7 @@ export async function POST(req: Request) {
         .single();
 
       if (studentError) {
-        return NextResponse.json({ error: studentError.message }, { status: 400 });
+        return { error: studentError.message, status: 400 };
       }
       studentId = studentInsert.id;
       messages.push(`${student.firstName} ${student.lastName} a été ajouté.`);
@@ -112,12 +115,12 @@ export async function POST(req: Request) {
       });
 
       if (registrationError) {
-        return NextResponse.json({ error: registrationError.message }, { status: 400 });
+        return { error: registrationError.message, status: 400 };
       }
     } else {
       messages.push(`Inscription de ${student.firstName} déjà enregistrée.`);
     }
   }
 
-  return NextResponse.json({ success: true, messages }, { status: 201 });
+  return { success: true, messages, status: 201 };
 }

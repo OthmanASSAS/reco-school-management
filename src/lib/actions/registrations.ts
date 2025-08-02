@@ -49,13 +49,6 @@ export async function createRegistration(
   prevState: RegistrationState,
   formData: FormData
 ): Promise<RegistrationState> {
-  console.log("FormData reçue:", {
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
-    registrationType: formData.get("registrationType"),
-    familyId: formData.get("familyId"),
-  });
-
   // Récupération et conversion des données
   const rawRegistrationType = getFormValue(formData, "registrationType");
   const mappedRegistrationType = mapRegistrationType(rawRegistrationType);
@@ -80,8 +73,6 @@ export async function createRegistration(
   });
 
   if (!validatedFields.success) {
-    console.log("Erreurs de validation:", validatedFields.error.format());
-
     const formattedErrors = validatedFields.error.format();
 
     return {
@@ -134,8 +125,6 @@ export async function createRegistration(
       };
     }
 
-    console.log("🔍 Debug - courseInstanceId reçu:", registration.courseInstanceId);
-
     // TEST : Essayons d'abord de voir si c'est directement un course_id
     const { data: courseData, error: courseError } = await supabase
       .from("courses")
@@ -143,11 +132,8 @@ export async function createRegistration(
       .eq("id", registration.courseInstanceId)
       .single();
 
-    console.log("🔍 Debug - courseData trouvé:", courseData);
-
     if (courseData) {
       // C'est un course_id direct, pas un course_instance_id
-      console.log("✅ C'est un course_id direct");
 
       // 🎯 NOUVEAU : Créer l'enrollment directement
       const { data: enrollmentData, error: enrollmentError } = await supabase
@@ -156,6 +142,7 @@ export async function createRegistration(
           {
             student_id: studentData.id,
             course_id: registration.courseInstanceId, // Utiliser directement comme course_id
+            school_year_id: registration.schoolYearId, // Ajouter l'année scolaire
             start_date: new Date().toISOString().split("T")[0],
             status: registration.isWaitingList ? "pending" : "active",
           },
@@ -171,7 +158,6 @@ export async function createRegistration(
       }
 
       // Pas besoin de créer de registration si on utilise enrollments
-      console.log("✅ Enrollment créé avec succès:", enrollmentData);
     } else {
       // Récupérer les infos de la course_instance sélectionnée
       const { data: courseInstanceData, error: courseInstanceError } = await supabase
@@ -179,9 +165,6 @@ export async function createRegistration(
         .select("id, course_id")
         .eq("id", registration.courseInstanceId)
         .single();
-
-      console.log("🔍 Debug - courseInstanceData:", courseInstanceData);
-      console.log("🔍 Debug - courseInstanceError:", courseInstanceError);
 
       if (courseInstanceError || !courseInstanceData) {
         console.error("Erreur récupération course_instance:", courseInstanceError);
@@ -191,7 +174,6 @@ export async function createRegistration(
           .from("course_instances")
           .select("id, course_id")
           .limit(5);
-        console.log("🔍 Debug - Toutes les instances (5 premières):", allInstances);
 
         return {
           message: `Erreur: Instance de cours introuvable. ID recherché: ${registration.courseInstanceId}. ${courseInstanceError?.message}`,
@@ -205,6 +187,7 @@ export async function createRegistration(
           {
             student_id: studentData.id,
             course_id: courseInstanceData.course_id, // Utiliser le course_id de l'instance
+            school_year_id: registration.schoolYearId, // Ajouter l'année scolaire
             start_date: new Date().toISOString().split("T")[0], // Date d'aujourd'hui
             status: registration.isWaitingList ? "pending" : "active",
           },

@@ -26,8 +26,6 @@ export async function createFamily(
   prevState: FamilyState,
   formData: FormData
 ): Promise<FamilyState> {
-  console.log("=== CREATE FAMILY ===");
-
   // Validation des données du formulaire
   const validatedFields = FamilySchema.safeParse({
     firstName: getFormValue(formData, "firstName"),
@@ -40,8 +38,6 @@ export async function createFamily(
   });
 
   if (!validatedFields.success) {
-    console.log("Erreurs de validation:", validatedFields.error.format());
-
     const formattedErrors = validatedFields.error.format();
     return {
       errors: {
@@ -184,8 +180,9 @@ export async function updateFamily(
       };
     }
 
+    
     // Mettre à jour la famille
-    const { error: updateError } = await supabase
+    const { error: updateError, data: updateData } = await supabase
       .from("families")
       .update({
         first_name: family.firstName,
@@ -196,7 +193,9 @@ export async function updateFamily(
         postal_code: family.postalCode,
         city: family.city,
       })
-      .eq("id", familyId);
+      .eq("id", familyId)
+      .select();
+    
 
     if (updateError) {
       console.error("Erreur mise à jour famille:", updateError);
