@@ -13,11 +13,8 @@ import {
   UserPlus,
   Users,
   X,
-<<<<<<< HEAD
-=======
   GraduationCap,
   MapPin,
->>>>>>> main
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -54,11 +51,7 @@ export const Sidebar = () => {
 
       <aside
         className={cn(
-<<<<<<< HEAD
-          "bg-white border-r border-gray-200 shadow-md fixed inset-y-0 left-0 w-64 transform transition-transform md:translate-x-0",
-=======
           "bg-white border-r border-gray-200 shadow-md fixed inset-y-0 left-0 w-64 transform transition-transform md:translate-x-0 z-50",
->>>>>>> main
           open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
@@ -109,11 +102,7 @@ export const Sidebar = () => {
       {/* Overlay when sidebar is open on mobile */}
       {open && (
         <div
-<<<<<<< HEAD
-          className="fixed inset-0 bg-black opacity-20 md:hidden"
-=======
           className="fixed inset-0 bg-black opacity-20 md:hidden z-40"
->>>>>>> main
           onClick={() => setOpen(false)}
         />
       )}
