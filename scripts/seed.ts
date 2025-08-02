@@ -178,6 +178,9 @@ const REALISTIC_DATA = {
 async function main() {
   // Nettoyage (votre code existant est bon)
   const tablesToClean = [
+    "grades",
+    "evaluations",
+    "evaluation_criteria",
     "schedules",
     "registrations",
     "payments",
@@ -690,6 +693,52 @@ async function main() {
   await sb.from("courses").update({ status: "active" }).neq("status", "active");
 
   console.log("✅ Complétion terminée !");
+
+  // --- 11. INSERTION DE DONNÉES DE NOTES DE TEST ---
+  console.log("\n📝 Insertion de notes de test...");
+
+  const { data: allStudents } = await sb.from("students").select("id");
+  const { data: allSubjects } = await sb.from("subjects").select("id, course_id");
+  const { data: allSchoolYears } = await sb.from("school_years").select("id");
+
+  if (allStudents && allSubjects && allSchoolYears && allSubjects.length > 0) {
+    const gradesToInsert = [];
+    const periodTypes = ["Semaine", "Mois", "Trimestre", "Semestre", "Annuel"];
+
+    for (let i = 0; i < 50; i++) {
+      // Insérer 50 notes de test
+      const randomStudent = faker.helpers.arrayElement(allStudents);
+      const randomSubject = faker.helpers.arrayElement(allSubjects);
+      const randomSchoolYear = faker.helpers.arrayElement(allSchoolYears);
+      const randomPeriodType = faker.helpers.arrayElement(periodTypes);
+      const randomPeriodValue = `Période ${faker.number.int({ min: 1, max: 4 })}`; // Ex: Période 1, Période 2
+
+      gradesToInsert.push({
+        student_id: randomStudent.id,
+        subject_id: randomSubject.id,
+        score: faker.number.int({ min: 0, max: 20 }),
+        coefficient: faker.number.int({ min: 1, max: 3 }),
+        period_type: randomPeriodType,
+        period_value: randomPeriodValue,
+        school_year_id: randomSchoolYear.id,
+        comments: faker.datatype.boolean(0.5) ? faker.lorem.sentence(3) : null,
+        evaluation_date: faker.date.past().toISOString().split("T")[0],
+      });
+    }
+
+    const { error: gradesError } = await sb.from("grades").insert(gradesToInsert);
+    if (gradesError) {
+      console.error("   ❌ Erreur lors de l'insertion des notes de test:", gradesError);
+    } else {
+      console.log(`   ✅ Inséré ${gradesToInsert.length} notes de test.`);
+    }
+  } else {
+    console.log("   ⚠️  Pas de matières disponibles pour créer des notes de test.");
+    console.log(
+      `   📊 État: ${allStudents?.length || 0} étudiants, ${allSubjects?.length || 0} matières, ${allSchoolYears?.length || 0} années scolaires`
+    );
+  }
+
   console.log(`
 📊 Summary complet:
    - ${familiesData?.length} families with realistic Arabic names
@@ -702,7 +751,11 @@ async function main() {
    - ✅ Professeurs assignés aux cours
    - ✅ Salles assignées aux cours
    - ✅ Horaires ajoutés aux cours
+   - ✅ Système de matières créé (subjects, grades)
+   - ✅ Matières par défaut ajoutées (Lecture, Grammaire, Expression orale, Religion, etc.)
+   - ✅ Système de notes périodiques par matière
    - ✅ Planning prêt à utiliser !
+   - ✅ Notes de test insérées !
   `);
 
   process.exit(0);

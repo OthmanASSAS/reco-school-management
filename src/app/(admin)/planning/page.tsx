@@ -20,9 +20,6 @@ export default function PlanningPage() {
               </div>
               <div>
                 <CardTitle className="text-2xl font-bold text-gray-900">Planning</CardTitle>
-                <p className="text-sm text-gray-600 mt-1">
-                  Visualisez et gérez l'emploi du temps de votre école
-                </p>
               </div>
             </div>
           </CardHeader>

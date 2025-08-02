@@ -1,13 +1,59 @@
 // [id]/page.tsx
 import { getCoursesWithDetail, updateCourse } from "../actions/actions";
 import CourseForm from "../components/CourseForm";
-export default async function EditCoursePage({ params }: { params: { id: string } }) {
+import { Button } from "@/components/ui/button";
+import { BookOpen, Settings } from "lucide-react";
+import Link from "next/link";
+
+export default async function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const courses = await getCoursesWithDetail();
-  const course = courses.find(c => c.id === params.id);
+  const course = courses.find(c => c.id === id);
+
+  if (!course) {
+    return (
+      <main className="p-6">
+        <div className="text-center text-gray-500">
+          <h1 className="text-2xl font-bold mb-4">Cours non trouvé</h1>
+          <p>Le cours demandé n'existe pas.</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="p-6">
-      <h1>Modifier le cours</h1>
-      {course && <CourseForm course={course} onSubmit={data => updateCourse(course.id, data)} />}
+      <div className="max-w-4xl mx-auto">
+        {/* Header avec navigation */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Modifier le cours</h1>
+              <p className="text-gray-600 mt-2">{course.name}</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Link href={`/admin/courses/${id}/matieres`}>
+                <Button variant="outline" className="flex items-center space-x-2">
+                  <BookOpen className="h-4 w-4" />
+                  <span>Gérer les matières</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Formulaire de modification */}
+        <CourseForm
+          course={course}
+          onCourseCreated={() => {
+            // Ne devrait pas être appelé dans ce contexte
+          }}
+          onCourseUpdated={() => {
+            // Recharger la page après mise à jour
+            window.location.reload();
+          }}
+        />
+      </div>
     </main>
   );
 }

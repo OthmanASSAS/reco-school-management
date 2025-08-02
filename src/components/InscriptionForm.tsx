@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function InscriptionForm() {
   const { toast } = useToast();
-  const { register, control, handleSubmit, reset } = useForm({
+  const { register, control, handleSubmit, reset } = useForm<any>({
     defaultValues: {
       family: {},
       students: [

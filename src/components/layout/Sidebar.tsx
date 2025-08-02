@@ -15,6 +15,7 @@ import {
   X,
   GraduationCap,
   MapPin,
+  Star,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,6 +29,7 @@ const menuItems = [
   { id: "teachers", label: "Professeurs", icon: GraduationCap, href: "/teachers" },
   { id: "rooms", label: "Salles", icon: MapPin, href: "/rooms" },
   { id: "planning", label: "Planning", icon: Calendar, href: "/planning" },
+  { id: "grades", label: "Évaluations", icon: Star, href: "/grades" },
   { id: "registration", label: "Inscription", icon: UserPlus, href: "/registration" },
   { id: "pre-registration", label: "Pré-inscription", icon: UserPlus, href: "/pre-registration" },
   { id: "payments", label: "Paiements", icon: CreditCard, href: "/payments" },

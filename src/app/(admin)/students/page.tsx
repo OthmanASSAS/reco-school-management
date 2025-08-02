@@ -83,7 +83,7 @@ export default async function StudentsPage() {
         const enrollments = student.enrollments || [];
         const activeEnrollments = enrollments.filter(e => e.status === "active");
         const finishedEnrollments = enrollments.filter(e => e.status === "finished");
-        const primaryCourse = activeEnrollments[0]?.courses;
+        const primaryCourse = activeEnrollments[0]?.courses?.[0];
 
         return {
           id: student.id,

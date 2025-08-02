@@ -6,7 +6,8 @@ import { Edit, UserPlus, BookOpen, CreditCard, Info } from "lucide-react";
 import supabase from "@/lib/supabase";
 import { notFound } from "next/navigation";
 
-export default async function FamilyDetailPage({ params }: { params: { id: string } }) {
+export default async function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   // Fetch famille + membres dynamiquement
   const { data: family, error } = await supabase
     .from("families")
@@ -15,7 +16,7 @@ export default async function FamilyDetailPage({ params }: { params: { id: strin
         id, first_name, last_name, birth_date, registration_type, level, notes, enrollments(id, status, start_date, courses(name, type, price))
       )`
     )
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (error || !family) return notFound();

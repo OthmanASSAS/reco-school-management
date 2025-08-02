@@ -2,7 +2,7 @@
 import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Users, MapPin, Euro, BookOpen } from "lucide-react";
+import { Edit, Trash2, Users, MapPin, Euro, BookOpen, BookOpenCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -313,8 +313,18 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                             <Button
                               variant="ghost"
                               size="sm"
+                              className="h-9 w-9 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-lg transition-all duration-200"
+                              onClick={() => router.push(`/courses/${course.id}/matieres`)}
+                              title="Gérer les matières"
+                            >
+                              <BookOpenCheck size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               className="h-9 w-9 p-0 text-green-600 hover:text-green-700 hover:bg-green-100 rounded-lg transition-all duration-200"
                               onClick={() => handleEdit(course)}
+                              title="Modifier le cours"
                             >
                               <Edit size={16} />
                             </Button>
@@ -323,6 +333,7 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                               size="sm"
                               className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-100 rounded-lg transition-all duration-200"
                               onClick={() => setDeleteCourseId(course.id)}
+                              title="Supprimer le cours"
                             >
                               <Trash2 size={16} />
                             </Button>
@@ -439,6 +450,15 @@ export default function CoursesClientTable({ courses }: CoursesClientTableProps)
                         variant="outline"
                         size="sm"
                         className="flex-1 bg-white hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all text-xs px-2"
+                        onClick={() => router.push(`/courses/${course.id}/matieres`)}
+                      >
+                        <BookOpenCheck size={12} className="mr-1" />
+                        <span className="hidden sm:inline">Matières</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 bg-white hover:bg-green-50 hover:text-green-700 hover:border-green-200 transition-all text-xs px-2"
                         onClick={() => handleEdit(course)}
                       >
                         <Edit size={12} className="mr-1" />
