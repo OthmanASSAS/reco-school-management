@@ -21,7 +21,8 @@ import {
   User,
   Users,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { preRegister } from "@/lib/actions/pre-registration";
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,7 +44,10 @@ type StudentInfo = {
 
 export default function PreRegistrationForm() {
   const { toast } = useToast();
-  const [step, setStep] = useState(1);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Initialize state first
   const [family, setFamily] = useState<FamilyInfo>({
     familyName: "",
     parentFirstName: "",
@@ -59,45 +63,149 @@ export default function PreRegistrationForm() {
   ]);
 
   const [appointmentDay, setAppointmentDay] = useState<Date | null>(null);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
-  const handleNext = () => setStep(s => s + 1);
-  const handleBack = () => setStep(s => s - 1);
+  // Validate if user can access a specific step
+  const canAccessStep = (targetStep: number, currentFamily?: FamilyInfo, currentStudents?: StudentInfo[], isSuccessful?: boolean) => {
+    const familyData = currentFamily || family;
+    const studentsData = currentStudents || students;
+    const successState = isSuccessful !== undefined ? isSuccessful : registrationSuccess;
+
+    if (targetStep === 1) return true;
+    if (targetStep === 4 && successState) return true;
+
+    // For steps 2 and 3, check if previous steps have required data
+    if (targetStep === 2) {
+      return (
+        familyData.parentFirstName.trim() !== "" &&
+        familyData.familyName.trim() !== "" &&
+        familyData.contactEmail.trim() !== "" &&
+        familyData.contactPhone.trim() !== ""
+      );
+    }
+
+    if (targetStep === 3) {
+      const hasValidFamily = canAccessStep(2, familyData, studentsData, successState);
+      const hasValidStudents = studentsData.some(
+        student =>
+          student.firstName.trim() !== "" &&
+          student.lastName.trim() !== "" &&
+          student.birthDate.trim() !== ""
+      );
+      return hasValidFamily && hasValidStudents;
+    }
+
+    return false;
+  };
+
+  // Initialize step from URL or default to 1
+  const getInitialStep = () => {
+    const stepParam = searchParams.get('step');
+    if (stepParam) {
+      const parsedStep = parseInt(stepParam);
+      if (parsedStep >= 1 && parsedStep <= 4) {
+        // Only validate for steps > 1 since initial state is empty
+        if (parsedStep === 1) return parsedStep;
+        // For other steps, return 1 initially and let useEffect handle validation
+        return 1;
+      }
+    }
+    return 1;
+  };
+
+  const [step, setStep] = useState(getInitialStep);
+
+  // Sync step with URL changes and validate access
+  useEffect(() => {
+    const stepParam = searchParams.get('step');
+    if (stepParam) {
+      const requestedStep = parseInt(stepParam);
+      if (requestedStep >= 1 && requestedStep <= 4) {
+        if (canAccessStep(requestedStep)) {
+          if (requestedStep !== step) {
+            setStep(requestedStep);
+          }
+        } else {
+          // Redirect to step 1 if user can't access requested step
+          const params = new URLSearchParams(searchParams);
+          params.set('step', '1');
+          router.replace(`?${params.toString()}`, { scroll: false });
+          if (step !== 1) {
+            setStep(1);
+          }
+        }
+      }
+    }
+  }, [searchParams, family, students, registrationSuccess]);
+
+  // Function to update both step state and URL with validation
+  const updateStep = (newStep: number) => {
+    if (canAccessStep(newStep)) {
+      setStep(newStep);
+      const params = new URLSearchParams(searchParams);
+      params.set('step', newStep.toString());
+      router.replace(`?${params.toString()}`, { scroll: false });
+    } else {
+      // Show error if trying to access unavailable step
+      toast({
+        variant: "destructive",
+        title: "Étape non accessible",
+        description: "Veuillez compléter les étapes précédentes.",
+      });
+    }
+  };
+
+  const handleNext = () => updateStep(step + 1);
+  const handleBack = () => updateStep(step - 1);
 
   const handleSubmit = async () => {
+    setIsSubmitting(true);
+
     const formData = new FormData();
     formData.append("family", JSON.stringify(family));
     formData.append("students", JSON.stringify(students));
     formData.append("appointmentDay", appointmentDay?.toISOString().split("T")[0] || "");
 
-    const result = await preRegister(formData);
+    try {
+      const result = await preRegister(formData);
 
-    if (result.success) {
-      toast({
-        variant: "default",
-        title: "Préinscription envoyée !",
-        description: result.messages.join(" ") || "Votre demande a bien été enregistrée.",
-      });
-      // Réinitialise le formulaire
-      setFamily({
-        familyName: "",
-        parentFirstName: "",
-        contactEmail: "",
-        contactPhone: "",
-        address: "",
-        postalCode: "",
-        city: "",
-      });
-      setStudents([{ firstName: "", lastName: "", birthDate: "" }]);
-      setAppointmentDay(null);
-      setStep(1);
-    } else {
+      if (result.success) {
+        setRegistrationSuccess(true);
+        updateStep(4); // Aller directement à la page de confirmation
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erreur d'envoi",
+          description: result.error || "Erreur lors de l'envoi.",
+        });
+      }
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Erreur d'envoi",
-        description: result.error || "Erreur lors de l'envoi.",
+        description: "Une erreur inattendue s'est produite.",
       });
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  // Fonction pour recommencer une nouvelle inscription
+  const handleNewRegistration = () => {
+    setFamily({
+      familyName: "",
+      parentFirstName: "",
+      contactEmail: "",
+      contactPhone: "",
+      address: "",
+      postalCode: "",
+      city: "",
+    });
+    setStudents([{ firstName: "", lastName: "", birthDate: "" }]);
+    setAppointmentDay(null);
+    setRegistrationSuccess(false);
+    updateStep(1);
   };
 
   const removeStudent = (index: number) => {
@@ -197,9 +305,6 @@ export default function PreRegistrationForm() {
           </div>
 
           {/* Main Card */}
-          {successMessage && (
-            <div className="mb-6 text-center text-green-600 font-semibold">{successMessage}</div>
-          )}
 
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-2">
@@ -422,16 +527,16 @@ export default function PreRegistrationForm() {
                 </div>
               )}
 
-              {/* Step 4: Confirmation */}
-              {step === 4 && (
+              {/* Step 4: Success Confirmation */}
+              {step === 4 && registrationSuccess && (
                 <div className="space-y-6 animate-fade-in">
-                  <div className="text-center mb-6">
-                    <CheckCircle size={40} className="mx-auto text-green-600 mb-4" />
-                    <h3 className="text-lg md:text-xl font-semibold mb-2">
-                      Vérification des informations
+                  <div className="text-center mb-8">
+                    <CheckCircle size={60} className="mx-auto text-green-600 mb-6" />
+                    <h3 className="text-xl md:text-2xl font-bold text-green-800 mb-4">
+                      Préinscription envoyée avec succès !
                     </h3>
-                    <p className="text-gray-600 text-sm md:text-base">
-                      Merci de vérifier vos informations avant de soumettre votre demande.
+                    <p className="text-gray-600 text-base md:text-lg mb-6">
+                      Votre demande de préinscription a bien été enregistrée. Nous vous contacterons prochainement.
                     </p>
                   </div>
 
@@ -488,45 +593,75 @@ export default function PreRegistrationForm() {
                     </h4>
                     <p className="text-sm">
                       {appointmentDay
-                        ? format(appointmentDay, "dd/MM/yyyy")
+                        ? format(appointmentDay, "EEEE d MMMM yyyy", { locale: fr })
                         : "Aucun jour sélectionné"}
                     </p>
                   </Card>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
+                    <Button
+                      onClick={handleNewRegistration}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-12 px-6 w-full sm:w-auto"
+                    >
+                      <Plus size={16} className="mr-2" />
+                      Nouvelle préinscription
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => window.location.href = '/'}
+                      className="h-12 px-6 w-full sm:w-auto border-2 hover:bg-gray-50"
+                    >
+                      Retour à l'accueil
+                    </Button>
+                  </div>
                 </div>
               )}
 
-              {/* Navigation Buttons - Responsive */}
-              <div className="flex flex-col sm:flex-row justify-between gap-4 pt-8 mt-8 border-t">
-                {step > 1 ? (
-                  <Button
-                    variant="outline"
-                    onClick={handleBack}
-                    className="h-12 px-4 md:px-6 w-full sm:w-auto"
-                  >
-                    <ArrowLeft size={16} className="mr-2" />
-                    Retour
-                  </Button>
-                ) : (
-                  <div />
-                )}
-                {step < 4 ? (
-                  <Button
-                    onClick={handleNext}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-12 px-4 md:px-6 w-full sm:w-auto"
-                  >
-                    Suivant
-                    <ArrowRight size={16} className="ml-2" />
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handleSubmit}
-                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 h-12 px-4 md:px-6 w-full sm:w-auto"
-                  >
-                    <Send size={16} className="mr-2" />
-                    Envoyer la demande
-                  </Button>
-                )}
-              </div>
+              {/* Navigation Buttons - Responsive (Hidden on success page) */}
+              {step !== 4 && (
+                <div className="flex flex-col sm:flex-row justify-between gap-4 pt-8 mt-8 border-t">
+                  {step > 1 ? (
+                    <Button
+                      variant="outline"
+                      onClick={handleBack}
+                      className="h-12 px-4 md:px-6 w-full sm:w-auto"
+                    >
+                      <ArrowLeft size={16} className="mr-2" />
+                      Retour
+                    </Button>
+                  ) : (
+                    <div />
+                  )}
+                  {step < 3 ? (
+                    <Button
+                      onClick={handleNext}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-12 px-4 md:px-6 w-full sm:w-auto"
+                    >
+                      Suivant
+                      <ArrowRight size={16} className="ml-2" />
+                    </Button>
+                  ) : step === 3 ? (
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={isSubmitting || !appointmentDay}
+                      className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 h-12 px-4 md:px-6 w-full sm:w-auto"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Envoi en cours...
+                        </>
+                      ) : (
+                        <>
+                          <Send size={16} className="mr-2" />
+                          Envoyer la demande
+                        </>
+                      )}
+                    </Button>
+                  ) : null}
+                </div>
+              )}
             </CardContent>
           </Card>
 

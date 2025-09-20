@@ -41,6 +41,9 @@ export interface Payment {
   remarks?: string;
   cheques?: string | any[];
   created_at: string;
+  family_id?: string;
+  student_id?: string | null;
+  school_year_id?: string | null;
 }
 
 export interface Family {

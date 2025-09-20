@@ -41,7 +41,7 @@ export default function StudentCoursesCard({
         <div className="mt-2 space-y-1">
           {enrollments.map(enrollment => (
             <div
-              key={enrollment.id}
+              key={enrollment.id || `${student.id}-${enrollment.courses?.id}`}
               className="flex items-center justify-between p-2 bg-white rounded"
             >
               <div>

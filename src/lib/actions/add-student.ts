@@ -11,6 +11,7 @@ const AddStudentSchema = z.object({
   lastName: z.string().min(1, "Le nom est requis"),
   birthDate: z.string().min(1, "La date de naissance est requise"),
   registrationType: z.enum(["child", "adult"], { message: "Type d'élève requis" }),
+  schoolYearId: z.string().min(1, "Année scolaire requise"),
 });
 
 export type AddStudentState = {
@@ -20,6 +21,7 @@ export type AddStudentState = {
     lastName?: string[];
     birthDate?: string[];
     registrationType?: string[];
+    schoolYearId?: string[];
   };
   message?: string | null;
   success?: boolean;
@@ -29,7 +31,8 @@ export async function addStudent(
   prevState: AddStudentState,
   formData: FormData
 ): Promise<AddStudentState> {
-  const selectedCourses = formData.getAll("selectedCourses") as string[];
+  const selectedCoursesString = formData.get("selectedCourses") as string;
+  const selectedCourses = selectedCoursesString ? JSON.parse(selectedCoursesString) : [];
 
   const validatedFields = AddStudentSchema.safeParse({
     familyId: formData.get("familyId"),
@@ -37,6 +40,7 @@ export async function addStudent(
     lastName: formData.get("lastName"),
     birthDate: formData.get("birthDate"),
     registrationType: formData.get("registrationType"),
+    schoolYearId: formData.get("schoolYearId"),
   });
 
   if (!validatedFields.success) {
@@ -48,12 +52,13 @@ export async function addStudent(
         lastName: formattedErrors.lastName?._errors,
         birthDate: formattedErrors.birthDate?._errors,
         registrationType: formattedErrors.registrationType?._errors,
+        schoolYearId: formattedErrors.schoolYearId?._errors,
       },
       message: "Champs manquants ou invalides.",
     };
   }
 
-  const { familyId, firstName, lastName, birthDate, registrationType } = validatedFields.data;
+  const { familyId, firstName, lastName, birthDate, registrationType, schoolYearId } = validatedFields.data;
 
   try {
     // Ajouter l'étudiant
@@ -78,21 +83,31 @@ export async function addStudent(
 
     // Ajouter les inscriptions aux cours
     if (selectedCourses.length > 0) {
+      console.log("📚 Création des enrollments pour:", selectedCourses);
+
       const enrollmentInserts = selectedCourses.map(courseId => ({
         student_id: newStudent.id,
         course_id: courseId,
+        school_year_id: schoolYearId,
         start_date: new Date().toISOString().split("T")[0],
         status: "active",
         created_at: new Date().toISOString(),
       }));
 
-      const { error: enrollmentsError } = await supabase
+      console.log("📝 Enrollments à créer:", enrollmentInserts);
+
+      const { data: enrollmentsData, error: enrollmentsError } = await supabase
         .from("enrollments")
-        .insert(enrollmentInserts);
+        .insert(enrollmentInserts)
+        .select();
 
       if (enrollmentsError) {
-        console.error("Erreur ajout inscriptions:", enrollmentsError);
+        console.error("❌ Erreur ajout inscriptions:", enrollmentsError);
+      } else {
+        console.log("✅ Enrollments créés:", enrollmentsData);
       }
+    } else {
+      console.log("⚠️ Aucun cours sélectionné");
     }
 
     revalidatePath("/(admin)/families");
@@ -135,7 +150,8 @@ export async function updateStudent(
   prevState: UpdateStudentState,
   formData: FormData
 ): Promise<UpdateStudentState> {
-  const selectedCourses = formData.getAll("selectedCourses") as string[];
+  const selectedCoursesString = formData.get("selectedCourses") as string;
+  const selectedCourses = selectedCoursesString ? JSON.parse(selectedCoursesString) : [];
 
   const validatedFields = UpdateStudentSchema.safeParse({
     studentId: formData.get("studentId"),

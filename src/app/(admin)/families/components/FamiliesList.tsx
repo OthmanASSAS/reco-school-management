@@ -18,9 +18,11 @@ import { AlertCircle } from "lucide-react";
 import { Family, SchoolYear, Student, Enrollment, Course, Payment } from "@/types/families";
 // import { filterEnrollmentsBySchoolYear } from "@/lib/utils/payment-calculations";
 import FamiliesTable from "./FamiliesTable";
-import FamilyFormModal from "./FamilyFormModal";
 import PaymentModal from "./PaymentModal";
 import FamilyDetailsModal from "./FamilyDetailsModal";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { UserPlus } from "lucide-react";
 
 interface FamiliesListProps {
   initialFamilies: Family[];
@@ -191,7 +193,8 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
 
     return family.students?.some(student =>
       student.enrollments?.some(enrollment => {
-        return enrollment.school_year_id === schoolYearId;
+        // Inclure les enrollments sans school_year_id (nouveaux) ET ceux avec le bon school_year_id
+        return enrollment.school_year_id === schoolYearId || enrollment.school_year_id === null;
       })
     );
   };
@@ -303,7 +306,12 @@ export default function FamiliesList({ initialFamilies, initialSchoolYears }: Fa
                 </div>
               </div>
               <div className="w-full sm:w-auto">
-                <FamilyFormModal onFamilyCreated={fetchFamilyDetails} />
+                <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Link href="/pre-registration" target="_blank">
+                    <UserPlus size={16} className="mr-2" />
+                    Nouvelle famille
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>

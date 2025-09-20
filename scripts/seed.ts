@@ -509,7 +509,7 @@ async function main() {
     console.log(`   📝 Inserted ${enrollmentsData?.length || 0} enrollments (with history)`);
   }
 
-  // --- 7. Insert Payments (sans school_year_id pour l'instant) ---
+  // --- 7. Insert Payments (avec school_year_id) ---
   console.log("   💰 Creating payments...");
 
   const payments = familiesData!.flatMap(family => {
@@ -558,7 +558,7 @@ async function main() {
         familyPayments.push({
           id: faker.string.uuid(),
           family_id: family.id,
-          // school_year_id sera ajouté plus tard
+          school_year_id: schoolYearId,
           amount_cash: faker.datatype.boolean({ probability: 0.3 })
             ? faker.number.int({ min: 50, max: paymentAmount })
             : 0,

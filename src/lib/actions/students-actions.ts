@@ -10,9 +10,7 @@ const AddStudentSchema = z.object({
   firstName: z.string().min(1, "Le prénom est requis"),
   lastName: z.string().min(1, "Le nom est requis"),
   birthDate: z.string().min(1, "La date de naissance est requise"),
-  studentType: z.enum(["child", "adult"], { message: "Type d'élève requis" }),
-  appointmentDay: z.string().optional().nullable(),
-  schoolYearId: z.string().min(1, "Année scolaire requise"),
+  registrationType: z.enum(["child", "adult"], { message: "Type d'élève requis" }),
 });
 
 export type AddStudentState = {
@@ -21,8 +19,7 @@ export type AddStudentState = {
     firstName?: string[];
     lastName?: string[];
     birthDate?: string[];
-    studentType?: string[];
-    appointmentDay?: string[];
+    registrationType?: string[];
   };
   message?: string | null;
   success?: boolean;
@@ -38,9 +35,7 @@ export async function addStudent(
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
     birthDate: formData.get("birthDate"),
-    studentType: formData.get("studentType"),
-    appointmentDay: formData.get("appointmentDay") || null,
-    schoolYearId: formData.get("schoolYearId"),
+    registrationType: formData.get("registrationType"),
   });
   if (!validatedFields.success) {
     const formattedErrors = validatedFields.error.format();
@@ -50,15 +45,13 @@ export async function addStudent(
         firstName: formattedErrors.firstName?._errors,
         lastName: formattedErrors.lastName?._errors,
         birthDate: formattedErrors.birthDate?._errors,
-        studentType: formattedErrors.studentType?._errors,
-        appointmentDay: formattedErrors.appointmentDay?._errors,
+        registrationType: formattedErrors.registrationType?._errors,
       },
       message: "Champs manquants ou invalides.",
     };
   }
-  const supabase = createClient();
-  const { familyId, firstName, lastName, birthDate, studentType, appointmentDay, schoolYearId } =
-    validatedFields.data;
+  const supabase = await createClient();
+  const { familyId, firstName, lastName, birthDate, registrationType } = validatedFields.data;
   try {
     const { data: familyExists, error: familyError } = await supabase
       .from("families")
@@ -76,7 +69,7 @@ export async function addStudent(
           first_name: firstName,
           last_name: lastName,
           birth_date: birthDate,
-          registration_type: studentType,
+          registration_type: registrationType,
           already_registered: false,
           level: null,
           notes: `Ajouté via formulaire famille existante le ${new Date().toLocaleDateString("fr-FR")}`,
@@ -93,7 +86,6 @@ export async function addStudent(
       const studentCourseInserts = selectedCourses.map(courseId => ({
         student_id: studentData.id,
         course_id: courseId,
-        school_year_id: schoolYearId, // Ajouter l'année scolaire
         start_date: new Date().toISOString().split("T")[0],
         status: "active",
         created_at: new Date().toISOString(),

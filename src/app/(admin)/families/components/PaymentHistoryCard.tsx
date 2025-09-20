@@ -10,13 +10,20 @@ interface PaymentHistoryCardProps {
 export default function PaymentHistoryCard({ family, schoolYear }: PaymentHistoryCardProps) {
   const filteredPayments = filterPaymentsBySchoolYear(family.payments || [], schoolYear);
 
+  console.log("🔍 PaymentHistoryCard Debug:", {
+    allPayments: family.payments,
+    schoolYear,
+    filteredPayments,
+    paymentCount: family.payments?.length || 0,
+  });
+
   const renderPaymentMethods = (payment: any) => {
     const paymentMethods = [];
 
     if (payment.amount_cash && payment.amount_cash > 0) {
       paymentMethods.push(
         <span
-          key="cash"
+          key={`cash-${payment.id}`}
           className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium"
         >
           💵 {payment.amount_cash}€ espèces
@@ -27,7 +34,7 @@ export default function PaymentHistoryCard({ family, schoolYear }: PaymentHistor
     if (payment.amount_card && payment.amount_card > 0) {
       paymentMethods.push(
         <span
-          key="card"
+          key={`card-${payment.id}`}
           className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium"
         >
           💳 {payment.amount_card}€ carte
@@ -38,7 +45,7 @@ export default function PaymentHistoryCard({ family, schoolYear }: PaymentHistor
     if (payment.amount_transfer && payment.amount_transfer > 0) {
       paymentMethods.push(
         <span
-          key="transfer"
+          key={`transfer-${payment.id}`}
           className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
         >
           📤 {payment.amount_transfer}€ virement
@@ -60,7 +67,7 @@ export default function PaymentHistoryCard({ family, schoolYear }: PaymentHistor
           if (lot.count && lot.amount) {
             paymentMethods.push(
               <span
-                key={`cheque-${idx}`}
+                key={`cheque-${payment.id}-${idx}`}
                 className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium"
               >
                 🏪 {lot.count} chèque{lot.count > 1 ? "s" : ""} de {lot.amount}€ ({lot.banque})
@@ -74,7 +81,7 @@ export default function PaymentHistoryCard({ family, schoolYear }: PaymentHistor
     if (payment.refund_amount && payment.refund_amount > 0) {
       paymentMethods.push(
         <span
-          key="refund"
+          key={`refund-${payment.id}`}
           className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium"
         >
           💸 Remboursement {payment.refund_amount}€
@@ -85,7 +92,7 @@ export default function PaymentHistoryCard({ family, schoolYear }: PaymentHistor
     if (payment.books) {
       paymentMethods.push(
         <span
-          key="books"
+          key={`books-${payment.id}`}
           className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium"
         >
           📚 Livres inclus

@@ -8,6 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
     "seed": "tsx -r dotenv/config scripts/seed.ts",
     "update-schedules": "tsx -r dotenv/config scripts/update-schedules.ts",
     "assign-teachers-rooms": "tsx -r dotenv/config scripts/assign-teachers-rooms.ts",
@@ -36,7 +40,8 @@
     "ai:fix": "gemini -c -p 'Trouve et corrige tous les bugs'",
     "ai:optimize": "gemini -a -p 'Optimise toute l'application'",
     "ai:yolo": "gemini -y -a -p 'Améliore tout automatiquement'",
-    "ai:safe": "gemini -c -d -p 'Améliore prudemment avec checkpoints'"
+    "ai:safe": "gemini -c -d -p 'Améliore prudemment avec checkpoints'",
+    "prepare": "husky"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.2",
@@ -64,19 +69,36 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@faker-js/faker": "^9.9.0",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.0.3",
     "autoprefixer": "^10.4.21",
     "dotenv": "^16.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "eslint-config-prettier": "^10.1.5",
+    "husky": "^9.1.7",
+    "jsdom": "^27.0.0",
+    "lint-staged": "^16.1.6",
     "postcss": "^8.4.31",
     "prettier": "^3.6.1",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,ts,tsx,json,css,md}": [
+      "prettier --write"
+    ]
   }
 }

@@ -80,8 +80,8 @@ export default function PaymentModal({
         setShowPaymentForm(false);
       }}
     >
-      <DialogContent className="w-full max-w-[40vw] max-h-[95vh] overflow-auto p-4 sm:p-8">
-        <DialogHeader>
+      <DialogContent className="w-full max-w-[40vw] max-h-[95vh] flex flex-col p-4 sm:p-8">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>
             {showPaymentForm
               ? `Saisir un paiement - Famille ${family.last_name}`
@@ -89,21 +89,23 @@ export default function PaymentModal({
           </DialogTitle>
         </DialogHeader>
 
-        {showPaymentForm ? (
-          <PaymentForm
-            family={family}
-            onSave={handlePaymentSave}
-            onCancel={() => setShowPaymentForm(false)}
-          />
-        ) : (
-          <PaymentSummary
-            family={family}
-            currentSchoolYear={currentSchoolYear}
-            schoolYears={schoolYears}
-            onStartPayment={() => setShowPaymentForm(true)}
-            onClose={() => onOpenChange(false)}
-          />
-        )}
+        <div className="flex-1 overflow-y-auto">
+          {showPaymentForm ? (
+            <PaymentForm
+              family={family}
+              onSave={handlePaymentSave}
+              onCancel={() => setShowPaymentForm(false)}
+            />
+          ) : (
+            <PaymentSummary
+              family={family}
+              currentSchoolYear={currentSchoolYear}
+              schoolYears={schoolYears}
+              onStartPayment={() => setShowPaymentForm(true)}
+              onClose={() => onOpenChange(false)}
+            />
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

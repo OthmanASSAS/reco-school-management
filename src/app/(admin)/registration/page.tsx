@@ -1,71 +1,32 @@
-import RegistrationForm from "@/app/(admin)/registration/components/registration-form";
+import RegistrationWizard from "@/app/(admin)/registration/components/RegistrationWizard";
 import supabase from "@/lib/supabase";
 
 export default async function RegistrationPage() {
-  const [
-    { data: familiesData, error: familiesError },
-    { data: schoolYearsData, error: schoolYearsError },
-    // TEST TEMPORAIRE: utiliser courses directement
-    { data: coursesData, error: coursesError },
-  ] = await Promise.all([
+  const [familiesRes, coursesRes] = await Promise.all([
     supabase.from("families").select("id, first_name, last_name"),
-    supabase.from("school_years").select("id, label, start_date"),
-    // Utiliser courses directement pour tester
-    supabase
-      .from("courses")
-      .select("id, name, label, type, price, capacity")
-      .eq("status", "active"),
+    supabase.from("courses").select("id, label, name, type, price").eq("status", "active"),
   ]);
 
-  if (familiesError || schoolYearsError || coursesError) {
-    console.error("Erreur lors du chargement des données:", {
-      familiesError,
-      schoolYearsError,
-      coursesError,
-    });
-    return (
-      <div className="p-4 md:p-6 text-red-500">
-        Erreur lors du chargement des données nécessaires pour le formulaire.
-      </div>
-    );
+  if (familiesRes.error || coursesRes.error) {
+    return <div className="p-4 text-red-600">Erreur de chargement</div>;
   }
 
-  // Transformer les données
-  const families = (familiesData || []).map(family => ({
-    id: family.id,
-    name: `${family.first_name} ${family.last_name}`.trim(),
+  const families = (familiesRes.data || []).map(f => ({
+    id: f.id,
+    name: `${f.first_name} ${f.last_name}`.trim(),
   }));
-
-  const schoolYears = (schoolYearsData || []).map(year => ({
-    id: year.id,
-    year:
-      year.label || (year.start_date ? new Date(year.start_date).getFullYear().toString() : "N/A"),
-  }));
-
-  // TEST: Convertir courses en courseInstances temporairement
-  const courseInstances = (coursesData || []).map(course => ({
-    id: course.id,
-    course: {
-      name: course.name || "Cours sans nom",
-      type: course.type || "enfants",
-      label: course.label || course.name || "Cours sans label",
-    },
-    teacher: undefined,
-    room: undefined,
-    timeSlot: undefined,
-    capacity: course.capacity || 0,
-    price: course.price || 0,
+  const courses = (coursesRes.data || []).map(c => ({
+    id: c.id,
+    label: c.label || c.name,
+    type: c.type,
+    price: c.price,
   }));
 
   return (
     <div className="w-full p-4 md:p-6">
       <div className="w-full md:max-w-4xl md:mx-auto">
-        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Nouvelle inscription</h1>
-        <RegistrationForm
-          families={families}
-          schoolYears={schoolYears}
-          courseInstances={courseInstances}
-        />
+        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Guichet d’inscription</h1>
+        <RegistrationWizard families={families} courses={courses} />
       </div>
     </div>
   );

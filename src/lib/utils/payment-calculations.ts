@@ -45,8 +45,6 @@ export function filterEnrollmentsBySchoolYear(
       ? new Date(schoolYear.end_date).getFullYear()
       : schoolYearStart + 1;
 
-    // Le cours appartient à l'année scolaire si :
-    // - Il commence pendant l'année scolaire (septembre-août)
     const belongsToSchoolYear = enrollmentSchoolYear === schoolYearStart;
 
     return isActive && belongsToSchoolYear;
@@ -92,33 +90,11 @@ export function calculatePaidAmount(
   schoolYearId: string | null,
   schoolYears: any[]
 ): number {
-  const schoolYear = schoolYears.find(y => y.id === schoolYearId);
-  if (!schoolYear) {
-    return 0;
-  }
-
-  // Utiliser la même logique que pour les enrollments
-  const schoolYearStart = new Date(schoolYear.start_date).getFullYear();
-  const schoolYearEnd = schoolYear.end_date
-    ? new Date(schoolYear.end_date).getFullYear()
-    : schoolYearStart + 1;
-
-  let totalPaid = 0;
-
-  (family.payments || []).forEach(payment => {
-    const paymentDate = new Date(payment.created_at);
-    const paymentMonth = paymentDate.getMonth() + 1; // 1-12
-    const paymentYear = paymentDate.getFullYear();
-
-    // Logique scolaire : si paiement entre septembre (9) et août (8)
-    const paymentSchoolYear = paymentMonth >= 9 ? paymentYear : paymentYear - 1;
-    const belongsToSchoolYear = paymentSchoolYear === schoolYearStart;
-
-    // Paiement dans la période de l'année scolaire
-    if (belongsToSchoolYear) {
+  // Si pas d'année scolaire spécifiée, retourner tous les paiements
+  if (!schoolYearId) {
+    let totalPaid = 0;
+    (family.payments || []).forEach(payment => {
       let amount = 0;
-
-      // Additionner tous les moyens de paiement
       amount += payment.amount_cash || 0;
       amount += payment.amount_card || 0;
       amount += payment.amount_transfer || 0;
@@ -139,7 +115,55 @@ export function calculatePaidAmount(
       amount -= payment.refund_amount || 0;
 
       totalPaid += amount;
+    });
+    return totalPaid;
+  }
+
+  const schoolYear = schoolYears.find(y => y.id === schoolYearId);
+  if (!schoolYear) {
+    return 0;
+  }
+
+  const schoolYearStart = new Date(schoolYear.start_date).getFullYear();
+
+  let totalPaid = 0;
+
+  (family.payments || []).forEach(payment => {
+    // Priorité: si le paiement a un school_year_id, on compare directement
+    if (payment.school_year_id) {
+      if (payment.school_year_id !== schoolYearId) return;
+    } else {
+      // Fallback par date (logique septembre-août)
+      const paymentDate = new Date(payment.created_at);
+      const paymentMonth = paymentDate.getMonth() + 1;
+      const paymentYear = paymentDate.getFullYear();
+      const paymentSchoolYear = paymentMonth >= 9 ? paymentYear : paymentYear - 1;
+      const belongsToSchoolYear = paymentSchoolYear === schoolYearStart;
+
+      // Laisser passer les paiements récents pour ne pas surprendre lors du basculement d'année
+      const isRecentPayment =
+        new Date().getTime() - paymentDate.getTime() < 30 * 24 * 60 * 60 * 1000;
+      if (!belongsToSchoolYear && !isRecentPayment) return;
     }
+
+    let amount = 0;
+    amount += payment.amount_cash || 0;
+    amount += payment.amount_card || 0;
+    amount += payment.amount_transfer || 0;
+
+    const cheques =
+      typeof payment.cheques === "string"
+        ? JSON.parse(payment.cheques || "[]")
+        : payment.cheques || [];
+    const chequesAmount = cheques.reduce(
+      (sum: number, lot: any) => sum + (lot.count || 0) * (lot.amount || 0),
+      0
+    );
+    amount += chequesAmount;
+
+    amount -= payment.refund_amount || 0;
+
+    totalPaid += amount;
   });
 
   return totalPaid;
@@ -155,7 +179,18 @@ export function filterPaymentsBySchoolYear(payments: any[], schoolYear: any): an
   const schoolYearEnd = new Date(schoolYear.end_date).getFullYear();
 
   return payments.filter(payment => {
-    const paymentYear = new Date(payment.created_at).getFullYear();
-    return paymentYear >= schoolYearStart && paymentYear <= schoolYearEnd;
+    // Priorité: equality par school_year_id si présent
+    if (payment.school_year_id) {
+      return payment.school_year_id === schoolYear.id;
+    }
+
+    // Fallback par date
+    const paymentDate = new Date(payment.created_at);
+    const paymentYear = paymentDate.getFullYear();
+
+    const isInSchoolYear = paymentYear >= schoolYearStart && paymentYear <= schoolYearEnd;
+    const isRecentPayment = new Date().getTime() - paymentDate.getTime() < 30 * 24 * 60 * 60 * 1000;
+
+    return isInSchoolYear || isRecentPayment;
   });
 }

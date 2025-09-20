@@ -31,7 +31,12 @@ const menuItems = [
   { id: "planning", label: "Planning", icon: Calendar, href: "/planning" },
   { id: "grades", label: "Évaluations", icon: Star, href: "/grades" },
   { id: "registration", label: "Inscription", icon: UserPlus, href: "/registration" },
-  { id: "pre-registration", label: "Pré-inscription", icon: UserPlus, href: "/pre-registration" },
+  {
+    id: "pre-registration",
+    label: "Pré-inscription",
+    icon: UserPlus,
+    href: "/pre-registration",
+  },
   { id: "payments", label: "Paiements", icon: CreditCard, href: "/payments" },
   { id: "settings", label: "Paramètres", icon: Settings, href: "/settings" },
 ];

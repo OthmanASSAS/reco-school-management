@@ -1,0 +1,9 @@
+# Run tests (obligatoire)
+pnpm test
+
+# Run lint-staged for code formatting
+pnpm dlx lint-staged
+
+# Note: Build est commenté pour l'instant car il y a des erreurs de lint à corriger
+# Décommentez cette ligne quand le codebase sera propre :
+# pnpm build

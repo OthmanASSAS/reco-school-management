@@ -132,8 +132,14 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
         return;
       }
 
+      console.log("Assigning course:", { 
+        studentId: selectedStudent.id, 
+        courseId: selectedCourseForEdit 
+      });
+
       // Mettre à jour l'étudiant avec le nouveau cours
       const newEnrollment = data[0];
+      console.log("New enrollment data:", newEnrollment);
       setStudents(currentStudents =>
         currentStudents.map(student => {
           if (student.id === selectedStudent.id) {
@@ -664,7 +670,7 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
                   <SelectTrigger>
                     <SelectValue placeholder="Choisir un cours..." />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[9999]">
                     {availableCourses.map(course => {
                       const alreadyEnrolled = selectedStudent.activeEnrollments?.some(
                         e => e.courses?.id === course.id

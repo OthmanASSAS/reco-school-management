@@ -87,8 +87,8 @@ export default function FamilyFormModal({ onFamilyCreated, triggerButton }: Fami
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{triggerButton || defaultTrigger}</DialogTrigger>
 
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 to-blue-50">
-        <DialogHeader className="text-center pb-6">
+      <DialogContent className="max-w-4xl max-h-[90vh] bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col">
+        <DialogHeader className="text-center pb-6 flex-shrink-0">
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
               <Users className="h-8 w-8 text-white" />
@@ -101,7 +101,7 @@ export default function FamilyFormModal({ onFamilyCreated, triggerButton }: Fami
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 flex-1 overflow-y-auto px-6">
           {/* Message de feedback */}
           {state.message && (
             <Alert
@@ -308,7 +308,7 @@ export default function FamilyFormModal({ onFamilyCreated, triggerButton }: Fami
             </Card>
 
             {/* Boutons d'action */}
-            <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
+            <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 flex-shrink-0">
               <Button
                 type="button"
                 variant="outline"

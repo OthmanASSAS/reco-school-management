@@ -23,7 +23,19 @@ export default async function FamiliesPage() {
         birth_date,
         registration_type,
         level,
-        notes
+        notes,
+        enrollments(
+          id,
+          status,
+          start_date,
+          courses(
+            id,
+            name,
+            label,
+            type,
+            price
+          )
+        )
       )
     `
     )
@@ -53,7 +65,7 @@ export default async function FamiliesPage() {
       registration_type: s.registration_type,
       level: s.level,
       notes: s.notes,
-      enrollments: [],
+      enrollments: s.enrollments || [],
     })),
     payments: [],
   }));

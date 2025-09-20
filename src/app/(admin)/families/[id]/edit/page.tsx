@@ -50,8 +50,9 @@ import {
   DeleteStudentState,
   updateStudent,
   UpdateStudentState,
-} from "@/lib/actions/students-actions";
-import PaymentModal from "../../components/PaymentModal";
+} from "@/lib/actions/add-student";
+import PaymentSummary from "../../components/PaymentSummary";
+import PaymentForm from "../../components/PaymentForm";
 
 export default function EditFamilyPage() {
   const id = String(useParams().id);
@@ -60,10 +61,10 @@ export default function EditFamilyPage() {
   const [family, setFamily] = React.useState<Family | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [paymentModalOpen, setPaymentModalOpen] = React.useState(false);
+  const [showPaymentForm, setShowPaymentForm] = React.useState(false);
   const [schoolYears, setSchoolYears] = React.useState<SchoolYear[]>([]);
   const [currentSchoolYear, setCurrentSchoolYear] = React.useState<string | null>(null);
-
+  console.log("Famille chargée:", family);
   // Charger les années scolaires
   const fetchSchoolYears = React.useCallback(async () => {
     const { data, error } = await supabase
@@ -107,7 +108,8 @@ export default function EditFamilyPage() {
               price
             )
           )
-        )
+        ),
+        payments(*)
       `
       )
       .eq("id", id)
@@ -157,6 +159,15 @@ export default function EditFamilyPage() {
 
   // Rafraîchir les données après succès
   React.useEffect(() => {
+    console.log("📊 États des actions:", {
+      familyUpdate: state.success,
+      addStudent: addState.success,
+      updateStudent: updateState.success,
+      deleteStudent: deleteState.success,
+      addStateMessage: addState.message,
+      addStateErrors: addState.errors,
+    });
+
     if (state.success || addState.success || updateState.success || deleteState.success) {
       fetchFamily();
     }
@@ -201,7 +212,7 @@ export default function EditFamilyPage() {
   };
 
   // States pour les modales
-  const [addMemberOpen, setAddMemberOpen] = React.useState(false);
+  const [showAddMemberForm, setShowAddMemberForm] = React.useState(false);
   const [editMemberOpen, setEditMemberOpen] = React.useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
   const [selectedStudent, setSelectedStudent] = React.useState<Student | null>(null);
@@ -245,7 +256,7 @@ export default function EditFamilyPage() {
 
   React.useEffect(() => {
     if (addState.success) {
-      setAddMemberOpen(false);
+      setShowAddMemberForm(false);
       resetMemberForm();
       setAdding(false);
     }
@@ -278,7 +289,7 @@ export default function EditFamilyPage() {
   // Handlers pour les actions des membres
   const handleAddMember = () => {
     resetMemberForm();
-    setAddMemberOpen(true);
+    setShowAddMemberForm(true);
   };
 
   const handleEditMember = (student: Student) => {
@@ -384,13 +395,6 @@ export default function EditFamilyPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Button
-              onClick={() => setPaymentModalOpen(true)}
-              className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              <CreditCard className="h-4 w-4" />
-              Paiements
-            </Button>
           </div>
         </div>
 
@@ -592,18 +596,11 @@ export default function EditFamilyPage() {
               <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  onClick={handleAddMember}
+                  onClick={() => setShowAddMemberForm(true)}
                   className="bg-white/80 hover:bg-white border-green-200 hover:border-green-300"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
                   Ajouter un membre
-                </Button>
-                <Button
-                  onClick={() => setPaymentModalOpen(true)}
-                  className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  <CreditCard className="h-4 w-4" />
-                  Paiements
                 </Button>
               </div>
             </div>
@@ -715,25 +712,10 @@ export default function EditFamilyPage() {
               </div>
             )}
 
-            {/* Modale d'ajout de membre */}
-            <Dialog open={addMemberOpen} onOpenChange={setAddMemberOpen}>
-              <DialogContent className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 to-blue-50">
-                <DialogHeader className="text-center pb-4 sticky top-0 bg-gradient-to-br from-slate-50 to-blue-50 z-10">
-                  <div className="flex items-center justify-center gap-3 mb-2">
-                    <div className="p-2 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-lg">
-                      <UserPlus className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                        Ajouter un membre
-                      </DialogTitle>
-                    </div>
-                  </div>
-                </DialogHeader>
-                <div id="add-member-desc" className="sr-only">
-                  Remplissez les informations du membre et sélectionnez un ou plusieurs cours à
-                  attribuer.
-                </div>
+            {/* Formulaire d'ajout de membre (conditionnel) */}
+            {showAddMemberForm && (
+              <div className="mt-6 border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Ajouter un nouveau membre</h3>
                 <form
                   className="space-y-4"
                   onSubmit={e => {
@@ -744,10 +726,10 @@ export default function EditFamilyPage() {
                     formData.set("firstName", memberForm.firstName);
                     formData.set("lastName", memberForm.lastName);
                     formData.set("birthDate", memberForm.birthDate);
-                    formData.set("studentType", memberType);
-                    selectedCourses.forEach(courseId => {
-                      formData.append("selectedCourses", courseId);
-                    });
+                    formData.set("registrationType", memberType);
+                    formData.set("schoolYearId", currentSchoolYear ?? "");
+                    formData.append("selectedCourses", JSON.stringify(selectedCourses));
+
                     React.startTransition(() => {
                       addAction(formData);
                     });
@@ -766,32 +748,26 @@ export default function EditFamilyPage() {
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
                   />
-                  <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 sticky bottom-0 bg-gradient-to-br from-slate-50 to-blue-50">
+                  <div className="flex justify-end gap-4 pt-4">
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setAddMemberOpen(false)}
-                      className="px-6 py-2 border-gray-300 hover:bg-gray-50"
+                      onClick={() => setShowAddMemberForm(false)}
                     >
                       Annuler
                     </Button>
-                    <Button
-                      type="submit"
-                      disabled={adding}
-                      className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300"
-                    >
-                      <UserPlus size={16} className="mr-2" />
+                    <Button type="submit" disabled={adding}>
                       {adding ? "Ajout en cours..." : "Ajouter le membre"}
                     </Button>
                   </div>
                 </form>
-              </DialogContent>
-            </Dialog>
+              </div>
+            )}
 
             {/* Modale de modification de membre */}
             <Dialog open={editMemberOpen} onOpenChange={setEditMemberOpen}>
-              <DialogContent className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 to-blue-50">
-                <DialogHeader className="text-center pb-4 sticky top-0 bg-gradient-to-br from-slate-50 to-blue-50 z-10">
+              <DialogContent className="max-w-2xl w-full max-h-[90vh] flex flex-col bg-gradient-to-br from-slate-50 to-blue-50">
+                <DialogHeader className="text-center pb-4 flex-shrink-0">
                   <div className="flex items-center justify-center gap-3 mb-2">
                     <div className="p-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
                       <Edit className="h-6 w-6 text-white" />
@@ -804,7 +780,7 @@ export default function EditFamilyPage() {
                   </div>
                 </DialogHeader>
                 <form
-                  className="space-y-4"
+                  className="space-y-4 flex-1 overflow-y-auto px-6"
                   onSubmit={e => {
                     e.preventDefault();
                     setUpdating(true);
@@ -814,9 +790,7 @@ export default function EditFamilyPage() {
                     formData.set("lastName", memberForm.lastName);
                     formData.set("birthDate", memberForm.birthDate);
                     formData.set("registrationType", memberType);
-                    selectedCourses.forEach(courseId => {
-                      formData.append("selectedCourses", courseId);
-                    });
+                    formData.append("selectedCourses", JSON.stringify(selectedCourses));
                     React.startTransition(() => {
                       updateAction(formData);
                     });
@@ -835,7 +809,7 @@ export default function EditFamilyPage() {
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
                   />
-                  <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 sticky bottom-0 bg-gradient-to-br from-slate-50 to-blue-50">
+                  <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 flex-shrink-0">
                     <Button
                       type="button"
                       variant="outline"
@@ -901,22 +875,49 @@ export default function EditFamilyPage() {
             </Dialog>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Modale de paiement */}
-      {family && (
-        <PaymentModal
-          family={family}
-          open={paymentModalOpen}
-          onOpenChange={setPaymentModalOpen}
-          onPaymentSaved={() => {
-            // Optionnel : recharger les données de la famille après un paiement
-            fetchFamily();
-          }}
-          currentSchoolYear={currentSchoolYear}
-          schoolYears={schoolYears}
-        />
-      )}
+        {/* Section Paiements */}
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-yellow-100">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900">
+                <div className="p-2 bg-yellow-100 rounded-lg">
+                  <CreditCard className="h-5 w-5 text-yellow-600" />
+                </div>
+                Gestion des paiements
+              </CardTitle>
+              {!showPaymentForm && (
+                <Button
+                  onClick={() => setShowPaymentForm(true)}
+                  className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-md hover:shadow-lg transition-all"
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Saisir un paiement
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            {showPaymentForm ? (
+              <PaymentForm
+                family={family}
+                currentSchoolYear={currentSchoolYear}
+                onPaymentSaved={() => {
+                  setShowPaymentForm(false);
+                  fetchFamily();
+                }}
+                onCancel={() => setShowPaymentForm(false)}
+              />
+            ) : (
+              <PaymentSummary
+                family={family}
+                currentSchoolYear={currentSchoolYear}
+                schoolYears={schoolYears}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

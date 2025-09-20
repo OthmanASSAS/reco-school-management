@@ -1071,7 +1071,7 @@ export default function FamiliesTable() {
                                         )}
                                       </div>
                                     );
-                                  })}
+                                  })} // Correction: ajout de la key ici
                                 </div>
                               </div>
                             );
