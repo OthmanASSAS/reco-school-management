@@ -21,7 +21,7 @@ import {
   User,
   Users,
 } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { preRegister } from "@/lib/actions/pre-registration";
 import { useToast } from "@/hooks/use-toast";
@@ -64,10 +64,16 @@ export default function PreRegistrationForm() {
 
   const [appointmentDay, setAppointmentDay] = useState<Date | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(() => getInitialStep() === 4);
+  const initializedFromUrlRef = useRef(false);
 
   // Validate if user can access a specific step
-  const canAccessStep = (targetStep: number, currentFamily?: FamilyInfo, currentStudents?: StudentInfo[], isSuccessful?: boolean) => {
+  const canAccessStep = (
+    targetStep: number,
+    currentFamily?: FamilyInfo,
+    currentStudents?: StudentInfo[],
+    isSuccessful?: boolean
+  ) => {
     const familyData = currentFamily || family;
     const studentsData = currentStudents || students;
     const successState = isSuccessful !== undefined ? isSuccessful : registrationSuccess;
@@ -100,27 +106,39 @@ export default function PreRegistrationForm() {
   };
 
   // Initialize step from URL or default to 1
-  const getInitialStep = () => {
-    const stepParam = searchParams.get('step');
+  function getInitialStep() {
+    const stepParam = searchParams.get("step");
     if (stepParam) {
       const parsedStep = parseInt(stepParam);
       if (parsedStep >= 1 && parsedStep <= 4) {
         // Only validate for steps > 1 since initial state is empty
-        if (parsedStep === 1) return parsedStep;
+        if (parsedStep === 1 || parsedStep === 4) return parsedStep;
         // For other steps, return 1 initially and let useEffect handle validation
         return 1;
       }
     }
     return 1;
-  };
+  }
 
   const [step, setStep] = useState(getInitialStep);
 
   // Sync step with URL changes and validate access
   useEffect(() => {
-    const stepParam = searchParams.get('step');
+    const stepParam = searchParams.get("step");
     if (stepParam) {
       const requestedStep = parseInt(stepParam);
+
+      if (!initializedFromUrlRef.current) {
+        initializedFromUrlRef.current = true;
+        if (requestedStep === 4) {
+          setRegistrationSuccess(true);
+          if (step !== 4) {
+            setStep(4);
+          }
+          return;
+        }
+      }
+
       if (requestedStep >= 1 && requestedStep <= 4) {
         if (canAccessStep(requestedStep)) {
           if (requestedStep !== step) {
@@ -129,7 +147,7 @@ export default function PreRegistrationForm() {
         } else {
           // Redirect to step 1 if user can't access requested step
           const params = new URLSearchParams(searchParams);
-          params.set('step', '1');
+          params.set("step", "1");
           router.replace(`?${params.toString()}`, { scroll: false });
           if (step !== 1) {
             setStep(1);
@@ -137,14 +155,14 @@ export default function PreRegistrationForm() {
         }
       }
     }
-  }, [searchParams, family, students, registrationSuccess]);
+  }, [searchParams, family, students, registrationSuccess, step]);
 
   // Function to update both step state and URL with validation
-  const updateStep = (newStep: number) => {
-    if (canAccessStep(newStep)) {
+  const updateStep = (newStep: number, options?: { isSuccessful?: boolean }) => {
+    if (canAccessStep(newStep, undefined, undefined, options?.isSuccessful)) {
       setStep(newStep);
       const params = new URLSearchParams(searchParams);
-      params.set('step', newStep.toString());
+      params.set("step", newStep.toString());
       router.replace(`?${params.toString()}`, { scroll: false });
     } else {
       // Show error if trying to access unavailable step
@@ -160,6 +178,25 @@ export default function PreRegistrationForm() {
   const handleBack = () => updateStep(step - 1);
 
   const handleSubmit = async () => {
+    // Validation avant soumission
+    if (!canAccessStep(3)) {
+      toast({
+        variant: "destructive",
+        title: "Formulaire incomplet",
+        description: "Veuillez remplir toutes les étapes avant de soumettre.",
+      });
+      return;
+    }
+
+    if (!appointmentDay) {
+      toast({
+        variant: "destructive",
+        title: "Date manquante",
+        description: "Veuillez sélectionner une date de rendez-vous.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     const formData = new FormData();
@@ -172,7 +209,7 @@ export default function PreRegistrationForm() {
 
       if (result.success) {
         setRegistrationSuccess(true);
-        updateStep(4); // Aller directement à la page de confirmation
+        updateStep(4, { isSuccessful: true }); // Aller directement à la page de confirmation
       } else {
         toast({
           variant: "destructive",
@@ -181,6 +218,7 @@ export default function PreRegistrationForm() {
         });
       }
     } catch (error) {
+      console.error("Erreur lors de la préinscription:", error);
       toast({
         variant: "destructive",
         title: "Erreur d'envoi",
@@ -536,7 +574,8 @@ export default function PreRegistrationForm() {
                       Préinscription envoyée avec succès !
                     </h3>
                     <p className="text-gray-600 text-base md:text-lg mb-6">
-                      Votre demande de préinscription a bien été enregistrée. Nous vous contacterons prochainement.
+                      Votre demande de préinscription a bien été enregistrée. Nous vous contacterons
+                      prochainement.
                     </p>
                   </div>
 
@@ -609,10 +648,10 @@ export default function PreRegistrationForm() {
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => window.location.href = '/'}
+                      onClick={() => (window.location.href = "/")}
                       className="h-12 px-6 w-full sm:w-auto border-2 hover:bg-gray-50"
                     >
-                      Retour à l'accueil
+                      Retour à l&apos;accueil
                     </Button>
                   </div>
                 </div>

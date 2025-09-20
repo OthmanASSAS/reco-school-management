@@ -140,11 +140,11 @@ export default function EditFamilyPage() {
         const filteredData = {
           ...data,
           students:
-            data.students?.map((student: any) => ({
+            data.students?.map((student: Student) => ({
               ...student,
               enrollments:
                 student.enrollments?.filter(
-                  (enrollment: any) => enrollment.school_year_id === currentSchoolYear
+                  (enrollment: Enrollment) => enrollment.school_year_id === currentSchoolYear
                 ) || [],
             })) || [],
         };
@@ -281,16 +281,22 @@ export default function EditFamilyPage() {
       setShowAddMemberForm(false);
       resetMemberForm();
       setAdding(false);
+    } else if (addState.message && !addState.success) {
+      // En cas d'erreur, débloquer le bouton
+      setAdding(false);
     }
-  }, [addState.success]);
+  }, [addState.success, addState.message]);
 
   React.useEffect(() => {
     if (updateState.success) {
       setEditMemberOpen(false);
       resetMemberForm();
       setUpdating(false);
+    } else if (updateState.message && !updateState.success) {
+      // En cas d'erreur, débloquer le bouton
+      setUpdating(false);
     }
-  }, [updateState.success]);
+  }, [updateState.success, updateState.message]);
 
   React.useEffect(() => {
     if (deleteState.success) {
@@ -308,7 +314,6 @@ export default function EditFamilyPage() {
     setPopoverOpen(false);
   };
 
-
   const handleEditMember = (student: Student) => {
     setSelectedStudent(student);
     setMemberForm({
@@ -319,7 +324,7 @@ export default function EditFamilyPage() {
     setMemberType(student.registration_type || "child");
 
     // Charger les cours actuels de l'étudiant
-    const currentCourses = student.enrollments?.map((e: any) => e.course_id) || [];
+    const currentCourses = student.enrollments?.map((e: Enrollment) => e.course_id) || [];
     setSelectedCourses(currentCourses);
 
     setEditMemberOpen(true);
@@ -380,16 +385,23 @@ export default function EditFamilyPage() {
               Retour
             </Button>
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${isHistoricalMode ? 'bg-slate-100' : 'bg-blue-100'}`}>
-                <Users className={`h-6 w-6 ${isHistoricalMode ? 'text-slate-600' : 'text-blue-600'}`} />
+              <div
+                className={`p-2 rounded-lg ${isHistoricalMode ? "bg-slate-100" : "bg-blue-100"}`}
+              >
+                <Users
+                  className={`h-6 w-6 ${isHistoricalMode ? "text-slate-600" : "text-blue-600"}`}
+                />
               </div>
               <div>
                 <div className="flex items-center gap-3">
                   <h1 className="text-2xl font-bold text-gray-900">
-                    {isHistoricalMode ? 'Historique famille' : 'Éditer la famille'}
+                    {isHistoricalMode ? "Historique famille" : "Éditer la famille"}
                   </h1>
                   {isHistoricalMode && (
-                    <Badge variant="outline" className="bg-slate-50 border-slate-300 text-slate-700">
+                    <Badge
+                      variant="outline"
+                      className="bg-slate-50 border-slate-300 text-slate-700"
+                    >
                       <Clock className="h-3 w-3 mr-1" />
                       Mode historique
                     </Badge>
@@ -427,15 +439,26 @@ export default function EditFamilyPage() {
 
         {/* Formulaire famille */}
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className={`border-b ${isHistoricalMode
-            ? 'bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200'
-            : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100'}`}>
+          <CardHeader
+            className={`border-b ${
+              isHistoricalMode
+                ? "bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200"
+                : "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100"
+            }`}
+          >
             <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900">
-              <div className={`p-2 rounded-lg ${isHistoricalMode ? 'bg-slate-100' : 'bg-blue-100'}`}>
-                <Users className={`h-5 w-5 ${isHistoricalMode ? 'text-slate-600' : 'text-blue-600'}`} />
+              <div
+                className={`p-2 rounded-lg ${isHistoricalMode ? "bg-slate-100" : "bg-blue-100"}`}
+              >
+                <Users
+                  className={`h-5 w-5 ${isHistoricalMode ? "text-slate-600" : "text-blue-600"}`}
+                />
               </div>
               Informations de la famille
-              <Badge variant="outline" className="ml-auto text-xs bg-green-50 border-green-300 text-green-700">
+              <Badge
+                variant="outline"
+                className="ml-auto text-xs bg-green-50 border-green-300 text-green-700"
+              >
                 Toujours modifiable
               </Badge>
             </CardTitle>
@@ -617,17 +640,28 @@ export default function EditFamilyPage() {
 
         {/* Liste des membres */}
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className={`border-b ${isHistoricalMode
-            ? 'bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200'
-            : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-100'}`}>
+          <CardHeader
+            className={`border-b ${
+              isHistoricalMode
+                ? "bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200"
+                : "bg-gradient-to-r from-green-50 to-emerald-50 border-green-100"
+            }`}
+          >
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900">
-                <div className={`p-2 rounded-lg ${isHistoricalMode ? 'bg-slate-100' : 'bg-green-100'}`}>
-                  <UserPlus className={`h-5 w-5 ${isHistoricalMode ? 'text-slate-600' : 'text-green-600'}`} />
+                <div
+                  className={`p-2 rounded-lg ${isHistoricalMode ? "bg-slate-100" : "bg-green-100"}`}
+                >
+                  <UserPlus
+                    className={`h-5 w-5 ${isHistoricalMode ? "text-slate-600" : "text-green-600"}`}
+                  />
                 </div>
                 Membres de la famille
                 {isHistoricalMode && (
-                  <Badge variant="outline" className="ml-auto text-xs bg-slate-50 border-slate-300 text-slate-700">
+                  <Badge
+                    variant="outline"
+                    className="ml-auto text-xs bg-slate-50 border-slate-300 text-slate-700"
+                  >
                     Lecture seule
                   </Badge>
                 )}
@@ -833,6 +867,7 @@ export default function EditFamilyPage() {
                     formData.set("lastName", memberForm.lastName);
                     formData.set("birthDate", memberForm.birthDate);
                     formData.set("registrationType", memberType);
+                    formData.set("schoolYearId", currentSchoolYear || "");
                     formData.append("selectedCourses", JSON.stringify(selectedCourses));
                     React.startTransition(() => {
                       updateAction(formData);
@@ -1126,12 +1161,12 @@ function MemberFormFields({
                       </div>
                     ) : (
                       availableCourses
-                        .filter((course: any) =>
+                        .filter((course: Course) =>
                           (course.label || course.name || "")
                             ?.toLowerCase()
                             .includes(courseSearch.toLowerCase())
                         )
-                        .map((course: any) => (
+                        .map((course: Course) => (
                           <div
                             key={course.id}
                             className="flex items-center gap-2 p-2 hover:bg-green-50 cursor-pointer rounded transition-colors"
@@ -1184,7 +1219,7 @@ function MemberFormFields({
               </Label>
               <div className="flex flex-wrap gap-1.5 p-2 bg-green-50 rounded-lg border border-green-200">
                 {selectedCourses.map((courseId: string) => {
-                  const course = availableCourses.find((c: any) => c.id === courseId);
+                  const course = availableCourses.find((c: Course) => c.id === courseId);
                   return (
                     <Badge
                       key={courseId}

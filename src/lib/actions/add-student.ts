@@ -32,7 +32,16 @@ export async function addStudent(
   formData: FormData
 ): Promise<AddStudentState> {
   const selectedCoursesString = formData.get("selectedCourses") as string;
-  const selectedCourses = selectedCoursesString ? JSON.parse(selectedCoursesString) : [];
+  let selectedCourses: string[] = [];
+
+  if (selectedCoursesString) {
+    try {
+      selectedCourses = JSON.parse(selectedCoursesString);
+    } catch {
+      console.warn("⚠️ JSON invalide pour selectedCourses, utilisation d'un tableau vide");
+      selectedCourses = [];
+    }
+  }
 
   const validatedFields = AddStudentSchema.safeParse({
     familyId: formData.get("familyId"),
@@ -58,7 +67,8 @@ export async function addStudent(
     };
   }
 
-  const { familyId, firstName, lastName, birthDate, registrationType, schoolYearId } = validatedFields.data;
+  const { familyId, firstName, lastName, birthDate, registrationType, schoolYearId } =
+    validatedFields.data;
 
   try {
     // Ajouter l'étudiant
@@ -132,6 +142,7 @@ const UpdateStudentSchema = z.object({
   lastName: z.string().min(1, "Le nom est requis"),
   birthDate: z.string().min(1, "La date de naissance est requise"),
   registrationType: z.enum(["child", "adult"], { message: "Type d'élève requis" }),
+  schoolYearId: z.string().optional(),
 });
 
 export type UpdateStudentState = {
@@ -141,6 +152,7 @@ export type UpdateStudentState = {
     lastName?: string[];
     birthDate?: string[];
     registrationType?: string[];
+    schoolYearId?: string[];
   };
   message?: string | null;
   success?: boolean;
@@ -159,6 +171,7 @@ export async function updateStudent(
     lastName: formData.get("lastName"),
     birthDate: formData.get("birthDate"),
     registrationType: formData.get("registrationType"),
+    schoolYearId: formData.get("schoolYearId"),
   });
 
   if (!validatedFields.success) {
@@ -170,12 +183,14 @@ export async function updateStudent(
         lastName: formattedErrors.lastName?._errors,
         birthDate: formattedErrors.birthDate?._errors,
         registrationType: formattedErrors.registrationType?._errors,
+        schoolYearId: formattedErrors.schoolYearId?._errors,
       },
       message: "Champs manquants ou invalides.",
     };
   }
 
-  const { studentId, firstName, lastName, birthDate, registrationType } = validatedFields.data;
+  const { studentId, firstName, lastName, birthDate, registrationType, schoolYearId } =
+    validatedFields.data;
 
   try {
     // Mettre à jour l'étudiant
@@ -196,14 +211,46 @@ export async function updateStudent(
       };
     }
 
-    // Supprimer les anciennes inscriptions
+    // Supprimer les anciennes inscriptions pour cette année scolaire uniquement
+    console.log("🗑️ Suppression des enrollments existants pour l'étudiant:", studentId);
+
+    let schoolYearToUse = schoolYearId;
+
+    // Si pas d'année fournie, prendre la plus récente
+    if (!schoolYearToUse) {
+      const { data: latestYear } = await supabase
+        .from("school_years")
+        .select("id")
+        .order("start_date", { ascending: false })
+        .limit(1)
+        .single();
+
+      schoolYearToUse = latestYear?.id;
+    }
+
+    if (!schoolYearToUse) {
+      console.error("❌ Aucune année scolaire trouvée pour la suppression");
+      return {
+        message: "Erreur: aucune année scolaire trouvée. Veuillez contacter l'administrateur.",
+        success: false,
+      };
+    }
+
+    // Supprimer seulement les enrollments de l'année courante
     const { error: deleteEnrollmentsError } = await supabase
       .from("enrollments")
       .delete()
-      .eq("student_id", studentId);
+      .eq("student_id", studentId)
+      .eq("school_year_id", schoolYearToUse);
 
     if (deleteEnrollmentsError) {
-      console.error("Erreur suppression anciennes inscriptions:", deleteEnrollmentsError);
+      console.error("❌ Erreur suppression anciennes inscriptions:", deleteEnrollmentsError);
+      return {
+        message: `Erreur lors de la suppression des anciens cours: ${deleteEnrollmentsError.message}`,
+        success: false,
+      };
+    } else {
+      console.log("✅ Anciens enrollments supprimés pour l'année:", schoolYearToUse);
     }
 
     // Ajouter les nouvelles inscriptions
@@ -211,22 +258,35 @@ export async function updateStudent(
       const enrollmentInserts = selectedCourses.map(courseId => ({
         student_id: studentId,
         course_id: courseId,
+        school_year_id: schoolYearToUse,
         start_date: new Date().toISOString().split("T")[0],
         status: "active",
         created_at: new Date().toISOString(),
       }));
 
-      const { error: enrollmentsError } = await supabase
+      console.log("📝 Enrollments à créer (update):", enrollmentInserts);
+
+      const { data: enrollmentsData, error: enrollmentsError } = await supabase
         .from("enrollments")
-        .insert(enrollmentInserts);
+        .insert(enrollmentInserts)
+        .select();
 
       if (enrollmentsError) {
-        console.error("Erreur ajout nouvelles inscriptions:", enrollmentsError);
+        console.error("❌ Erreur ajout nouvelles inscriptions:", enrollmentsError);
+        return {
+          message: `Erreur lors de l'ajout des cours: ${enrollmentsError.message}`,
+          success: false,
+        };
+      } else {
+        console.log("✅ Enrollments créés (update):", enrollmentsData);
       }
     }
 
+    // Revalidation des pages concernées
     revalidatePath("/(admin)/families");
     revalidatePath("/(admin)/students");
+
+    console.log("✅ Modification étudiant terminée avec succès");
 
     return {
       message: `${firstName} ${lastName} a été mis(e) à jour avec succès !`,
