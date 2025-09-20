@@ -35,6 +35,8 @@
     "add-test-grades-multiple-periods": "tsx -r dotenv/config scripts/add-test-grades-multiple-periods.ts",
     "test-navigation": "tsx -r dotenv/config scripts/test-navigation.ts",
     "clear-grades": "tsx -r dotenv/config scripts/clear-all-grades.ts",
+    "seed-historical": "tsx -r dotenv/config scripts/seed-historical-data.ts",
+    "seed-complete-new": "tsx -r dotenv/config scripts/seed-complete-new.ts",
     "ai": "gemini",
     "ai:review": "gemini -p 'Review ce code et suggère des améliorations'",
     "ai:fix": "gemini -c -p 'Trouve et corrige tous les bugs'",

@@ -1,13 +1,16 @@
-// scripts/seed-complete.ts - Seed complet en un seul script
-import "dotenv/config";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
+import { faker } from '@faker-js/faker';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.local' });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SECRET_KEY!;
-const sb = createClient(supabaseUrl, supabaseServiceKey);
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function seedComplete() {
-  console.log("🌱 Démarrage du seeding complet...");
+  console.log('🚀 Seed complet avec migration et données historiques...');
   console.log("=".repeat(50));
 
   try {

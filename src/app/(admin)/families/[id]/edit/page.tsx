@@ -26,12 +26,11 @@ import {
   Trash2,
   UserPlus,
   Users,
-  Mail,
-  Home,
   Phone,
   ArrowLeft,
   Save,
   CreditCard,
+  Clock,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useActionState } from "react";
@@ -64,7 +63,21 @@ export default function EditFamilyPage() {
   const [showPaymentForm, setShowPaymentForm] = React.useState(false);
   const [schoolYears, setSchoolYears] = React.useState<SchoolYear[]>([]);
   const [currentSchoolYear, setCurrentSchoolYear] = React.useState<string | null>(null);
-  console.log("Famille chargée:", family);
+
+  // Détection du mode historique
+  const isHistoricalMode = React.useMemo(() => {
+    if (!currentSchoolYear || !schoolYears.length) return false;
+
+    // Trouver l'année courante réelle
+    const actualCurrentYear = schoolYears.find(year => {
+      const now = new Date();
+      const startDate = new Date(year.start_date);
+      const endDate = new Date(year.end_date);
+      return now >= startDate && now <= endDate;
+    });
+
+    return actualCurrentYear ? currentSchoolYear !== actualCurrentYear.id : false;
+  }, [currentSchoolYear, schoolYears]);
   // Charger les années scolaires
   const fetchSchoolYears = React.useCallback(async () => {
     const { data, error } = await supabase
@@ -74,16 +87,18 @@ export default function EditFamilyPage() {
 
     if (!error && data) {
       setSchoolYears(data);
-      // Utiliser l'année courante par défaut
-      const currentYear = data.find(year => {
-        const now = new Date();
-        const startDate = new Date(year.start_date);
-        const endDate = new Date(year.end_date);
-        return now >= startDate && now <= endDate;
-      });
-      setCurrentSchoolYear(currentYear?.id || data[0]?.id || null);
+      // Utiliser l'année courante par défaut SEULEMENT si aucune année n'est déjà sélectionnée
+      if (!currentSchoolYear) {
+        const currentYear = data.find(year => {
+          const now = new Date();
+          const startDate = new Date(year.start_date);
+          const endDate = new Date(year.end_date);
+          return now >= startDate && now <= endDate;
+        });
+        setCurrentSchoolYear(currentYear?.id || data[0]?.id || null);
+      }
     }
-  }, []);
+  }, [currentSchoolYear]);
 
   // Charger la famille côté client avec les cours des étudiants
   const fetchFamily = React.useCallback(async () => {
@@ -141,10 +156,17 @@ export default function EditFamilyPage() {
     }
   }, [id, currentSchoolYear]);
 
+  // Charger les années scolaires une seule fois au montage
   React.useEffect(() => {
     fetchSchoolYears();
-    fetchFamily();
-  }, [fetchSchoolYears, fetchFamily]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Charger la famille quand l'ID ou l'année change
+  React.useEffect(() => {
+    if (currentSchoolYear !== null) {
+      fetchFamily();
+    }
+  }, [id, currentSchoolYear]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Server Action pour update famille
   const initialState: FamilyState = { message: null, errors: {}, success: false };
@@ -286,11 +308,6 @@ export default function EditFamilyPage() {
     setPopoverOpen(false);
   };
 
-  // Handlers pour les actions des membres
-  const handleAddMember = () => {
-    resetMemberForm();
-    setShowAddMemberForm(true);
-  };
 
   const handleEditMember = (student: Student) => {
     setSelectedStudent(student);
@@ -363,11 +380,21 @@ export default function EditFamilyPage() {
               Retour
             </Button>
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="h-6 w-6 text-blue-600" />
+              <div className={`p-2 rounded-lg ${isHistoricalMode ? 'bg-slate-100' : 'bg-blue-100'}`}>
+                <Users className={`h-6 w-6 ${isHistoricalMode ? 'text-slate-600' : 'text-blue-600'}`} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Éditer la famille</h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {isHistoricalMode ? 'Historique famille' : 'Éditer la famille'}
+                  </h1>
+                  {isHistoricalMode && (
+                    <Badge variant="outline" className="bg-slate-50 border-slate-300 text-slate-700">
+                      <Clock className="h-3 w-3 mr-1" />
+                      Mode historique
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-gray-600">
                   {family.first_name} {family.last_name}
                 </p>
@@ -400,12 +427,17 @@ export default function EditFamilyPage() {
 
         {/* Formulaire famille */}
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+          <CardHeader className={`border-b ${isHistoricalMode
+            ? 'bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200'
+            : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100'}`}>
             <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="h-5 w-5 text-blue-600" />
+              <div className={`p-2 rounded-lg ${isHistoricalMode ? 'bg-slate-100' : 'bg-blue-100'}`}>
+                <Users className={`h-5 w-5 ${isHistoricalMode ? 'text-slate-600' : 'text-blue-600'}`} />
               </div>
               Informations de la famille
+              <Badge variant="outline" className="ml-auto text-xs bg-green-50 border-green-300 text-green-700">
+                Toujours modifiable
+              </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
@@ -585,23 +617,32 @@ export default function EditFamilyPage() {
 
         {/* Liste des membres */}
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
+          <CardHeader className={`border-b ${isHistoricalMode
+            ? 'bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200'
+            : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-100'}`}>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <UserPlus className="h-5 w-5 text-green-600" />
+                <div className={`p-2 rounded-lg ${isHistoricalMode ? 'bg-slate-100' : 'bg-green-100'}`}>
+                  <UserPlus className={`h-5 w-5 ${isHistoricalMode ? 'text-slate-600' : 'text-green-600'}`} />
                 </div>
                 Membres de la famille
+                {isHistoricalMode && (
+                  <Badge variant="outline" className="ml-auto text-xs bg-slate-50 border-slate-300 text-slate-700">
+                    Lecture seule
+                  </Badge>
+                )}
               </CardTitle>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowAddMemberForm(true)}
-                  className="bg-white/80 hover:bg-white border-green-200 hover:border-green-300"
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Ajouter un membre
-                </Button>
+                {!isHistoricalMode && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAddMemberForm(true)}
+                    className="bg-white/80 hover:bg-white border-green-200 hover:border-green-300"
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Ajouter un membre
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -679,24 +720,26 @@ export default function EditFamilyPage() {
                         </div>
                       )}
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditMember(student)}
-                        className="border-gray-300 hover:bg-gray-50"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteMember(student)}
-                        className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    {!isHistoricalMode && (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditMember(student)}
+                          className="border-gray-300 hover:bg-gray-50"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteMember(student)}
+                          className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
