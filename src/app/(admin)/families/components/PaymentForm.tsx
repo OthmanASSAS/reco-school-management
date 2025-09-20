@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
-import { Family, Student } from "@/types/families";
+import { Family } from "@/types/families";
 
 interface PaymentFormProps {
   family: Family;
@@ -93,7 +93,7 @@ export default function PaymentForm({
         remarques,
       });
 
-      const paymentToCreate: any = {
+      const paymentToCreate: Record<string, unknown> = {
         family_id: family.id,
         amount_cash: paymentForm.cash_amount,
         amount_card: paymentForm.card_amount,
@@ -111,15 +111,43 @@ export default function PaymentForm({
       const { error } = await supabase.from("payments").insert(paymentToCreate);
 
       if (error) {
-        throw error;
+        const message = error.message?.toLowerCase?.() || "";
+        const schoolYearColumnMissing =
+          message.includes("school year id") && message.includes("payments");
+
+        if (paymentToCreate.school_year_id && schoolYearColumnMissing) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { school_year_id, ...fallbackPayload } = paymentToCreate;
+
+          console.warn(
+            "[PaymentForm] Colonne school_year_id manquante sur payments, nouvel essai sans ce champ.",
+            error
+          );
+
+          const fallbackResult = await supabase.from("payments").insert(fallbackPayload);
+
+          if (fallbackResult.error) {
+            throw fallbackResult.error;
+          }
+
+          toast({
+            variant: "default",
+            title: "Paiement enregistré",
+            description:
+              "Colonne school_year_id absente dans la base : le paiement a été créé sans liaison d'année.",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Paiement enregistré",
+          description: "Le paiement a été enregistré avec succès !",
+        });
       }
 
-      toast({
-        title: "Paiement enregistré",
-        description: "Le paiement a été enregistré avec succès !",
-      });
       onPaymentSaved();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: "Erreur d'enregistrement",

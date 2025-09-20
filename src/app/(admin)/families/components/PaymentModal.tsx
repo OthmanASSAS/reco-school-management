@@ -6,8 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Family } from "@/types/families";
 import PaymentSummary from "./PaymentSummary";
 import PaymentForm from "./PaymentForm";
-import { useToast } from "@/hooks/use-toast";
-import supabase from "@/lib/supabase";
 
 interface PaymentModalProps {
   family: Family;
@@ -26,50 +24,12 @@ export default function PaymentModal({
   currentSchoolYear,
   schoolYears,
 }: PaymentModalProps) {
-  const { toast } = useToast();
   const [showPaymentForm, setShowPaymentForm] = useState(false);
 
-  const handlePaymentSave = async (paymentData: {
-    cash_amount: number;
-    card_amount: number;
-    amount_transfer: number;
-    books: boolean;
-    cheques: { count: string | number; amount: string | number; banque: string; nom: string }[];
-    refund_amount: number;
-    remarks: string;
-  }) => {
-    try {
-      // Paiement global famille : on insère un seul paiement avec family_id
-      const paymentToCreate = {
-        family_id: family.id,
-        // school_year_id sera ajouté plus tard
-        ...paymentData,
-      };
-
-      const { error } = await supabase.from("payments").insert([paymentToCreate]).select();
-
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Erreur d'enregistrement",
-          description: `Erreur lors de la création du paiement: ${error.message}`,
-        });
-      } else {
-        toast({
-          title: "Paiement enregistré",
-          description: "Le paiement a été enregistré avec succès !",
-        });
-        setShowPaymentForm(false);
-        onOpenChange(false);
-        onPaymentSaved();
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Erreur lors du traitement du paiement.",
-      });
-    }
+  const handlePaymentSaved = () => {
+    setShowPaymentForm(false);
+    onOpenChange(false);
+    onPaymentSaved();
   };
 
   return (
@@ -93,7 +53,8 @@ export default function PaymentModal({
           {showPaymentForm ? (
             <PaymentForm
               family={family}
-              onSave={handlePaymentSave}
+              currentSchoolYear={currentSchoolYear}
+              onPaymentSaved={handlePaymentSaved}
               onCancel={() => setShowPaymentForm(false)}
             />
           ) : (
