@@ -74,11 +74,25 @@ export default function NewCourseModal({ onCourseCreated }: NewCourseModalProps)
       ]);
 
       if (teachersResponse.data) {
-        setTeachers(teachersResponse.data.map((t: any) => ({ id: t.id, name: t.full_name })));
+        const teachersData = teachersResponse.data.map((t: Record<string, unknown>) => ({
+          id: t.id as string,
+          name: t.full_name as string,
+        }));
+        console.log("Teachers loaded:", teachersData);
+        setTeachers(teachersData);
+      } else {
+        console.log("No teachers data or error:", teachersResponse.error);
       }
 
       if (roomsResponse.data) {
-        setRooms(roomsResponse.data.map((r: any) => ({ id: r.id, name: r.name })));
+        const roomsData = roomsResponse.data.map((r: Record<string, unknown>) => ({
+          id: r.id as string,
+          name: r.name as string,
+        }));
+        console.log("Rooms loaded:", roomsData);
+        setRooms(roomsData);
+      } else {
+        console.log("No rooms data or error:", roomsResponse.error);
       }
     } catch (error) {
       console.error("Erreur lors du chargement des données:", error);
@@ -94,8 +108,8 @@ export default function NewCourseModal({ onCourseCreated }: NewCourseModalProps)
         {
           name: formData.name,
           type: formData.type,
-          teacher_id: formData.teacher_id,
-          room_id: formData.room_id,
+          teacher_id: formData.teacher_id || null,
+          room_id: formData.room_id || null,
           price: parseInt(formData.price),
           capacity: parseInt(formData.capacity),
           schedule: formData.schedule,
@@ -132,7 +146,7 @@ export default function NewCourseModal({ onCourseCreated }: NewCourseModalProps)
           refreshPage();
         }
       }
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -151,7 +165,7 @@ export default function NewCourseModal({ onCourseCreated }: NewCourseModalProps)
           Nouveau cours
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] z-40">
         <DialogHeader className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
             <Plus size={24} className="text-white" />
@@ -190,7 +204,7 @@ export default function NewCourseModal({ onCourseCreated }: NewCourseModalProps)
                 <SelectTrigger className="h-11 border-gray-200 focus:border-blue-300 focus:ring-blue-200">
                   <SelectValue placeholder="Sélectionner le type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50" position="popper">
                   <SelectItem value="enfants">Enfants</SelectItem>
                   <SelectItem value="adultes">Adultes</SelectItem>
                 </SelectContent>
@@ -209,10 +223,10 @@ export default function NewCourseModal({ onCourseCreated }: NewCourseModalProps)
                 <SelectTrigger className="h-11 border-gray-200 focus:border-blue-300 focus:ring-blue-200">
                   <SelectValue placeholder="Sélectionner le professeur" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50" position="popper">
                   {teachers.length === 0 ? (
                     <SelectItem value="no-teacher" disabled>
-                      Aucun professeur
+                      Aucun professeur disponible
                     </SelectItem>
                   ) : (
                     teachers.map(t => (
@@ -237,10 +251,10 @@ export default function NewCourseModal({ onCourseCreated }: NewCourseModalProps)
                 <SelectTrigger className="h-11 border-gray-200 focus:border-blue-300 focus:ring-blue-200">
                   <SelectValue placeholder="Sélectionner la salle" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50" position="popper">
                   {rooms.length === 0 ? (
                     <SelectItem value="no-room" disabled>
-                      Aucune salle
+                      Aucune salle disponible
                     </SelectItem>
                   ) : (
                     rooms.map(r => (

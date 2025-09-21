@@ -10,7 +10,7 @@ export default async function CoursesPage() {
   `);
 
   const courses = (data || [])
-    .map((c: any) => ({
+    .map((c: Record<string, unknown>) => ({
       id: c.id,
       name: c.name,
       type: c.type,
