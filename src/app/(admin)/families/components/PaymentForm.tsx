@@ -148,10 +148,11 @@ export default function PaymentForm({
 
       onPaymentSaved();
     } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Erreur inconnue";
       toast({
         variant: "destructive",
         title: "Erreur d'enregistrement",
-        description: `Erreur lors de la création des paiements: ${error.message}`,
+        description: `Erreur lors de la création des paiements: ${message}`,
       });
     }
   };

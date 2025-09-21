@@ -4,18 +4,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Calendar,
-  Clock,
-  MapPin,
-  Users,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  BookOpen,
-} from "lucide-react";
+import { Clock, MapPin, Users, ChevronLeft, ChevronRight, Download, BookOpen } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import supabase from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 interface Course {
   id: string;
@@ -42,7 +34,20 @@ interface ScheduleItem {
   type: string;
 }
 
+type CourseRow = {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  capacity: number | null;
+  schedule: string | null;
+  room_id: string | null;
+  teachers: { full_name: string | null } | null;
+  enrollments: { id: string }[] | null;
+};
+
 export default function PlanningView() {
+  const router = useRouter();
   const [selectedView, setSelectedView] = useState("week");
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,16 +141,18 @@ export default function PlanningView() {
       // Créer un map des salles
       const roomsMap = new Map(roomsData?.map(room => [room.id, room.name]) || []);
 
-      const coursesWithDetails = (coursesData || []).map((c: any) => ({
-        id: c.id,
-        name: c.name,
-        type: c.type,
-        teacher_name: c.teachers?.full_name ?? "Non assigné",
-        room_name: c.room_id ? roomsMap.get(c.room_id) || "Salle inconnue" : "Non assignée",
-        schedule: c.schedule || "",
-        enrolled_count: c.enrollments ? c.enrollments.length : 0,
-        capacity: c.capacity,
-        status: c.status,
+      const coursesWithDetails = (coursesData || []).map((course: CourseRow) => ({
+        id: course.id,
+        name: course.name,
+        type: course.type,
+        teacher_name: course.teachers?.full_name ?? "Non assigné",
+        room_name: course.room_id
+          ? roomsMap.get(course.room_id) || "Salle inconnue"
+          : "Non assignée",
+        schedule: course.schedule || "",
+        enrolled_count: course.enrollments ? course.enrollments.length : 0,
+        capacity: course.capacity ?? 0,
+        status: course.status,
       }));
 
       console.log("📊 Données reçues de Supabase:");
@@ -225,6 +232,9 @@ export default function PlanningView() {
     .filter(Boolean) as ScheduleItem[];
 
   const getOccupancyColor = (enrolled: number, capacity: number) => {
+    if (capacity <= 0) {
+      return "bg-gray-100 border-gray-200 text-gray-600";
+    }
     const rate = enrolled / capacity;
     if (rate >= 0.9) return "bg-red-100 border-red-300 text-red-800";
     if (rate >= 0.7) return "bg-orange-100 border-orange-300 text-orange-800";
@@ -235,11 +245,6 @@ export default function PlanningView() {
     const start = parseInt(startTime.split(":")[0]);
     const end = parseInt(endTime.split(":")[0]);
     return Math.max((end - start) * 60, 60); // 60px per hour, minimum 60px
-  };
-
-  const getCoursePosition = (startTime: string) => {
-    const hour = parseInt(startTime.split(":")[0]);
-    return (hour - 8) * 60; // Start from 8AM, 60px per hour
   };
 
   const formatWeekRange = (date: Date) => {
@@ -292,9 +297,11 @@ export default function PlanningView() {
           <p className="text-gray-600 mb-4 max-w-md mx-auto">
             Pour voir votre planning, ajoutez des horaires à vos cours dans le format :
             <br />
-            <code className="bg-gray-100 px-2 py-1 rounded text-sm">"Lundi 09:00-12:00"</code>
+            <code className="bg-gray-100 px-2 py-1 rounded text-sm">
+              &quot;Lundi 09:00-12:00&quot;
+            </code>
           </p>
-          <Button variant="outline" onClick={() => (window.location.href = "/courses")}>
+          <Button variant="outline" onClick={() => router.push("/courses")}>
             Aller aux cours
           </Button>
         </div>

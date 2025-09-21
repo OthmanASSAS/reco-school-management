@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import supabase from "@/lib/supabase";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { StudentListItem, EnrollmentWithCourse } from "@/lib/students";
+import { Course } from "@/types/families";
+import { useSchoolYear } from "../../SchoolYearProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, Edit, Eye, Trash2, History, Plus, Calendar, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -13,732 +17,685 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Student, Course, Enrollment } from "@/types/families";
-
-interface StudentWithFamily extends Omit<Student, "enrollments"> {
-  family: {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-  };
-  enrollments: any[];
-  created_at: string;
-  activeEnrollments: any[];
-  finishedEnrollments: any[];
-  activeCoursesCount: number;
-  hasHistory: boolean;
-  hasMultipleCourses: boolean;
-  course: string;
-}
-
-interface EnrichedEnrollment extends Omit<Enrollment, "courses"> {
-  courses: Course;
-}
-
-interface EnrichedStudent extends Omit<Student, "enrollments"> {
-  family: {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-  };
-  enrollments: EnrichedEnrollment[];
-  activeEnrollments: EnrichedEnrollment[];
-  finishedEnrollments: EnrichedEnrollment[];
-  activeCoursesCount: number;
-  hasHistory: boolean;
-  hasMultipleCourses: boolean;
-  course: string;
-  created_at: string;
-}
+  BarChart3,
+  BookOpen,
+  Calendar,
+  Eye,
+  Filter,
+  History,
+  Search,
+  User,
+  Users,
+} from "lucide-react";
 
 interface StudentsListProps {
-  initialStudents: StudentWithFamily[];
+  initialStudents: StudentListItem[];
   availableCourses: Course[];
 }
 
-export default function StudentsList({ initialStudents, availableCourses }: StudentsListProps) {
-  const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
-  const [students, setStudents] = useState<StudentWithFamily[]>(initialStudents);
-  const [selectedStudent, setSelectedStudent] = useState<StudentWithFamily | null>(null);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedCourseForEdit, setSelectedCourseForEdit] = useState<string>("");
-  const [enrollmentLoading, setEnrollmentLoading] = useState(false);
+type ViewMode = "list" | "classes";
 
-  // Fonction pour calculer l'âge
-  const calculateAge = (birthDate: string | null): number | null => {
-    if (!birthDate) return null;
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
+type StudentWithView = {
+  base: StudentListItem;
+  view: ViewAggregates;
+};
+
+type ViewAggregates = {
+  activeEnrollments: EnrollmentWithCourse[];
+  finishedEnrollments: EnrollmentWithCourse[];
+  activeCoursesCount: number;
+  hasHistory: boolean;
+  hasMultipleCourses: boolean;
+  primaryCourseLabel: string;
+};
+
+function computeAggregates(student: StudentListItem, schoolYearId: string | "all"): ViewAggregates {
+  const filterByYear = (enrollment: EnrollmentWithCourse) => {
+    if (schoolYearId === "all") return true;
+    return enrollment.school_year_id === schoolYearId;
   };
 
-  // Fonction pour attribuer un cours à un étudiant
-  const assignCourseToStudent = async () => {
-    if (!selectedStudent || !selectedCourseForEdit) return;
+  const activeEnrollments = student.enrollments.filter(
+    enrollment => enrollment.status === "active" && filterByYear(enrollment)
+  ) as EnrollmentWithCourse[];
 
-    setEnrollmentLoading(true);
+  const finishedEnrollments = student.enrollments.filter(
+    enrollment => enrollment.status === "finished" && filterByYear(enrollment)
+  ) as EnrollmentWithCourse[];
 
-    try {
-      const { data, error } = await supabase.from("enrollments").insert([
-        {
-          student_id: selectedStudent.id,
-          course_id: selectedCourseForEdit,
-          start_date: new Date().toISOString().split("T")[0],
-          status: "active",
-        },
-      ]).select(`
-          id,
-          status,
-          start_date,
-          end_date,
-          created_at,
-          courses:course_id (
-            id,
-            name,
-            type,
-            category,
-            label,
-            status
-          )
-        `);
+  const primaryCourseLabel =
+    activeEnrollments[0]?.courses?.label ||
+    activeEnrollments[0]?.courses?.name ||
+    student.primaryCourseLabel;
 
-      if (error) {
-        console.error("Erreur création enrollment:", error);
-        toast({
-          variant: "destructive",
-          title: "Erreur d'attribution",
-          description: "Erreur lors de l'attribution du cours",
-        });
-        return;
-      }
-
-      console.log("Assigning course:", { 
-        studentId: selectedStudent.id, 
-        courseId: selectedCourseForEdit 
-      });
-
-      // Mettre à jour l'étudiant avec le nouveau cours
-      const newEnrollment = data[0];
-      console.log("New enrollment data:", newEnrollment);
-      setStudents(currentStudents =>
-        currentStudents.map(student => {
-          if (student.id === selectedStudent.id) {
-            const updatedEnrollments = [...student.enrollments, newEnrollment];
-            const updatedActiveEnrollments = [...student.activeEnrollments, newEnrollment];
-            return {
-              ...student,
-              enrollments: updatedEnrollments,
-              activeEnrollments: updatedActiveEnrollments,
-              activeCoursesCount: updatedActiveEnrollments.length,
-              hasMultipleCourses: updatedActiveEnrollments.length > 1,
-              course: (newEnrollment.courses as any)?.name || "Non assigné",
-            };
-          }
-          return student;
-        })
-      );
-
-      // Fermer la modal et reset
-      setEditModalOpen(false);
-      setSelectedCourseForEdit("");
-      setSelectedStudent(null);
-
-      toast({
-        title: "Cours attribué",
-        description: "Le cours a été attribué avec succès !",
-      });
-    } catch (error) {
-      console.error("Erreur inattendue:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur inattendue s'est produite",
-      });
-    } finally {
-      setEnrollmentLoading(false);
-    }
+  return {
+    activeEnrollments,
+    finishedEnrollments,
+    activeCoursesCount: activeEnrollments.length,
+    hasHistory: finishedEnrollments.length > 0,
+    hasMultipleCourses: activeEnrollments.length > 1,
+    primaryCourseLabel,
   };
+}
 
-  // Fonction pour terminer un cours
-  const finishCourse = async (enrollmentId: string) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir terminer ce cours ?")) return;
-
-    try {
-      // 1. Met à jour dans Supabase
-      const { error } = await supabase
-        .from("enrollments")
-        .update({
-          end_date: new Date().toISOString().split("T")[0],
-          status: "finished",
-        })
-        .eq("id", enrollmentId);
-
-      if (error) {
-        console.error("Erreur fin de cours:", error);
-        toast({
-          variant: "destructive",
-          title: "Erreur de fin de cours",
-          description: "Erreur lors de la fin du cours",
-        });
-        return;
-      }
-
-      // 2. Met à jour la liste globale des étudiants
-      setStudents(currentStudents =>
-        currentStudents.map(student => {
-          if (student.enrollments.some(e => e.id === enrollmentId)) {
-            const updatedEnrollments = student.enrollments.map(e =>
-              e.id === enrollmentId ? { ...e, status: "finished" } : e
-            );
-
-            const updatedActiveEnrollments = updatedEnrollments.filter(e => e.status === "active");
-            const updatedFinishedEnrollments = updatedEnrollments.filter(
-              e => e.status === "finished"
-            );
-
-            return {
-              ...student,
-              enrollments: updatedEnrollments,
-              activeEnrollments: updatedActiveEnrollments,
-              finishedEnrollments: updatedFinishedEnrollments,
-              activeCoursesCount: updatedActiveEnrollments.length,
-              hasMultipleCourses: updatedActiveEnrollments.length > 1,
-              hasHistory: updatedFinishedEnrollments.length > 0,
-              course: (updatedActiveEnrollments[0]?.courses as any)?.name || "Non assigné",
-            };
-          }
-          return student;
-        })
-      );
-
-      // 3. Met à jour l'étudiant affiché dans la modale
-      if (selectedStudent?.enrollments.some(e => e.id === enrollmentId)) {
-        const updatedEnrollments = selectedStudent.enrollments.map(e =>
-          e.id === enrollmentId ? { ...e, status: "finished" } : e
-        );
-
-        const updatedActiveEnrollments = updatedEnrollments.filter(e => e.status === "active");
-        const updatedFinishedEnrollments = updatedEnrollments.filter(e => e.status === "finished");
-
-        setSelectedStudent({
-          ...selectedStudent,
-          enrollments: updatedEnrollments,
-          activeEnrollments: updatedActiveEnrollments,
-          finishedEnrollments: updatedFinishedEnrollments,
-          activeCoursesCount: updatedActiveEnrollments.length,
-          hasMultipleCourses: updatedActiveEnrollments.length > 1,
-          hasHistory: updatedFinishedEnrollments.length > 0,
-          course: (updatedActiveEnrollments[0]?.courses as any)?.name || "Non assigné",
-        });
-      }
-
-      toast({
-        title: "Cours terminé",
-        description: "Le cours a été terminé avec succès !",
-      });
-    } catch (error) {
-      console.error("Erreur inattendue:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur inattendue s'est produite",
-      });
-    }
-  };
-
-  const filteredStudents = students.filter(student => {
-    const matchesSearch =
-      `${student.first_name} ${student.last_name}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      student.family.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.course.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesCourse = selectedCourse === "all" || student.course === selectedCourse;
-
-    const matchesStatus =
-      selectedStatus === "all" ||
-      (selectedStatus === "active" && student.activeCoursesCount > 0) ||
-      (selectedStatus === "no_course" && student.activeCoursesCount === 0) ||
-      (selectedStatus === "multiple" && student.hasMultipleCourses) ||
-      (selectedStatus === "history" && student.hasHistory);
-
-    return matchesSearch && matchesCourse && matchesStatus;
+function formatDate(dateString: string | null) {
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
+}
 
-  const getTypeDisplay = (type: string, birthDate: string | null) => {
-    const age = calculateAge(birthDate);
-    if (type === "adult") return "Adulte";
-    if (type === "child" && age) return `${age} ans`;
-    if (type === "child") return "Enfant";
-    return "Non défini";
+function calculateAge(birthDate: string | null): number | null {
+  if (!birthDate) return null;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+export default function StudentsList({ initialStudents, availableCourses }: StudentsListProps) {
+  const router = useRouter();
+  const { schoolYears, currentSchoolYearId } = useSchoolYear();
+
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [selectedFamilyId, setSelectedFamilyId] = useState<string>("all");
+  const [selectedSchoolYearId, setSelectedSchoolYearId] = useState<string | "all">("all");
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const manualSchoolYearOverride = useRef(false);
+
+  useEffect(() => {
+    if (currentSchoolYearId && !manualSchoolYearOverride.current) {
+      setSelectedSchoolYearId(currentSchoolYearId);
+    }
+  }, [currentSchoolYearId]);
+
+  const studentsWithView = useMemo<StudentWithView[]>(
+    () =>
+      initialStudents.map(student => ({
+        base: student,
+        view: computeAggregates(student, selectedSchoolYearId),
+      })),
+    [initialStudents, selectedSchoolYearId]
+  );
+
+  const familiesOptions = useMemo(() => {
+    const unique = new Map<string, { id: string; label: string }>();
+    initialStudents.forEach(student => {
+      unique.set(student.family.id, {
+        id: student.family.id,
+        label: student.family.name,
+      });
+    });
+    return Array.from(unique.values()).sort((a, b) => a.label.localeCompare(b.label));
+  }, [initialStudents]);
+
+  const totals = useMemo(() => {
+    const dataset = studentsWithView;
+    return {
+      total: dataset.length,
+      active: dataset.filter(item => item.view.activeCoursesCount > 0).length,
+      withoutCourse: dataset.filter(item => item.view.activeCoursesCount === 0).length,
+      multiple: dataset.filter(item => item.view.hasMultipleCourses).length,
+      history: dataset.filter(item => item.view.hasHistory).length,
+    };
+  }, [studentsWithView]);
+
+  const filteredStudents = useMemo(() => {
+    return studentsWithView
+      .filter(({ base, view }) => {
+        const search = searchTerm.trim().toLowerCase();
+        const matchesSearch =
+          !search ||
+          `${base.first_name} ${base.last_name}`.toLowerCase().includes(search) ||
+          base.family.name.toLowerCase().includes(search) ||
+          view.primaryCourseLabel.toLowerCase().includes(search);
+
+        const matchesFamily = selectedFamilyId === "all" || base.family.id === selectedFamilyId;
+
+        const matchesCourse = (() => {
+          if (selectedCourseId === "all") return true;
+          if (selectedCourseId === "none") return view.activeCoursesCount === 0;
+          return view.activeEnrollments.some(
+            enrollment => enrollment.courses?.id === selectedCourseId
+          );
+        })();
+
+        const matchesStatus =
+          selectedStatus === "all" ||
+          (selectedStatus === "active" && view.activeCoursesCount > 0) ||
+          (selectedStatus === "no_course" && view.activeCoursesCount === 0) ||
+          (selectedStatus === "multiple" && view.hasMultipleCourses) ||
+          (selectedStatus === "history" && view.hasHistory);
+
+        return matchesSearch && matchesFamily && matchesCourse && matchesStatus;
+      })
+      .sort((a, b) => a.base.last_name.localeCompare(b.base.last_name));
+  }, [searchTerm, selectedFamilyId, selectedCourseId, selectedStatus, studentsWithView]);
+
+  const groupedByClass = useMemo(() => {
+    const groups = new Map<
+      string,
+      { courseId: string | null; label: string; students: StudentWithView[] }
+    >();
+
+    availableCourses.forEach(course => {
+      groups.set(course.id, {
+        courseId: course.id,
+        label: course.label || course.name,
+        students: [],
+      });
+    });
+
+    groups.set("__unassigned__", {
+      courseId: null,
+      label: "Sans cours",
+      students: [],
+    });
+
+    filteredStudents.forEach(entry => {
+      const appendedTo = new Set<string>();
+
+      if (entry.view.activeEnrollments.length === 0) {
+        groups.get("__unassigned__")?.students.push(entry);
+        return;
+      }
+
+      entry.view.activeEnrollments.forEach(enrollment => {
+        const key = enrollment.courses?.id || "__unassigned__";
+        if (appendedTo.has(key)) return;
+        if (!groups.has(key)) {
+          groups.set(key, {
+            courseId: enrollment.courses?.id || null,
+            label: enrollment.courses?.label || enrollment.courses?.name || "Sans cours",
+            students: [],
+          });
+        }
+        groups.get(key)?.students.push(entry);
+        appendedTo.add(key);
+      });
+    });
+
+    return Array.from(groups.values()).sort((a, b) => {
+      if (a.courseId === null) return 1;
+      if (b.courseId === null) return -1;
+      return a.label.localeCompare(b.label);
+    });
+  }, [availableCourses, filteredStudents]);
+
+  const selectedStudentBase = useMemo(
+    () =>
+      selectedStudentId
+        ? initialStudents.find(student => student.id === selectedStudentId) || null
+        : null,
+    [selectedStudentId, initialStudents]
+  );
+
+  const selectedStudentView = useMemo(
+    () =>
+      selectedStudentId
+        ? studentsWithView.find(student => student.base.id === selectedStudentId) || null
+        : null,
+    [selectedStudentId, studentsWithView]
+  );
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSelectedCourseId("all");
+    setSelectedStatus("all");
+    setSelectedFamilyId("all");
+    manualSchoolYearOverride.current = false;
+    setSelectedSchoolYearId(currentSchoolYearId || "all");
   };
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
+  const openDetails = (studentId: string) => {
+    setSelectedStudentId(studentId);
+    setDetailOpen(true);
   };
 
   return (
     <div className="space-y-6">
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">É</span>
+      <Card className="border border-emerald-100 shadow-sm">
+        <CardHeader className="border-b border-emerald-100 bg-emerald-50/60">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-200 rounded-lg text-emerald-900">
+                  <Users size={20} />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl font-bold text-gray-900">
+                    Élèves et classes
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    {filteredStudents.length} élèves affichés sur {totals.total}
+                  </p>
                 </div>
               </div>
-              <div>
-                <CardTitle className="text-2xl font-bold text-gray-900">Élèves</CardTitle>
-                <p className="text-sm text-gray-600 mt-1">
-                  {filteredStudents.length} sur {students.length} élèves
-                </p>
+
+              <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+                <div className="relative flex-1 sm:flex-initial">
+                  <Input
+                    placeholder="Rechercher par nom, famille ou cours"
+                    value={searchTerm}
+                    onChange={event => setSearchTerm(event.target.value)}
+                    className="pl-10 h-11"
+                  />
+                  <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                </div>
+                <Button variant="outline" onClick={resetFilters} className="h-11">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Réinitialiser
+                </Button>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full lg:w-auto">
-              <div className="relative flex-1 sm:flex-initial z-30">
-                <Input
-                  placeholder="Rechercher un élève..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  className="w-full sm:w-80 pl-10 bg-white border-gray-200 focus:border-green-300 focus:ring-green-200"
-                />
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                  <svg
-                    className="w-4 h-4 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-                <SelectTrigger className="w-full sm:w-48 bg-white border-gray-200 focus:border-green-300 focus:ring-green-200">
-                  <SelectValue placeholder="Tous les cours" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              <Select
+                value={selectedSchoolYearId}
+                onValueChange={value => {
+                  manualSchoolYearOverride.current = value !== (currentSchoolYearId || "all");
+                  setSelectedSchoolYearId(value);
+                }}
+              >
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder="Année scolaire" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem key="all" value="all">
-                    Tous les cours
-                  </SelectItem>
-                  {Array.from(new Set(students.map(s => s.course)))
-                    .filter(course => course !== "Non assigné")
-                    .sort()
-                    .map(course => (
-                      <SelectItem key={`course-${course}`} value={course}>
-                        {course}
-                      </SelectItem>
-                    ))}
+                  <SelectItem value="all">Toutes les années</SelectItem>
+                  {schoolYears.map(year => (
+                    <SelectItem key={year.id} value={year.id}>
+                      {year.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-full sm:w-48 bg-white border-gray-200 focus:border-green-300 focus:ring-green-200">
-                  <SelectValue placeholder="Tous les statuts" />
+
+              <Select value={selectedCourseId} onValueChange={value => setSelectedCourseId(value)}>
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder="Cours" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem key="status-all" value="all">
-                    Tous
-                  </SelectItem>
-                  <SelectItem key="status-active" value="active">
-                    Cours actifs
-                  </SelectItem>
-                  <SelectItem key="status-no_course" value="no_course">
-                    Sans cours
-                  </SelectItem>
-                  <SelectItem key="status-multiple" value="multiple">
-                    Cours multiples
-                  </SelectItem>
-                  <SelectItem key="status-history" value="history">
-                    Avec historique
-                  </SelectItem>
+                  <SelectItem value="all">Tous les cours</SelectItem>
+                  <SelectItem value="none">Sans cours</SelectItem>
+                  {availableCourses.map(course => (
+                    <SelectItem key={course.id} value={course.id}>
+                      {course.label || course.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              <div className="w-full sm:w-auto">
-                <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg">
-                  <UserPlus size={16} className="mr-2" />
-                  Nouvel élève
-                </Button>
-              </div>
+
+              <Select value={selectedStatus} onValueChange={value => setSelectedStatus(value)}>
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder="Statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="active">Cours actifs</SelectItem>
+                  <SelectItem value="no_course">Sans cours</SelectItem>
+                  <SelectItem value="multiple">Cours multiples</SelectItem>
+                  <SelectItem value="history">Historique</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedFamilyId} onValueChange={value => setSelectedFamilyId(value)}>
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder="Famille" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les familles</SelectItem>
+                  {familiesOptions.map(family => (
+                    <SelectItem key={family.id} value={family.id}>
+                      {family.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent>
-          {/* Statistiques */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-              <div className="text-2xl font-bold text-blue-600">{students.length}</div>
-              <div className="text-sm text-blue-700 font-medium">Total élèves</div>
-            </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
-              <div className="text-2xl font-bold text-green-600">
-                {students.filter(s => s.activeCoursesCount > 0).length}
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="flex items-center gap-3 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+              <Users className="h-5 w-5 text-emerald-700" />
+              <div>
+                <p className="text-xs uppercase text-emerald-600 tracking-wide">Total</p>
+                <p className="text-xl font-semibold text-emerald-900">{totals.total}</p>
               </div>
-              <div className="text-sm text-green-700 font-medium">Avec cours actifs</div>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
-              <div className="text-2xl font-bold text-purple-600">
-                {students.filter(s => s.hasMultipleCourses).length}
+            <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4">
+              <BookOpen className="h-5 w-5 text-blue-700" />
+              <div>
+                <p className="text-xs uppercase text-blue-600 tracking-wide">Cours actifs</p>
+                <p className="text-xl font-semibold text-blue-900">{totals.active}</p>
               </div>
-              <div className="text-sm text-purple-700 font-medium">Cours multiples</div>
             </div>
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg border border-orange-200">
-              <div className="text-2xl font-bold text-orange-600">
-                {students.filter(s => s.hasHistory).length}
+            <div className="flex items-center gap-3 rounded-lg border border-orange-100 bg-orange-50 p-4">
+              <BarChart3 className="h-5 w-5 text-orange-700" />
+              <div>
+                <p className="text-xs uppercase text-orange-600 tracking-wide">Sans cours</p>
+                <p className="text-xl font-semibold text-orange-900">{totals.withoutCourse}</p>
               </div>
-              <div className="text-sm text-orange-700 font-medium">Avec historique</div>
             </div>
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
-              <div className="text-2xl font-bold text-gray-600">
-                {students.filter(s => s.activeCoursesCount === 0).length}
+            <div className="flex items-center gap-3 rounded-lg border border-purple-100 bg-purple-50 p-4">
+              <Calendar className="h-5 w-5 text-purple-700" />
+              <div>
+                <p className="text-xs uppercase text-purple-600 tracking-wide">Cours multiples</p>
+                <p className="text-xl font-semibold text-purple-900">{totals.multiple}</p>
               </div>
-              <div className="text-sm text-gray-700 font-medium">Sans cours</div>
+            </div>
+            <div className="flex items-center gap-3 rounded-lg border border-rose-100 bg-rose-50 p-4">
+              <History className="h-5 w-5 text-rose-700" />
+              <div>
+                <p className="text-xs uppercase text-rose-600 tracking-wide">Historique</p>
+                <p className="text-xl font-semibold text-rose-900">{totals.history}</p>
+              </div>
             </div>
           </div>
+
+          <div className="flex items-center justify-between">
+            <Tabs value={viewMode} onValueChange={value => setViewMode(value as ViewMode)}>
+              <TabsList>
+                <TabsTrigger value="list">Vue liste</TabsTrigger>
+                <TabsTrigger value="classes">Par classe</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <Button
+              onClick={() => router.push("/pre-registration")}
+              variant="secondary"
+              className="gap-2"
+            >
+              Nouvelle préinscription
+            </Button>
+          </div>
+
+          <Tabs value={viewMode}>
+            <TabsContent value="list" className="space-y-3">
+              <div className="overflow-hidden rounded-lg border border-gray-100">
+                <table className="min-w-full divide-y divide-gray-100 text-sm">
+                  <thead className="bg-gray-50 text-gray-600 font-medium">
+                    <tr>
+                      <th className="px-4 py-3 text-left">Élève</th>
+                      <th className="px-4 py-3 text-left">Famille</th>
+                      <th className="px-4 py-3 text-left">Cours</th>
+                      <th className="px-4 py-3 text-left">Statut</th>
+                      <th className="px-4 py-3 text-left">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-white">
+                    {filteredStudents.map(({ base, view }) => {
+                      const age = calculateAge(base.birth_date);
+                      return (
+                        <tr key={base.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3">
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-gray-900">
+                                {base.first_name} {base.last_name}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {base.registration_type === "adult"
+                                  ? "Adulte"
+                                  : age
+                                    ? `${age} ans`
+                                    : "Enfant"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-gray-700">{base.family.name}</td>
+                          <td className="px-4 py-3 text-gray-700">
+                            {view.activeEnrollments.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {view.activeEnrollments.map(enrollment => {
+                                  const isFocused =
+                                    selectedCourseId !== "all" &&
+                                    selectedCourseId !== "none" &&
+                                    enrollment.courses?.id === selectedCourseId;
+                                  return (
+                                    <Badge
+                                      key={enrollment.id}
+                                      variant={isFocused ? "default" : "secondary"}
+                                      className={
+                                        isFocused
+                                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent"
+                                          : "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                                      }
+                                    >
+                                      {enrollment.courses?.label || enrollment.courses?.name}
+                                    </Badge>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">Sans cours</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              {view.activeCoursesCount > 0 ? (
+                                <Badge
+                                  variant="outline"
+                                  className="border-emerald-300 text-emerald-700"
+                                >
+                                  Actif
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="border-gray-300 text-gray-600">
+                                  Sans cours
+                                </Badge>
+                              )}
+                              {view.hasHistory && (
+                                <Badge
+                                  variant="outline"
+                                  className="border-purple-300 text-purple-600"
+                                >
+                                  Historique
+                                </Badge>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-blue-600 hover:text-blue-700"
+                              onClick={() => openDetails(base.id)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              {filteredStudents.length === 0 && (
+                <div className="text-center py-10 text-gray-500 border border-dashed border-gray-200 rounded-lg">
+                  Aucun élève ne correspond aux filtres sélectionnés.
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="classes" className="space-y-4">
+              {groupedByClass.map(group => (
+                <Card key={group.courseId ?? "__unassigned__"} className="border border-gray-100">
+                  <CardHeader className="flex flex-row items-center justify-between gap-3">
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-gray-900">
+                        {group.label}
+                      </CardTitle>
+                      <p className="text-sm text-gray-500">
+                        {group.students.length} élève{group.students.length > 1 ? "s" : ""}
+                      </p>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {group.students.length === 0 && (
+                      <p className="text-sm text-gray-400">Aucun élève assigné.</p>
+                    )}
+                    {group.students.map(({ base, view }) => (
+                      <div
+                        key={`${group.courseId ?? "__unassigned__"}-${base.id}`}
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between border border-gray-100 rounded-lg px-4 py-3 bg-white"
+                      >
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {base.first_name} {base.last_name}
+                          </p>
+                          <p className="text-xs text-gray-500">Famille {base.family.name}</p>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                          {view.hasHistory && (
+                            <Badge variant="outline" className="border-purple-200 text-purple-600">
+                              Historique
+                            </Badge>
+                          )}
+                          <Button variant="ghost" size="sm" onClick={() => openDetails(base.id)}>
+                            Détails
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
-      {/* Liste des étudiants */}
-      {students.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg border">
-          <p className="text-gray-500">Aucun élève trouvé</p>
-        </div>
-      ) : (
-        <>
-          {/* Version mobile - Cartes */}
-          <div className="block lg:hidden space-y-4">
-            {filteredStudents.map(student => (
-              <Card key={student.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
-                        {student.first_name} {student.last_name}
-                      </CardTitle>
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        <Badge variant="outline" className="text-xs">
-                          {getTypeDisplay(student.registration_type, student.birth_date)}
-                        </Badge>
-                        {student.level && (
-                          <Badge variant="secondary" className="text-xs">
-                            {student.level}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-1">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-blue-600 hover:text-blue-800"
-                            title="Voir les détails"
-                            onClick={() => setSelectedStudent(student)}
-                          >
-                            <Eye size={16} />
-                          </Button>
-                        </DialogTrigger>
-                      </Dialog>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-green-600 hover:text-green-800"
-                        title="Attribuer/Modifier cours"
-                        onClick={() => {
-                          setSelectedStudent(student);
-                          setEditModalOpen(true);
-                        }}
-                      >
-                        <Edit size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-600 hover:text-red-800"
-                        title="Supprimer"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <span className="text-gray-500">Cours:</span>
-                      <p
-                        className={`font-medium ${
-                          student.course === "Non assigné"
-                            ? "text-gray-400 italic"
-                            : "text-gray-900"
-                        }`}
-                      >
-                        {student.course}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Famille:</span>
-                      <p className="font-medium">{student.family.name}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Première inscription:</span>
-                      <p className="font-medium">{formatDate(student.created_at)}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Version desktop - Table */}
-          <div className="hidden lg:block bg-white rounded-lg border">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-medium text-gray-700">Élève</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-700">Cours</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-700">Statut</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-700">Famille</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-700">
-                      Première inscription
-                    </th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-700">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {filteredStudents.map(student => (
-                    <tr key={student.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {student.first_name} {student.last_name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {getTypeDisplay(student.registration_type, student.birth_date)}
-                            {student.level && ` • ${student.level}`}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <div
-                            className={
-                              student.course === "Non assigné"
-                                ? "text-gray-400 italic"
-                                : "text-gray-900"
-                            }
-                          >
-                            {student.course}
-                          </div>
-
-                          {/* Badges pour cours multiples et historique */}
-                          <div className="flex gap-1 mt-1">
-                            {student.hasMultipleCourses && (
-                              <Badge
-                                variant="outline"
-                                className="text-xs bg-purple-50 text-purple-700 border-purple-200"
-                              >
-                                Multiples
-                              </Badge>
-                            )}
-                            {student.hasHistory && (
-                              <Badge
-                                variant="outline"
-                                className="text-xs bg-orange-50 text-orange-700 border-orange-200"
-                              >
-                                Historique
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-2 h-2 rounded-full ${
-                              student.activeCoursesCount > 0 ? "bg-green-500" : "bg-gray-300"
-                            }`}
-                          />
-                          <span className="text-sm text-gray-600">
-                            {student.activeCoursesCount > 0 ? "Actif" : "Inactif"}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-gray-700">{student.family.name}</td>
-                      <td className="px-4 py-3 text-gray-700">{formatDate(student.created_at)}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <button
-                                className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
-                                title="Voir les détails"
-                                onClick={() => setSelectedStudent(student)}
-                              >
-                                <Eye size={16} />
-                              </button>
-                            </DialogTrigger>
-                          </Dialog>
-
-                          <button
-                            className="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50"
-                            title="Attribuer/Modifier cours"
-                            onClick={() => {
-                              setSelectedStudent(student);
-                              setEditModalOpen(true);
-                            }}
-                          >
-                            <Edit size={16} />
-                          </button>
-
-                          <button
-                            className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50"
-                            title="Supprimer"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Modal d'attribution de cours */}
-      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="max-w-md">
+      <Dialog open={detailOpen} onOpenChange={open => setDetailOpen(open)}>
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Plus size={20} />
-              Attribuer un cours
+              <User className="h-5 w-5 text-emerald-600" />
+              Dossier élève
             </DialogTitle>
           </DialogHeader>
 
-          {selectedStudent && (
-            <div className="space-y-4">
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <h4 className="font-medium text-blue-800">
-                  {selectedStudent.first_name} {selectedStudent.last_name}
-                </h4>
-                <p className="text-sm text-blue-600">
-                  {getTypeDisplay(selectedStudent.registration_type, selectedStudent.birth_date)}
-                </p>
+          {selectedStudentBase && selectedStudentView && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-lg border border-gray-100 p-4">
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    Élève
+                  </h3>
+                  <p className="text-lg font-semibold text-gray-900 mt-1">
+                    {selectedStudentBase.first_name} {selectedStudentBase.last_name}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Date de naissance : {formatDate(selectedStudentBase.birth_date)}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {selectedStudentBase.registration_type === "adult"
+                      ? "Adulte"
+                      : (() => {
+                          const age = calculateAge(selectedStudentBase.birth_date);
+                          return age ? `${age} ans` : "Enfant";
+                        })()}
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-gray-100 p-4">
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    Famille
+                  </h3>
+                  <p className="text-lg font-semibold text-gray-900 mt-1">
+                    {selectedStudentBase.family.name}
+                  </p>
+                  <div className="text-sm text-gray-500 mt-2">
+                    <p>{selectedStudentBase.family.email}</p>
+                    {selectedStudentBase.family.phone && <p>{selectedStudentBase.family.phone}</p>}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-3 px-2"
+                    onClick={() => router.push(`/families/${selectedStudentBase.family.id}`)}
+                  >
+                    Voir la famille
+                  </Button>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="course-select">Sélectionner un cours</Label>
-                <Select value={selectedCourseForEdit} onValueChange={setSelectedCourseForEdit}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choisir un cours..." />
-                  </SelectTrigger>
-                  <SelectContent className="z-[9999]">
-                    {availableCourses.map(course => {
-                      const alreadyEnrolled = selectedStudent.activeEnrollments?.some(
-                        e => e.courses?.id === course.id
-                      );
+              <div className="rounded-lg border border-gray-100">
+                <div className="border-b border-gray-100 px-4 py-3">
+                  <h3 className="font-semibold text-gray-800">Cours actifs</h3>
+                </div>
+                <div className="p-4 space-y-3">
+                  {selectedStudentView.view.activeEnrollments.length === 0 && (
+                    <p className="text-sm text-gray-500">
+                      Aucun cours actif pour la période sélectionnée.
+                    </p>
+                  )}
+                  {selectedStudentView.view.activeEnrollments.map(enrollment => {
+                    const isFocused =
+                      selectedCourseId !== "all" &&
+                      selectedCourseId !== "none" &&
+                      enrollment.courses?.id === selectedCourseId;
 
-                      return (
-                        <SelectItem key={course.id} value={course.id} disabled={alreadyEnrolled}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {course.label || course.name}
-                              {alreadyEnrolled && " (déjà inscrit)"}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {course.type} • {course.category}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {selectedStudent.activeEnrollments?.length > 0 && (
-                <div className="p-3 bg-yellow-50 rounded-lg">
-                  <h5 className="text-sm font-medium text-yellow-800 mb-2">Cours actuels :</h5>
-                  <div className="space-y-1">
-                    {selectedStudent.activeEnrollments.map(enrollment => (
+                    return (
                       <div
                         key={enrollment.id}
-                        className="flex items-center justify-between text-sm"
+                        className={`flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg px-4 py-3 transition-colors ${
+                          isFocused
+                            ? "border border-emerald-400 bg-emerald-100"
+                            : "border border-emerald-100 bg-emerald-50"
+                        }`}
                       >
-                        <span className="text-yellow-700">
-                          {enrollment.courses?.label || enrollment.courses?.name}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => finishCourse(enrollment.id)}
-                          className="text-red-600 hover:text-red-800 h-6 px-2"
-                        >
-                          <X size={12} />
-                        </Button>
+                        <div>
+                          <p className="font-medium text-emerald-900">
+                            {enrollment.courses?.label || enrollment.courses?.name}
+                          </p>
+                          <p className="text-xs text-emerald-700">
+                            Depuis le {formatDate(enrollment.start_date || null)}
+                          </p>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
-              )}
+              </div>
 
-              <div className="flex gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEditModalOpen(false);
-                    setSelectedCourseForEdit("");
-                    setSelectedStudent(null);
-                  }}
-                  className="flex-1"
-                >
-                  Annuler
-                </Button>
-                <Button
-                  onClick={assignCourseToStudent}
-                  disabled={!selectedCourseForEdit || enrollmentLoading}
-                  className="flex-1"
-                >
-                  {enrollmentLoading ? "Attribution..." : "Attribuer"}
-                </Button>
+              <div className="rounded-lg border border-gray-100">
+                <div className="border-b border-gray-100 px-4 py-3">
+                  <h3 className="font-semibold text-gray-800">Historique</h3>
+                </div>
+                <div className="p-4 space-y-3">
+                  {selectedStudentView.view.finishedEnrollments.length === 0 && (
+                    <p className="text-sm text-gray-500">
+                      Aucun historique pour la période sélectionnée.
+                    </p>
+                  )}
+                  {selectedStudentView.view.finishedEnrollments.map(enrollment => (
+                    <div
+                      key={enrollment.id}
+                      className="rounded-lg border border-gray-100 px-4 py-3 bg-white"
+                    >
+                      <p className="font-medium text-gray-900">
+                        {enrollment.courses?.label || enrollment.courses?.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatDate(enrollment.start_date || null)} –{" "}
+                        {formatDate(enrollment.end_date || null)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}

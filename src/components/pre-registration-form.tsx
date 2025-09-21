@@ -21,7 +21,7 @@ import {
   User,
   Users,
 } from "lucide-react";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { preRegister } from "@/lib/actions/pre-registration";
 import { useToast } from "@/hooks/use-toast";
@@ -68,42 +68,50 @@ export default function PreRegistrationForm() {
   const initializedFromUrlRef = useRef(false);
 
   // Validate if user can access a specific step
-  const canAccessStep = (
-    targetStep: number,
-    currentFamily?: FamilyInfo,
-    currentStudents?: StudentInfo[],
-    isSuccessful?: boolean
-  ) => {
-    const familyData = currentFamily || family;
-    const studentsData = currentStudents || students;
-    const successState = isSuccessful !== undefined ? isSuccessful : registrationSuccess;
+  const canAccessStep = useCallback(
+    (
+      targetStep: number,
+      currentFamily?: FamilyInfo,
+      currentStudents?: StudentInfo[],
+      isSuccessful?: boolean
+    ) => {
+      const familyData = currentFamily || family;
+      const studentsData = currentStudents || students;
+      const successState = isSuccessful !== undefined ? isSuccessful : registrationSuccess;
 
-    if (targetStep === 1) return true;
-    if (targetStep === 4 && successState) return true;
+      if (targetStep === 1) return true;
+      if (targetStep === 4 && successState) return true;
 
-    // For steps 2 and 3, check if previous steps have required data
-    if (targetStep === 2) {
-      return (
-        familyData.parentFirstName.trim() !== "" &&
-        familyData.familyName.trim() !== "" &&
-        familyData.contactEmail.trim() !== "" &&
-        familyData.contactPhone.trim() !== ""
-      );
-    }
+      // For steps 2 and 3, check if previous steps have required data
+      if (targetStep === 2) {
+        return (
+          familyData.parentFirstName.trim() !== "" &&
+          familyData.familyName.trim() !== "" &&
+          familyData.contactEmail.trim() !== "" &&
+          familyData.contactPhone.trim() !== ""
+        );
+      }
 
-    if (targetStep === 3) {
-      const hasValidFamily = canAccessStep(2, familyData, studentsData, successState);
-      const hasValidStudents = studentsData.some(
-        student =>
-          student.firstName.trim() !== "" &&
-          student.lastName.trim() !== "" &&
-          student.birthDate.trim() !== ""
-      );
-      return hasValidFamily && hasValidStudents;
-    }
+      if (targetStep === 3) {
+        const hasValidFamily =
+          familyData.parentFirstName.trim() !== "" &&
+          familyData.familyName.trim() !== "" &&
+          familyData.contactEmail.trim() !== "" &&
+          familyData.contactPhone.trim() !== "";
 
-    return false;
-  };
+        const hasValidStudents = studentsData.some(
+          student =>
+            student.firstName.trim() !== "" &&
+            student.lastName.trim() !== "" &&
+            student.birthDate.trim() !== ""
+        );
+
+        return hasValidFamily && hasValidStudents;
+      }
+      return false;
+    },
+    [family, students, registrationSuccess]
+  );
 
   // Initialize step from URL or default to 1
   function getInitialStep() {
@@ -155,7 +163,7 @@ export default function PreRegistrationForm() {
         }
       }
     }
-  }, [searchParams, family, students, registrationSuccess, step]);
+  }, [searchParams, family, students, registrationSuccess, step, router, canAccessStep]);
 
   // Function to update both step state and URL with validation
   const updateStep = (newStep: number, options?: { isSuccessful?: boolean }) => {
@@ -648,7 +656,7 @@ export default function PreRegistrationForm() {
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => (window.location.href = "/")}
+                      onClick={() => router.push("/")}
                       className="h-12 px-6 w-full sm:w-auto border-2 hover:bg-gray-50"
                     >
                       Retour à l&apos;accueil

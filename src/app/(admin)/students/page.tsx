@@ -1,23 +1,7 @@
 import supabase from "@/lib/supabase";
-import { Student, Course } from "@/types/families";
 import StudentsList from "./components/StudentsList";
-
-interface StudentWithFamily extends Omit<Student, "enrollments"> {
-  family: {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-  };
-  enrollments: any[];
-  created_at: string;
-  activeEnrollments: any[];
-  finishedEnrollments: any[];
-  activeCoursesCount: number;
-  hasHistory: boolean;
-  hasMultipleCourses: boolean;
-  course: string;
-}
+import { mapFamiliesToStudents } from "@/lib/students";
+import { Course } from "@/types/families";
 
 export default async function StudentsPage() {
   // Récupérer les données de base des étudiants côté serveur
@@ -76,45 +60,13 @@ export default async function StudentsPage() {
     return null;
   }
 
-  // Transformer les données pour le composant client
-  const students: StudentWithFamily[] =
-    families?.flatMap(family =>
-      family.students.map(student => {
-        const enrollments = student.enrollments || [];
-        const activeEnrollments = enrollments.filter(e => e.status === "active");
-        const finishedEnrollments = enrollments.filter(e => e.status === "finished");
-        const primaryCourse = activeEnrollments[0]?.courses?.[0];
-
-        return {
-          id: student.id,
-          first_name: student.first_name,
-          last_name: student.last_name,
-          birth_date: student.birth_date,
-          registration_type: student.registration_type,
-          level: student.level,
-          notes: student.notes,
-          created_at: student.created_at,
-          enrollments,
-          activeEnrollments,
-          finishedEnrollments,
-          activeCoursesCount: activeEnrollments.length,
-          hasHistory: finishedEnrollments.length > 0,
-          hasMultipleCourses: activeEnrollments.length > 1,
-          course: primaryCourse?.name || "Non assigné",
-          family: {
-            id: family.id,
-            name: `${family.last_name} ${family.first_name}`,
-            email: family.email,
-            phone: family.phone,
-          },
-        };
-      })
-    ) || [];
+  const students = mapFamiliesToStudents(families);
+  const typedCourses: Course[] = courses || [];
 
   return (
     <div className="w-full p-4 md:p-6">
       <div className="w-full md:max-w-7xl md:mx-auto">
-        <StudentsList initialStudents={students} availableCourses={courses || []} />
+        <StudentsList initialStudents={students} availableCourses={typedCourses} />
       </div>
     </div>
   );

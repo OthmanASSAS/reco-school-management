@@ -31,15 +31,23 @@ export interface Student {
   enrollments: Enrollment[];
 }
 
+export interface PaymentCheque {
+  count?: number;
+  amount?: number;
+  banque?: string | null;
+  nom?: string | null;
+  [key: string]: string | number | null | undefined;
+}
+
 export interface Payment {
   id: string;
   amount_cash?: number;
   amount_card?: number;
   amount_transfer?: number;
   refund_amount?: number;
-  books?: boolean;
+  books?: boolean | number;
   remarks?: string;
-  cheques?: string | any[];
+  cheques?: string | PaymentCheque[];
   created_at: string;
   family_id?: string;
   student_id?: string | null;
@@ -63,4 +71,6 @@ export interface SchoolYear {
   id: string;
   label: string;
   start_date: string;
+  end_date?: string | null;
+  is_current?: boolean | null;
 }
