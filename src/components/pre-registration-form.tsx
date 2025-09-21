@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+import { useToast } from "@/hooks/use-toast";
+import { preRegister } from "@/lib/actions/pre-registration";
 import {
   ArrowLeft,
   ArrowRight,
@@ -21,10 +23,8 @@ import {
   User,
   Users,
 } from "lucide-react";
-import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { preRegister } from "@/lib/actions/pre-registration";
-import { useToast } from "@/hooks/use-toast";
+import React, { useCallback, useEffect, useState } from "react";
 
 type FamilyInfo = {
   familyName: string;
@@ -47,7 +47,6 @@ export default function PreRegistrationForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Initialize state first
   const [family, setFamily] = useState<FamilyInfo>({
     familyName: "",
     parentFirstName: "",
@@ -61,11 +60,112 @@ export default function PreRegistrationForm() {
   const [students, setStudents] = useState<StudentInfo[]>([
     { firstName: "", lastName: "", birthDate: "" },
   ]);
-
   const [appointmentDay, setAppointmentDay] = useState<Date | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [registrationSuccess, setRegistrationSuccess] = useState(() => getInitialStep() === 4);
-  const initializedFromUrlRef = useRef(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [step, setStep] = useState(1);
+
+  useEffect(() => {
+    const savedFamily = localStorage.getItem("preregister-family");
+    const savedStudents = localStorage.getItem("preregister-students");
+    const savedStep = localStorage.getItem("preregister-step");
+
+    let familyData = null;
+    if (savedFamily) {
+      try {
+        familyData = JSON.parse(savedFamily);
+        setFamily(familyData);
+      } catch {}
+    }
+
+    let studentsData = null;
+    if (savedStudents) {
+      try {
+        studentsData = JSON.parse(savedStudents);
+        setStudents(studentsData);
+      } catch {}
+    }
+
+    const stepParam = searchParams.get("step");
+
+    let initialStep = 1;
+    if (stepParam) {
+      const parsedStep = parseInt(stepParam, 10);
+      if (!isNaN(parsedStep) && parsedStep >= 1 && parsedStep <= 4) {
+        initialStep = parsedStep;
+      }
+    } else if (savedStep) {
+      const parsedStep = parseInt(savedStep, 10);
+      if (!isNaN(parsedStep) && parsedStep >= 1 && parsedStep <= 4) {
+        initialStep = parsedStep;
+      }
+    }
+
+    // Validate step access using localStorage data directly
+    const canAccessStepWithData = (targetStep: number) => {
+      if (targetStep === 1 || targetStep === 4) return true;
+
+      if (targetStep === 2 && familyData) {
+        return (
+          familyData.parentFirstName?.trim() !== "" &&
+          familyData.familyName?.trim() !== "" &&
+          familyData.contactEmail?.trim() !== "" &&
+          familyData.contactPhone?.trim() !== ""
+        );
+      }
+
+      if (targetStep === 3 && familyData && studentsData) {
+        const hasValidFamily =
+          familyData.parentFirstName?.trim() !== "" &&
+          familyData.familyName?.trim() !== "" &&
+          familyData.contactEmail?.trim() !== "" &&
+          familyData.contactPhone?.trim() !== "";
+
+        const hasValidStudents = studentsData.some(
+          (student: StudentInfo) =>
+            student.firstName?.trim() !== "" &&
+            student.lastName?.trim() !== "" &&
+            student.birthDate?.trim() !== ""
+        );
+
+        return hasValidFamily && hasValidStudents;
+      }
+
+      return false;
+    };
+
+    if (canAccessStepWithData(initialStep)) {
+      setStep(initialStep);
+      // Update URL if we're using savedStep
+      if (!stepParam && savedStep && parseInt(savedStep, 10) === initialStep) {
+        router.replace(`?step=${initialStep}`, { scroll: false });
+      }
+    } else {
+      setStep(1);
+      router.replace("?step=1", { scroll: false });
+    }
+  }, [searchParams, router]);
+
+  // Save family data to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("preregister-family", JSON.stringify(family));
+    }
+  }, [family]);
+
+  // Save students data to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("preregister-students", JSON.stringify(students));
+    }
+  }, [students]);
+
+  // Save step to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("preregister-step", step.toString());
+    }
+  }, [step]);
 
   // Validate if user can access a specific step
   const canAccessStep = useCallback(
@@ -112,58 +212,6 @@ export default function PreRegistrationForm() {
     },
     [family, students, registrationSuccess]
   );
-
-  // Initialize step from URL or default to 1
-  function getInitialStep() {
-    const stepParam = searchParams.get("step");
-    if (stepParam) {
-      const parsedStep = parseInt(stepParam);
-      if (parsedStep >= 1 && parsedStep <= 4) {
-        // Only validate for steps > 1 since initial state is empty
-        if (parsedStep === 1 || parsedStep === 4) return parsedStep;
-        // For other steps, return 1 initially and let useEffect handle validation
-        return 1;
-      }
-    }
-    return 1;
-  }
-
-  const [step, setStep] = useState(getInitialStep);
-
-  // Sync step with URL changes and validate access
-  useEffect(() => {
-    const stepParam = searchParams.get("step");
-    if (stepParam) {
-      const requestedStep = parseInt(stepParam);
-
-      if (!initializedFromUrlRef.current) {
-        initializedFromUrlRef.current = true;
-        if (requestedStep === 4) {
-          setRegistrationSuccess(true);
-          if (step !== 4) {
-            setStep(4);
-          }
-          return;
-        }
-      }
-
-      if (requestedStep >= 1 && requestedStep <= 4) {
-        if (canAccessStep(requestedStep)) {
-          if (requestedStep !== step) {
-            setStep(requestedStep);
-          }
-        } else {
-          // Redirect to step 1 if user can't access requested step
-          const params = new URLSearchParams(searchParams);
-          params.set("step", "1");
-          router.replace(`?${params.toString()}`, { scroll: false });
-          if (step !== 1) {
-            setStep(1);
-          }
-        }
-      }
-    }
-  }, [searchParams, family, students, registrationSuccess, step, router, canAccessStep]);
 
   // Function to update both step state and URL with validation
   const updateStep = (newStep: number, options?: { isSuccessful?: boolean }) => {
@@ -216,6 +264,13 @@ export default function PreRegistrationForm() {
       const result = await preRegister(formData);
 
       if (result.success) {
+        // Clear localStorage since form is completed
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("preregister-family");
+          localStorage.removeItem("preregister-students");
+          localStorage.removeItem("preregister-step");
+        }
+
         setRegistrationSuccess(true);
         updateStep(4, { isSuccessful: true }); // Aller directement à la page de confirmation
       } else {
@@ -239,6 +294,13 @@ export default function PreRegistrationForm() {
 
   // Fonction pour recommencer une nouvelle inscription
   const handleNewRegistration = () => {
+    // Clear localStorage
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("preregister-family");
+      localStorage.removeItem("preregister-students");
+      localStorage.removeItem("preregister-step");
+    }
+
     setFamily({
       familyName: "",
       parentFirstName: "",
@@ -351,7 +413,6 @@ export default function PreRegistrationForm() {
           </div>
 
           {/* Main Card */}
-
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-2">
               <CardTitle className="flex items-center justify-center gap-2 text-xl md:text-2xl">

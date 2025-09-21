@@ -166,10 +166,16 @@ export default function PaymentForm({
             id="cash_amount"
             type="number"
             min={0}
-            value={paymentForm.cash_amount}
-            onChange={e =>
-              setPaymentForm(prev => ({ ...prev, cash_amount: parseFloat(e.target.value) || 0 }))
-            }
+            value={paymentForm.cash_amount === 0 ? "" : paymentForm.cash_amount}
+            onChange={e => {
+              const value = e.target.value;
+              setPaymentForm(prev => ({
+                ...prev,
+                cash_amount: value === "" ? 0 : parseFloat(value) || 0,
+              }));
+            }}
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            placeholder="0"
           />
         </div>
         <div>
@@ -178,10 +184,16 @@ export default function PaymentForm({
             id="card_amount"
             type="number"
             min={0}
-            value={paymentForm.card_amount}
-            onChange={e =>
-              setPaymentForm(prev => ({ ...prev, card_amount: parseFloat(e.target.value) || 0 }))
-            }
+            value={paymentForm.card_amount === 0 ? "" : paymentForm.card_amount}
+            onChange={e => {
+              const value = e.target.value;
+              setPaymentForm(prev => ({
+                ...prev,
+                card_amount: value === "" ? 0 : parseFloat(value) || 0,
+              }));
+            }}
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            placeholder="0"
           />
         </div>
         <div>
@@ -190,13 +202,16 @@ export default function PaymentForm({
             id="amount_transfer"
             type="number"
             min={0}
-            value={paymentForm.amount_transfer}
-            onChange={e =>
+            value={paymentForm.amount_transfer === 0 ? "" : paymentForm.amount_transfer}
+            onChange={e => {
+              const value = e.target.value;
               setPaymentForm(prev => ({
                 ...prev,
-                amount_transfer: parseFloat(e.target.value) || 0,
-              }))
-            }
+                amount_transfer: value === "" ? 0 : parseFloat(value) || 0,
+              }));
+            }}
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            placeholder="0"
           />
         </div>
       </div>
@@ -231,14 +246,17 @@ export default function PaymentForm({
                 <Input
                   type="number"
                   min={1}
-                  value={lot.count}
-                  onChange={e =>
+                  value={lot.count === 0 ? "" : lot.count}
+                  onChange={e => {
+                    const value = e.target.value;
                     setChequeLots(current =>
                       current.map((c, i) =>
-                        i === idx ? { ...c, count: parseInt(e.target.value) || 1 } : c
+                        i === idx ? { ...c, count: value === "" ? 1 : parseInt(value) || 1 } : c
                       )
-                    )
-                  }
+                    );
+                  }}
+                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  placeholder="1"
                 />
               </div>
               <div>
@@ -246,14 +264,17 @@ export default function PaymentForm({
                 <Input
                   type="number"
                   min={0}
-                  value={lot.amount}
-                  onChange={e =>
+                  value={lot.amount === 0 ? "" : lot.amount}
+                  onChange={e => {
+                    const value = e.target.value;
                     setChequeLots(current =>
                       current.map((c, i) =>
-                        i === idx ? { ...c, amount: parseFloat(e.target.value) || 0 } : c
+                        i === idx ? { ...c, amount: value === "" ? 0 : parseFloat(value) || 0 } : c
                       )
-                    )
-                  }
+                    );
+                  }}
+                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  placeholder="0"
                 />
               </div>
               <div>
@@ -323,8 +344,13 @@ export default function PaymentForm({
           <Input
             type="number"
             min={0}
-            value={refund}
-            onChange={e => setRefund(parseFloat(e.target.value) || 0)}
+            value={refund === 0 ? "" : refund}
+            onChange={e => {
+              const value = e.target.value;
+              setRefund(value === "" ? 0 : parseFloat(value) || 0);
+            }}
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            placeholder="0"
           />
         </div>
         <div>

@@ -1,9 +1,9 @@
 // [id]/page.tsx
-import { getCoursesWithDetail, updateCourse } from "../actions/actions";
-import CourseForm from "../components/CourseForm";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Settings } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import Link from "next/link";
+import { getCoursesWithDetail } from "../actions/actions";
+import CourseFormWrapper from "../components/CourseFormWrapper";
 
 export default async function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,7 +15,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
       <main className="p-6">
         <div className="text-center text-gray-500">
           <h1 className="text-2xl font-bold mb-4">Cours non trouvé</h1>
-          <p>Le cours demandé n'existe pas.</p>
+          <p>Le cours demandé n&apos;existe pas.</p>
         </div>
       </main>
     );
@@ -43,16 +43,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
         </div>
 
         {/* Formulaire de modification */}
-        <CourseForm
-          course={course}
-          onCourseCreated={() => {
-            // Ne devrait pas être appelé dans ce contexte
-          }}
-          onCourseUpdated={() => {
-            // Recharger la page après mise à jour
-            window.location.reload();
-          }}
-        />
+        <CourseFormWrapper course={course} />
       </div>
     </main>
   );
