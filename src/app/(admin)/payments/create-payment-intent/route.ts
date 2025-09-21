@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+// Vérifier si la clé Stripe est disponible
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeKey) {
+  console.warn("STRIPE_SECRET_KEY non définie - les paiements Stripe ne fonctionneront pas");
+}
+
+const stripe = stripeKey ? new Stripe(stripeKey) : null;
 
 export async function POST(request: NextRequest) {
   try {
+    if (!stripe) {
+      return NextResponse.json({ error: "Service de paiement non configuré" }, { status: 503 });
+    }
+
     const body = await request.json();
     const { amount } = body;
 

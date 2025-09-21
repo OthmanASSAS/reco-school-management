@@ -35,7 +35,7 @@ export function SchoolYearProvider({ children }: { children: React.ReactNode }) 
         .order("start_date", { ascending: false });
       if (!isMounted) return;
       if (!error && data) {
-        setSchoolYears(data as any);
+        setSchoolYears(data as SchoolYear[]);
         const saved =
           typeof window !== "undefined" ? localStorage.getItem("selectedSchoolYearId") : null;
         if (saved && data.find(y => y.id === saved)) {

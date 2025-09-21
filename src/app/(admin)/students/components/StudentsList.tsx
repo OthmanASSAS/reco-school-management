@@ -35,7 +35,7 @@ interface StudentsListProps {
   availableCourses: Course[];
 }
 
-type ViewMode = "list" | "classes";
+type ViewMode = "tous" | "classes" | "statistiques";
 
 type StudentWithView = {
   base: StudentListItem;
@@ -105,7 +105,7 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
   const router = useRouter();
   const { schoolYears, currentSchoolYearId } = useSchoolYear();
 
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("tous");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
@@ -301,69 +301,77 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              <Select
-                value={selectedSchoolYearId}
-                onValueChange={value => {
-                  manualSchoolYearOverride.current = value !== (currentSchoolYearId || "all");
-                  setSelectedSchoolYearId(value);
-                }}
-              >
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Année scolaire" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les années</SelectItem>
-                  {schoolYears.map(year => (
-                    <SelectItem key={year.id} value={year.id}>
-                      {year.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {viewMode === "tous" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <Select
+                  value={selectedSchoolYearId}
+                  onValueChange={value => {
+                    manualSchoolYearOverride.current = value !== (currentSchoolYearId || "all");
+                    setSelectedSchoolYearId(value);
+                  }}
+                >
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Année scolaire" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les années</SelectItem>
+                    {schoolYears.map(year => (
+                      <SelectItem key={year.id} value={year.id}>
+                        {year.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-              <Select value={selectedCourseId} onValueChange={value => setSelectedCourseId(value)}>
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Cours" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les cours</SelectItem>
-                  <SelectItem value="none">Sans cours</SelectItem>
-                  {availableCourses.map(course => (
-                    <SelectItem key={course.id} value={course.id}>
-                      {course.label || course.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <Select
+                  value={selectedCourseId}
+                  onValueChange={value => setSelectedCourseId(value)}
+                >
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Cours" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les cours</SelectItem>
+                    <SelectItem value="none">Sans cours</SelectItem>
+                    {availableCourses.map(course => (
+                      <SelectItem key={course.id} value={course.id}>
+                        {course.label || course.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-              <Select value={selectedStatus} onValueChange={value => setSelectedStatus(value)}>
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="active">Cours actifs</SelectItem>
-                  <SelectItem value="no_course">Sans cours</SelectItem>
-                  <SelectItem value="multiple">Cours multiples</SelectItem>
-                  <SelectItem value="history">Historique</SelectItem>
-                </SelectContent>
-              </Select>
+                <Select value={selectedStatus} onValueChange={value => setSelectedStatus(value)}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les statuts</SelectItem>
+                    <SelectItem value="active">Cours actifs</SelectItem>
+                    <SelectItem value="no_course">Sans cours</SelectItem>
+                    <SelectItem value="multiple">Cours multiples</SelectItem>
+                    <SelectItem value="history">Historique</SelectItem>
+                  </SelectContent>
+                </Select>
 
-              <Select value={selectedFamilyId} onValueChange={value => setSelectedFamilyId(value)}>
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Famille" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les familles</SelectItem>
-                  {familiesOptions.map(family => (
-                    <SelectItem key={family.id} value={family.id}>
-                      {family.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                <Select
+                  value={selectedFamilyId}
+                  onValueChange={value => setSelectedFamilyId(value)}
+                >
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Famille" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les familles</SelectItem>
+                    {familiesOptions.map(family => (
+                      <SelectItem key={family.id} value={family.id}>
+                        {family.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         </CardHeader>
 
@@ -409,8 +417,9 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
           <div className="flex items-center justify-between">
             <Tabs value={viewMode} onValueChange={value => setViewMode(value as ViewMode)}>
               <TabsList>
-                <TabsTrigger value="list">Vue liste</TabsTrigger>
+                <TabsTrigger value="tous">Tous les élèves</TabsTrigger>
                 <TabsTrigger value="classes">Par classe</TabsTrigger>
+                <TabsTrigger value="statistiques">Statistiques</TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -424,7 +433,7 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
           </div>
 
           <Tabs value={viewMode}>
-            <TabsContent value="list" className="space-y-3">
+            <TabsContent value="tous" className="space-y-3">
               <div className="overflow-hidden rounded-lg border border-gray-100">
                 <table className="min-w-full divide-y divide-gray-100 text-sm">
                   <thead className="bg-gray-50 text-gray-600 font-medium">
@@ -573,6 +582,166 @@ export default function StudentsList({ initialStudents, availableCourses }: Stud
                   </CardContent>
                 </Card>
               ))}
+            </TabsContent>
+
+            <TabsContent value="statistiques" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Répartition par type d'élève */}
+                <Card className="border border-blue-100">
+                  <CardHeader className="bg-blue-50/60 border-b border-blue-100">
+                    <CardTitle className="text-lg text-blue-900">Répartition par type</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3">
+                    {(() => {
+                      const adults = filteredStudents.filter(
+                        s => s.base.registration_type === "adult"
+                      ).length;
+                      const children = filteredStudents.filter(
+                        s => s.base.registration_type === "child"
+                      ).length;
+                      return (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Adultes</span>
+                            <span className="font-semibold text-blue-700">{adults}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Enfants</span>
+                            <span className="font-semibold text-blue-700">{children}</span>
+                          </div>
+                          <div className="border-t pt-3">
+                            <div className="flex justify-between items-center font-semibold">
+                              <span className="text-gray-900">Total</span>
+                              <span className="text-blue-700">{adults + children}</span>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
+
+                {/* Répartition par cours */}
+                <Card className="border border-green-100">
+                  <CardHeader className="bg-green-50/60 border-b border-green-100">
+                    <CardTitle className="text-lg text-green-900">Top 5 cours</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3">
+                    {(() => {
+                      const courseStats = groupedByClass
+                        .filter(group => group.courseId !== null)
+                        .sort((a, b) => b.students.length - a.students.length)
+                        .slice(0, 5);
+
+                      return courseStats.length === 0 ? (
+                        <p className="text-sm text-gray-500 italic">Aucun cours avec des élèves</p>
+                      ) : (
+                        courseStats.map((group, index) => (
+                          <div key={group.courseId} className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600 truncate" title={group.label}>
+                              {index + 1}. {group.label}
+                            </span>
+                            <span className="font-semibold text-green-700">
+                              {group.students.length}
+                            </span>
+                          </div>
+                        ))
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
+
+                {/* Répartition par âge (enfants seulement) */}
+                <Card className="border border-purple-100">
+                  <CardHeader className="bg-purple-50/60 border-b border-purple-100">
+                    <CardTitle className="text-lg text-purple-900">
+                      Tranches d&apos;âge (enfants)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3">
+                    {(() => {
+                      const children = filteredStudents.filter(
+                        s => s.base.registration_type === "child"
+                      );
+                      const ageRanges = {
+                        "3-5 ans": children.filter(s => {
+                          const age = calculateAge(s.base.birth_date);
+                          return age && age >= 3 && age <= 5;
+                        }).length,
+                        "6-8 ans": children.filter(s => {
+                          const age = calculateAge(s.base.birth_date);
+                          return age && age >= 6 && age <= 8;
+                        }).length,
+                        "9-12 ans": children.filter(s => {
+                          const age = calculateAge(s.base.birth_date);
+                          return age && age >= 9 && age <= 12;
+                        }).length,
+                        "13+ ans": children.filter(s => {
+                          const age = calculateAge(s.base.birth_date);
+                          return age && age >= 13;
+                        }).length,
+                      };
+
+                      return Object.entries(ageRanges).map(([range, count]) => (
+                        <div key={range} className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">{range}</span>
+                          <span className="font-semibold text-purple-700">{count}</span>
+                        </div>
+                      ));
+                    })()}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Graphique de répartition par famille */}
+              <Card className="border border-orange-100">
+                <CardHeader className="bg-orange-50/60 border-b border-orange-100">
+                  <CardTitle className="text-lg text-orange-900">
+                    Familles avec plusieurs élèves
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  {(() => {
+                    const familyStats = new Map<string, { name: string; count: number }>();
+                    filteredStudents.forEach(({ base }) => {
+                      const existing = familyStats.get(base.family.id);
+                      familyStats.set(base.family.id, {
+                        name: base.family.name,
+                        count: (existing?.count || 0) + 1,
+                      });
+                    });
+
+                    const multipleFamilies = Array.from(familyStats.values())
+                      .filter(family => family.count > 1)
+                      .sort((a, b) => b.count - a.count);
+
+                    return multipleFamilies.length === 0 ? (
+                      <p className="text-sm text-gray-500 italic">
+                        Aucune famille avec plusieurs élèves
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {multipleFamilies.slice(0, 10).map(family => (
+                          <div
+                            key={family.name}
+                            className="flex justify-between items-center py-2 border-b border-orange-100 last:border-0"
+                          >
+                            <span className="text-sm text-gray-700">{family.name}</span>
+                            <Badge variant="outline" className="border-orange-300 text-orange-700">
+                              {family.count} élèves
+                            </Badge>
+                          </div>
+                        ))}
+                        {multipleFamilies.length > 10 && (
+                          <p className="text-xs text-gray-500 mt-3">
+                            ... et {multipleFamilies.length - 10} autres familles
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </CardContent>

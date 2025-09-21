@@ -73,7 +73,7 @@ async function checkEnrollments() {
         console.log(`   ✅ Enrollment ${enrollment.id}:`);
         const courseName = Array.isArray(course)
           ? course[0]?.name || course[0]?.label
-          : course?.name || course?.label;
+          : (course as Record<string, unknown>)?.name || (course as Record<string, unknown>)?.label;
         console.log(`      - Cours: ${courseName || "Inconnu"} (ID: ${enrollment.course_id})`);
         console.log(`      - Statut: ${enrollment.status}`);
         console.log(`      - Date début: ${enrollment.start_date}`);
@@ -122,7 +122,9 @@ async function checkEnrollments() {
       if (student.enrollments && student.enrollments.length > 0) {
         student.enrollments.forEach(enrollment => {
           const course = enrollment.courses;
-          console.log(`      📚 ${course?.name || course?.label || "Cours inconnu"}`);
+          console.log(
+            `      📚 ${(course as Record<string, unknown>)?.name || (course as Record<string, unknown>)?.label || "Cours inconnu"}`
+          );
         });
       } else {
         console.log(`      ⚠️  Aucun cours inscrit`);

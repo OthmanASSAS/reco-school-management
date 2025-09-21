@@ -1,9 +1,10 @@
 "use server";
 
-import supabase from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { Family } from "@/types/families";
 
 export async function getFamilyDetails(familyId: string): Promise<Family | null> {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("families")
     .select(
@@ -47,5 +48,5 @@ export async function getFamilyDetails(familyId: string): Promise<Family | null>
     return null;
   }
 
-  return data as Family;
+  return data as unknown as Family;
 }

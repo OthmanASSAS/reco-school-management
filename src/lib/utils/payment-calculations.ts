@@ -10,9 +10,9 @@ export interface DiscountSettings {
  * Filtre les enrollments par année scolaire avec fallback intelligent
  */
 export function filterEnrollmentsBySchoolYear(
-  enrollments: any[],
+  enrollments: Record<string, unknown>[],
   schoolYearId: string | null,
-  schoolYears: any[]
+  schoolYears: Record<string, unknown>[]
 ) {
   if (!schoolYearId) {
     return enrollments.filter(e => e.status === "active");
@@ -41,6 +41,7 @@ export function filterEnrollmentsBySchoolYear(
     const enrollmentSchoolYear = enrollmentMonth >= 9 ? enrollmentYear : enrollmentYear - 1;
 
     const schoolYearStart = new Date(schoolYear.start_date).getFullYear();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const schoolYearEnd = schoolYear.end_date
       ? new Date(schoolYear.end_date).getFullYear()
       : schoolYearStart + 1;
@@ -57,7 +58,7 @@ export function filterEnrollmentsBySchoolYear(
 export function calculateFamilyTotal(
   family: Family,
   schoolYearId: string | null,
-  schoolYears: any[],
+  schoolYears: Record<string, unknown>[],
   discountSettings: DiscountSettings
 ): number {
   const { startAt, step, mode } = discountSettings;
@@ -88,7 +89,7 @@ export function calculateFamilyTotal(
 export function calculatePaidAmount(
   family: Family,
   schoolYearId: string | null,
-  schoolYears: any[]
+  schoolYears: Record<string, unknown>[]
 ): number {
   // Si pas d'année scolaire spécifiée, retourner tous les paiements
   if (!schoolYearId) {
@@ -106,7 +107,8 @@ export function calculatePaidAmount(
           : payment.cheques || [];
 
       const chequesAmount = cheques.reduce(
-        (sum: number, lot: any) => sum + (lot.count || 0) * (lot.amount || 0),
+        (sum: number, lot: Record<string, unknown>) =>
+          sum + ((lot.count as number) || 0) * ((lot.amount as number) || 0),
         0
       );
       amount += chequesAmount;
@@ -156,7 +158,8 @@ export function calculatePaidAmount(
         ? JSON.parse(payment.cheques || "[]")
         : payment.cheques || [];
     const chequesAmount = cheques.reduce(
-      (sum: number, lot: any) => sum + (lot.count || 0) * (lot.amount || 0),
+      (sum: number, lot: Record<string, unknown>) =>
+        sum + ((lot.count as number) || 0) * ((lot.amount as number) || 0),
       0
     );
     amount += chequesAmount;
@@ -172,7 +175,10 @@ export function calculatePaidAmount(
 /**
  * Filtre les paiements par année scolaire
  */
-export function filterPaymentsBySchoolYear(payments: any[], schoolYear: any): any[] {
+export function filterPaymentsBySchoolYear(
+  payments: Record<string, unknown>[],
+  schoolYear: Record<string, unknown>
+): Record<string, unknown>[] {
   if (!schoolYear) return payments;
 
   const schoolYearStart = new Date(schoolYear.start_date).getFullYear();

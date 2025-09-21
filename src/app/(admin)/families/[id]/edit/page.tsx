@@ -72,7 +72,7 @@ export default function EditFamilyPage() {
     const actualCurrentYear = schoolYears.find(year => {
       const now = new Date();
       const startDate = new Date(year.start_date);
-      const endDate = new Date(year.end_date);
+      const endDate = year.end_date ? new Date(year.end_date) : new Date();
       return now >= startDate && now <= endDate;
     });
 
@@ -193,7 +193,15 @@ export default function EditFamilyPage() {
     if (state.success || addState.success || updateState.success || deleteState.success) {
       fetchFamily();
     }
-  }, [state.success, addState.success, updateState.success, deleteState.success, fetchFamily]);
+  }, [
+    state.success,
+    addState.success,
+    updateState.success,
+    deleteState.success,
+    addState.errors,
+    addState.message,
+    fetchFamily,
+  ]);
 
   // State contrôlé pour le formulaire famille
   const [form, setForm] = React.useState({
