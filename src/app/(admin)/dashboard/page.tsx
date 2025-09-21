@@ -2,7 +2,10 @@ import supabase from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Users, CreditCard, TrendingUp, AlertCircle, Home } from "lucide-react";
+import { BookOpen, Users, CreditCard, Home } from "lucide-react";
+import CompactClassesOverview from "@/components/dashboard/CompactClassesOverview";
+import StatsCard from "@/components/dashboard/StatsCard";
+import Link from "next/link";
 
 export default async function DashboardPage() {
   // 1. Nombre total d'élèves
@@ -66,16 +69,36 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false })
     .limit(5);
 
-  // 7. Taux d'occupation moyen des cours
-  const { data: courses } = await supabase
+  // 7. Données des cours pour le composant Classes Overview
+  const { data: coursesData } = await supabase
     .from("courses")
-    .select("id, capacity, enrollments(id)")
-    .eq("status", "active");
+    .select(
+      `
+      id, name, type, capacity, schedule,
+      teachers(full_name),
+      enrollments(id)
+    `
+    )
+    .eq("status", "active")
+    .order("name");
+
+  const courses = (coursesData || []).map((course: Record<string, unknown>) => ({
+    id: course.id as string,
+    name: course.name as string,
+    type: course.type as string,
+    capacity: course.capacity as number,
+    enrolled_count: course.enrollments
+      ? (course.enrollments as Record<string, unknown>[]).length
+      : 0,
+    teacher_name: (course.teachers?.full_name as string) || "Non assigné",
+    schedule: (course.schedule as string) || "",
+  }));
+
+  // Calcul du taux d'occupation moyen
   let avgOccupancy = 0;
-  if (courses && courses.length > 0) {
+  if (courses.length > 0) {
     const total = courses.reduce((acc, c) => {
-      const enrolled = c.enrollments ? c.enrollments.length : 0;
-      return acc + (c.capacity ? Math.min(enrolled / c.capacity, 1) : 0);
+      return acc + (c.capacity ? Math.min(c.enrolled_count / c.capacity, 1) : 0);
     }, 0);
     avgOccupancy = Math.round((total / courses.length) * 100);
   }
@@ -87,98 +110,79 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-600 mt-1">Vue d'ensemble de votre établissement</p>
+              <p className="text-gray-600 mt-1">Vue d&apos;ensemble de votre établissement</p>
             </div>
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-              Nouvelle inscription
+            <Button
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              asChild
+            >
+              <Link href="/registration">Nouvelle inscription</Link>
             </Button>
           </div>
 
-          {/* Stats Cards dynamiques */}
+          {/* Stats Cards cliquables */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Élèves inscrits</p>
-                    <p className="text-2xl font-bold text-gray-900">{studentsCount ?? "-"}</p>
-                  </div>
-                  <div className="p-3 rounded-full bg-gray-100 text-blue-600">
-                    <Users size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Familles</p>
-                    <p className="text-2xl font-bold text-gray-900">{familiesCount ?? "-"}</p>
-                  </div>
-                  <div className="p-3 rounded-full bg-gray-100 text-emerald-600">
-                    <Home size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Cours actifs</p>
-                    <p className="text-2xl font-bold text-gray-900">{coursesCount ?? "-"}</p>
-                  </div>
-                  <div className="p-3 rounded-full bg-gray-100 text-green-600">
-                    <BookOpen size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Revenus ce mois</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {totalRevenue.toLocaleString()} €
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-full bg-gray-100 text-purple-600">
-                    <CreditCard size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <StatsCard
+              title="Élèves inscrits"
+              value={studentsCount ?? "-"}
+              icon={<Users size={24} className="text-blue-600" />}
+              href="/students"
+              bgColor="bg-blue-100"
+            />
+            <StatsCard
+              title="Familles"
+              value={familiesCount ?? "-"}
+              icon={<Home size={24} className="text-emerald-600" />}
+              href="/families"
+              bgColor="bg-emerald-100"
+            />
+            <StatsCard
+              title="Cours actifs"
+              value={coursesCount ?? "-"}
+              icon={<BookOpen size={24} className="text-green-600" />}
+              href="/courses"
+              bgColor="bg-green-100"
+            />
+            <StatsCard
+              title="Revenus ce mois"
+              value={`${totalRevenue.toLocaleString()} €`}
+              icon={<CreditCard size={24} className="text-purple-600" />}
+              href="/payments"
+              bgColor="bg-purple-100"
+            />
           </div>
 
-          {/* Autres KPI et alertes */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Vue compacte des classes */}
+          <CompactClassesOverview courses={courses} />
+
+          {/* Grille responsive pour les autres composants */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Alerts dynamiques */}
-            <Card className="lg:col-span-2">
+            <Card>
               <CardContent className="space-y-3">
+                <div className="font-semibold mb-2">Alertes</div>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
                   <div className="w-2 h-2 rounded-full bg-red-500" />
                   <span className="text-sm text-gray-700">
-                    {overduePayments ?? 0} paiements en retard (plus de 30 jours)
+                    {overduePayments ?? 0} paiements en retard
                   </span>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
                   <div className="w-2 h-2 rounded-full bg-blue-500" />
                   <span className="text-sm text-gray-700">
-                    Taux d'occupation moyen des cours : {avgOccupancy}%
+                    Occupation moyenne : {avgOccupancy}%
                   </span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Recent Registrations dynamiques */}
+            {/* Recent Registrations */}
             <Card>
               <CardContent className="space-y-3">
                 <div className="font-semibold mb-2">Inscriptions récentes</div>
-                {(recentStudents || []).map((reg: any) => (
+                {(recentStudents || []).map((reg: Record<string, unknown>) => (
                   <div
-                    key={reg.id}
+                    key={reg.id as string}
                     className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
                   >
                     <div>
@@ -186,7 +190,7 @@ export default async function DashboardPage() {
                         {reg.first_name} {reg.last_name}
                       </p>
                       <p className="text-xs text-gray-600">
-                        {new Date(reg.created_at).toLocaleDateString()}
+                        {new Date(reg.created_at as string).toLocaleDateString()}
                       </p>
                     </div>
                     <Badge variant="secondary">Nouveau</Badge>
