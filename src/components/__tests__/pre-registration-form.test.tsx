@@ -276,7 +276,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
     fireEvent.click(screen.getByRole("button", { name: /suivant/i }));
 
     // Fill student information - use more specific selector
-    const studentFirstNameInput = screen.getByPlaceholderText("Prénom de l'élève");
+    const studentFirstNameInput = screen.getByPlaceholderText("Prénom de l’élève");
     fireEvent.change(studentFirstNameInput, {
       target: { value: "Alice" },
     });
@@ -375,7 +375,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
 
     // Should show the students form (step 2) instead of family form (step 1)
     expect(screen.getByText("Élève 1")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Prénom de l'élève")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Prénom de l’élève")).toBeInTheDocument();
   });
 
   it("should persist step 3 on page refresh when both family and student data are valid", () => {

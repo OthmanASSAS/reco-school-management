@@ -1,0 +1,1822 @@
+[
+  {
+    "id": "059d2fc9-e20c-47d6-bcbd-5ae71ad08fb5",
+    "student_id": "3ee9385f-035c-4204-b0e3-0314b6217eb3",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2022-09-01",
+    "end_date": "2023-12-01",
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "0bfc5016-4e22-4be2-828d-5da5f4986183",
+    "student_id": "10d330f6-5ae9-4a62-9fe5-ad4d88cfff1d",
+    "course_id": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4",
+    "start_date": "2022-09-01",
+    "end_date": null,
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "8a81ab8c-7c8f-43d5-a5dc-2a8fafb519bb",
+    "student_id": "71caf634-e745-4703-980d-9d5d68b77e10",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2022-09-01",
+    "end_date": "2023-12-01",
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "c7b3deea-57ae-477c-8dab-75a1485f95d8",
+    "student_id": "71caf634-e745-4703-980d-9d5d68b77e10",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2022-09-01",
+    "end_date": "2023-06-01",
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "48aa1f89-5076-44c0-ab44-31db014bbdd3",
+    "student_id": "51b005ab-f946-4212-8335-ea5db60d2f97",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2022-09-01",
+    "end_date": null,
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "1c0192ee-bb5c-4267-a8d5-e4aedb5871bb",
+    "student_id": "51b005ab-f946-4212-8335-ea5db60d2f97",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2022-09-01",
+    "end_date": "2023-03-01",
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "6d6aef66-3e7a-4eb9-8d61-fb2ecf2d6a34",
+    "student_id": "c1e53668-63f6-4a63-b50b-068ebd5d61d6",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2022-09-01",
+    "end_date": "2023-12-01",
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "a658efab-b60a-467c-89f5-a1134b4f3fff",
+    "student_id": "c1e53668-63f6-4a63-b50b-068ebd5d61d6",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2022-09-01",
+    "end_date": "2023-06-01",
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "6afe7a9d-542e-4754-8c2a-5ad37747586a",
+    "student_id": "9445f951-0a56-4f8b-b0bb-7b570df3fdb2",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2022-09-01",
+    "end_date": "2023-06-01",
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "cc8a44e5-24ac-4257-b586-f4931120fac9",
+    "student_id": "9445f951-0a56-4f8b-b0bb-7b570df3fdb2",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2022-09-01",
+    "end_date": "2023-12-01",
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "60c2d410-2385-4700-a6f8-7f102b1c2125",
+    "student_id": "10d330f6-5ae9-4a62-9fe5-ad4d88cfff1d",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2022-09-01",
+    "end_date": null,
+    "status": "finished",
+    "created_at": "2022-09-01T00:00:00",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "60744104-d37f-49bd-b960-06a3cf7802e3",
+    "student_id": "6639647b-d269-47f1-9467-ab8825118d22",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2022-09-17",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2022-09-03T03:11:05.526",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "3ee97093-5574-42f9-a367-3822f977942c",
+    "student_id": "088a2438-af05-4579-bf5b-ad9ef0a13ff7",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2022-09-02",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2022-09-12T21:20:12.007",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "b3ce7798-b0a0-42cb-a974-574a481b420a",
+    "student_id": "fafd3de6-d05d-4525-b917-15fb25798099",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2022-09-28",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2022-09-23T15:20:20.01",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "23343570-9a9d-42e7-b7a7-dd6cab9613d7",
+    "student_id": "6783a80f-7754-43b0-b350-4a9355464ffb",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2022-09-13",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2022-09-28T20:56:27.238",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "6a37eed5-d3d6-4b0d-8979-707ca3e7dee9",
+    "student_id": "e14a7b7d-0676-4d19-a7f9-d1236fca40ba",
+    "course_id": "fc482b70-d7ba-4800-a90b-13b136bcac29",
+    "start_date": "2022-09-29",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2022-09-30T16:09:45.63",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "63184ac0-3280-4556-b11e-f561e6191397",
+    "student_id": "d7ab0b3d-2a9a-419f-b163-12c4e0ed89f9",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2022-09-20",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2022-10-23T01:16:09.23",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "4330cb0b-cd24-4617-9d53-44f1316f308e",
+    "student_id": "2211c166-fd18-4e7b-a71d-7b6b40bc291b",
+    "course_id": "641d3396-4091-4e37-b3de-c1c0a0552fb7",
+    "start_date": "2022-09-17",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2022-10-24T23:07:19.625",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "7d1d366d-b8ba-4819-aa17-2d8cf55aacfe",
+    "student_id": "584cc5ad-3c00-49e2-b9fe-0ea3c639a6be",
+    "course_id": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4",
+    "start_date": "2022-09-10",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2022-11-01T05:45:58.675",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "e6799f7c-b6bf-468d-9ef1-c599c6d990fe",
+    "student_id": "f4411d7f-e34a-4673-9593-e5d775130382",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2022-09-11",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2022-11-12T13:47:31.128",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "55c3ada6-b28f-418d-b1d9-a5f2e98880b3",
+    "student_id": "aaee727c-92c4-469b-b4ea-98c62aff40bc",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2022-09-09",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2022-12-03T08:48:30.767",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "2627a4be-bed3-4518-a6f4-ca582276dc91",
+    "student_id": "68a40a90-a2da-4c32-be44-58cd04de6689",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2022-09-26",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-01-04T05:24:49.094",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "97c26c6d-787e-4af4-be88-b3b03b254b1c",
+    "student_id": "47331087-c8c2-460f-a81c-b29d35168bdd",
+    "course_id": "641d3396-4091-4e37-b3de-c1c0a0552fb7",
+    "start_date": "2022-09-04",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-01-08T10:01:15.113",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "0d190642-a44b-4031-afe8-644204c19964",
+    "student_id": "9989fa82-8138-4706-9bde-ee3e765c5ab5",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2022-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-01-09T11:30:57.298",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "7f312c8d-f0ca-4129-a788-ec1be316e7b7",
+    "student_id": "7c5be654-02f0-45b5-9cd9-ac970c6581ec",
+    "course_id": "fc482b70-d7ba-4800-a90b-13b136bcac29",
+    "start_date": "2022-09-23",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-01-30T18:39:34.096",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "e99fe3af-8663-4297-8d58-0920d7e280af",
+    "student_id": "dbc6d192-3596-4ea1-912f-0c01c5428837",
+    "course_id": "641d3396-4091-4e37-b3de-c1c0a0552fb7",
+    "start_date": "2022-09-17",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-03-12T00:56:21.805",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "700e174e-d0f5-41c2-b4eb-7f2789a847d6",
+    "student_id": "df207079-cbac-4427-8e26-3fa9dc31980e",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2022-09-26",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-03-21T17:51:05.685",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "b006b5e1-5767-4b69-9551-823e12956b56",
+    "student_id": "cf71d850-508b-468c-916f-7e76f2470743",
+    "course_id": "641d3396-4091-4e37-b3de-c1c0a0552fb7",
+    "start_date": "2022-09-07",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-04-26T13:19:10.326",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "58e1401d-f07f-482b-80f2-4316c3eef148",
+    "student_id": "e727c4d4-52c2-4d31-a1b2-6b96a6fada2b",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2022-09-15",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-04-27T16:03:04.543",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "9e6460b1-7b82-41c9-a5c3-73baff0b42fb",
+    "student_id": "7a1bbf34-0c56-4c3a-b711-086378626874",
+    "course_id": "641d3396-4091-4e37-b3de-c1c0a0552fb7",
+    "start_date": "2022-09-10",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-04-30T21:28:05.573",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "2f049e68-b7e9-4f18-9f9c-15476073cc34",
+    "student_id": "4029f452-1591-4b18-8eb2-1ed9196440f6",
+    "course_id": "641d3396-4091-4e37-b3de-c1c0a0552fb7",
+    "start_date": "2022-09-14",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-05-10T12:19:11.102",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "83102905-ef22-41ea-9990-acd26f99a2b1",
+    "student_id": "ab070fa1-926c-44e6-9650-3ca07f794455",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2022-09-27",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-05-19T17:24:49.8",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "3f721c0b-7fc4-4cc4-8042-11094e424a01",
+    "student_id": "7b106e91-4e47-4943-8cc3-c28b9bdee117",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2022-09-05",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-06-07T15:01:25.667",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "17274332-9f10-4340-ac29-1426ea14f062",
+    "student_id": "738ec4cd-8a97-46fa-8bca-e6dccc5dc0e6",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2022-09-16",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-06-08T18:42:10.928",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "82cd169f-d5ae-4dc2-b463-319ab53be43e",
+    "student_id": "c2526c26-0995-401e-9eeb-525ec0291685",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2022-09-04",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-06-22T08:33:53.454",
+    "school_year_id": "94cd11de-3564-4913-858c-6713b5790083"
+  },
+  {
+    "id": "b69d9bde-ef88-483a-b685-dea2b74fb484",
+    "student_id": "c21d476a-49ea-4b8a-a762-0a59752a5c82",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "ed2345a1-576b-4e13-9d78-6df784d932e2",
+    "student_id": "10d330f6-5ae9-4a62-9fe5-ad4d88cfff1d",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "a77e5761-ae53-4474-b556-d8494fb5134c",
+    "student_id": "10d330f6-5ae9-4a62-9fe5-ad4d88cfff1d",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2023-09-01",
+    "end_date": "2024-06-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "67de3905-5919-440c-8e7b-e030a2f2e46d",
+    "student_id": "51b005ab-f946-4212-8335-ea5db60d2f97",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "528d3aaf-2e5c-4fac-9a3c-fe25fac89e73",
+    "student_id": "51b005ab-f946-4212-8335-ea5db60d2f97",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-01",
+    "end_date": "2024-03-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "38a224ea-876d-4f06-9438-3e4478440ff0",
+    "student_id": "71caf634-e745-4703-980d-9d5d68b77e10",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-01",
+    "end_date": "2024-06-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "630362ce-62ab-40d3-ba6f-3935691f1602",
+    "student_id": "71caf634-e745-4703-980d-9d5d68b77e10",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "20995fc5-1af6-461b-a183-d1dc47c41aca",
+    "student_id": "9445f951-0a56-4f8b-b0bb-7b570df3fdb2",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-01",
+    "end_date": "2024-03-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "554417f4-2b90-42f0-8310-a2da797dd097",
+    "student_id": "9445f951-0a56-4f8b-b0bb-7b570df3fdb2",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-01",
+    "end_date": "2024-03-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "d97e59d0-e7bb-469a-ad64-d28105541bc7",
+    "student_id": "c1e53668-63f6-4a63-b50b-068ebd5d61d6",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-01",
+    "end_date": "2024-03-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "3da92a2d-2abd-43f4-abe9-44cf7c9bf51b",
+    "student_id": "c1e53668-63f6-4a63-b50b-068ebd5d61d6",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-01",
+    "end_date": "2024-12-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "d50787bc-1da9-4690-8a90-6c1fcf84667d",
+    "student_id": "c1ee81de-be31-4f73-beb2-841480d80a4a",
+    "course_id": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4",
+    "start_date": "2023-09-01",
+    "end_date": "2024-06-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "401304ca-83c9-47b2-b048-56548ba181ac",
+    "student_id": "c1ee81de-be31-4f73-beb2-841480d80a4a",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2023-09-01",
+    "end_date": "2024-06-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "cef0ac09-bd1d-41a6-b8cd-2f8908dd84b8",
+    "student_id": "8c1f0ca6-c96f-47c6-b6fc-a1d878583d78",
+    "course_id": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4",
+    "start_date": "2023-09-01",
+    "end_date": "2024-12-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "3bfbbedb-03b5-479e-9545-24da11899334",
+    "student_id": "8c1f0ca6-c96f-47c6-b6fc-a1d878583d78",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2023-09-01",
+    "end_date": "2024-03-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "ebe99f0c-3830-4943-8a76-2551fd66cafd",
+    "student_id": "67386f89-d86a-44dd-8e41-371152e4844c",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "ad2eb2d2-1728-40f8-b90a-c9541a1656e6",
+    "student_id": "67386f89-d86a-44dd-8e41-371152e4844c",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-01",
+    "end_date": "2024-06-01",
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "57380ba3-ec25-42e9-ae53-5c4ef0ea27a0",
+    "student_id": "c21d476a-49ea-4b8a-a762-0a59752a5c82",
+    "course_id": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "status": "finished",
+    "created_at": "2023-09-01T00:00:00",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "94200dd9-43d3-4f2a-ac42-2f680fb15164",
+    "student_id": "47331087-c8c2-460f-a81c-b29d35168bdd",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-25",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-09-02T08:04:03.096",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "730cfddb-59b8-419c-ad99-c00f9bd2f825",
+    "student_id": "79994bf1-ec3f-4c81-8a6e-67e61d2a3c10",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2023-09-25",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-09-05T19:36:40.212",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "79e16fa5-f19f-440f-b57b-9d8027f8a849",
+    "student_id": "5924c8d5-4279-411e-85f8-701ce6aad549",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2023-09-03",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-09-11T02:50:50.117",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "14b56647-c336-4038-81b6-aa61bf42599d",
+    "student_id": "4029f452-1591-4b18-8eb2-1ed9196440f6",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2023-09-08",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-09-13T12:02:58.477",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "11b32d18-6043-4787-b165-93842a9be891",
+    "student_id": "d0685ba0-e348-48cf-adb7-cd1e65b13811",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-21",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-09-23T10:16:15.907",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "59abd5f0-fb0d-4b06-a92a-40b0e4c5de73",
+    "student_id": "a425f8a6-ae12-4fd6-baca-bb76ded15f56",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2023-09-24",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-09-26T01:38:05.268",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "64702589-f56d-49a5-9b57-6312f0a4fde2",
+    "student_id": "ab070fa1-926c-44e6-9650-3ca07f794455",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2023-09-05",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-09-26T04:40:24.673",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "1711dcf1-9ba5-4463-882b-aaf37437d936",
+    "student_id": "a5d3865b-6d80-4dc2-a694-aa1b1f20e585",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2023-09-14",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-09-27T18:47:32.199",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "3e51446f-aba9-4daa-bc9a-e6d151074b7e",
+    "student_id": "71a92782-6e3b-4fe5-b4ce-0ce465c23c9d",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-26",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-10-01T20:18:49.43",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "ba11ee4d-4d9c-4bdc-abbc-d8d51615a009",
+    "student_id": "7c5be654-02f0-45b5-9cd9-ac970c6581ec",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-16",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-10-03T00:13:44.597",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "d3adc963-d520-45c1-86f1-de71fdf321a2",
+    "student_id": "f4411d7f-e34a-4673-9593-e5d775130382",
+    "course_id": "641d3396-4091-4e37-b3de-c1c0a0552fb7",
+    "start_date": "2023-09-23",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-10-09T02:05:45.47",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "52c2e94d-957f-43c7-8f2d-a11303ebacad",
+    "student_id": "6783a80f-7754-43b0-b350-4a9355464ffb",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2023-09-12",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-10-11T08:24:32.072",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "7e3f1f95-3404-4999-b536-8abc19b7a8e6",
+    "student_id": "68a40a90-a2da-4c32-be44-58cd04de6689",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2023-09-29",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-10-12T17:06:55.436",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "1354d83d-6c9c-4a0e-bb5c-a584e3679f2a",
+    "student_id": "7e5b0c41-8b3b-40a4-9666-a6cb32247a58",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-08",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-10-16T22:15:31.811",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "6f7c77dd-cb48-4a84-b4f7-15bb8477f3e8",
+    "student_id": "170ba845-d36b-451e-8c85-43efaee9eade",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2023-09-18",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-10-23T06:12:34.467",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "b75845e8-57b0-4b08-a13c-87a27bb3544e",
+    "student_id": "fafd3de6-d05d-4525-b917-15fb25798099",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-27",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-10-24T10:18:23.776",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "2a6eb95a-c605-4616-8e00-456d18bc43f8",
+    "student_id": "7e5b0c41-8b3b-40a4-9666-a6cb32247a58",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2023-09-20",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-11-12T00:13:22.237",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "89de187f-4287-45ac-83c7-3c85a0b7421a",
+    "student_id": "a309469a-8c4b-464d-bb3e-0269c49561c3",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-05",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-11-13T16:49:17.416",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "df7c6332-3cf6-497e-afd3-2939e265ea7f",
+    "student_id": "dbc6d192-3596-4ea1-912f-0c01c5428837",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2023-09-07",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-11-14T15:39:29.743",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "34ddfbe1-adb6-439b-8e5b-68bac7f3fa4e",
+    "student_id": "a309469a-8c4b-464d-bb3e-0269c49561c3",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2023-09-13",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-11-14T16:44:48.943",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "8da73762-c229-4fd8-be80-b077cdf81283",
+    "student_id": "7a1bbf34-0c56-4c3a-b711-086378626874",
+    "course_id": "641d3396-4091-4e37-b3de-c1c0a0552fb7",
+    "start_date": "2023-09-15",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-11-16T20:50:22.767",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "337d5eef-7aa0-42dc-948a-f8e6f4b4f35f",
+    "student_id": "a5d3865b-6d80-4dc2-a694-aa1b1f20e585",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-12",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-11-22T00:19:14.072",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "7a60c543-b6aa-42d0-b383-c57322a3b60c",
+    "student_id": "71a92782-6e3b-4fe5-b4ce-0ce465c23c9d",
+    "course_id": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4",
+    "start_date": "2023-09-19",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-11-25T23:42:01.788",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "0b621cb4-3830-4bdb-ae26-4c87b56b1656",
+    "student_id": "9989fa82-8138-4706-9bde-ee3e765c5ab5",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2023-09-04",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-12-07T00:40:56.104",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "6a1f6666-a36c-4d1c-aa2e-018c6adea223",
+    "student_id": "7c5be654-02f0-45b5-9cd9-ac970c6581ec",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2023-09-12",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-12-10T09:28:06.714",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "527e21f5-b040-4d77-b16e-261696caf48a",
+    "student_id": "3ee88d63-fb96-4a2b-9ebe-5a9e6de335fb",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-12-14T08:36:25.252",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "136d9796-fbdd-47d1-b030-9e3d1c280757",
+    "student_id": "584cc5ad-3c00-49e2-b9fe-0ea3c639a6be",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-28",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-12-16T20:28:24.348",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "4f984830-36f2-409e-85f3-6483b7959924",
+    "student_id": "ab070fa1-926c-44e6-9650-3ca07f794455",
+    "course_id": "fc482b70-d7ba-4800-a90b-13b136bcac29",
+    "start_date": "2023-09-29",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-12-21T13:57:33.066",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "f0274dd5-301b-4551-8d71-b50059c1d270",
+    "student_id": "2211c166-fd18-4e7b-a71d-7b6b40bc291b",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2023-09-09",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-12-23T04:28:44.854",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "7bcf14d1-ece4-4a08-b69e-ce8acdaf16b0",
+    "student_id": "2f1526f4-cee0-4d5e-b7ac-817c02b8c070",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-09",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2023-12-27T08:34:11.233",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "e4305671-e2df-4e29-91dc-d3209fc1a8c9",
+    "student_id": "186451fd-882e-4219-b19b-c0f33fde9bb6",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-28",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-01-02T15:49:03.705",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "8bfb13e7-7852-4e85-81dd-27f035536e35",
+    "student_id": "584cc5ad-3c00-49e2-b9fe-0ea3c639a6be",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-01-14T17:09:30.73",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "baa5478b-3f02-48e5-a711-e49bce4d2dc7",
+    "student_id": "170ba845-d36b-451e-8c85-43efaee9eade",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2023-09-23",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-01-25T02:54:46.547",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "cd494041-1e4d-41d9-94f3-23d3792919b7",
+    "student_id": "df207079-cbac-4427-8e26-3fa9dc31980e",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-14",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-01-27T15:57:39.272",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "782d47e9-29b6-43d9-b27e-0123509689e8",
+    "student_id": "0323cf43-65af-4cbf-8d89-de95fa0ed927",
+    "course_id": "fc482b70-d7ba-4800-a90b-13b136bcac29",
+    "start_date": "2023-09-12",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-02-08T16:09:51.746",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "b5ff2aff-038e-4a9d-8af7-efb62cf75f41",
+    "student_id": "a425f8a6-ae12-4fd6-baca-bb76ded15f56",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-06",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-02-13T15:04:44.494",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "32f291f2-16b1-4495-8cd7-b4c3afea2202",
+    "student_id": "738ec4cd-8a97-46fa-8bca-e6dccc5dc0e6",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-30",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-02-23T14:52:43.126",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "6cb399f9-cf6b-41be-bf10-50eff8d2e313",
+    "student_id": "d67e6572-2213-4eab-83fa-968625bca557",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2023-09-22",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-02-26T11:11:02.07",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "de50f3b7-660b-492d-aa5a-b759e8b75476",
+    "student_id": "aaee727c-92c4-469b-b4ea-98c62aff40bc",
+    "course_id": "fc482b70-d7ba-4800-a90b-13b136bcac29",
+    "start_date": "2023-09-03",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-02-29T08:19:29.073",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "742b79bb-8797-4f9a-90f5-e5d5fbd334fd",
+    "student_id": "b9a0a797-a458-4d50-8b08-789b270bb37b",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-27",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-03-07T06:12:46.787",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "bdc3b369-e273-4e84-aed4-2a41eeecc9c1",
+    "student_id": "15044255-3a67-4bb1-b39b-c73695a856f1",
+    "course_id": "641d3396-4091-4e37-b3de-c1c0a0552fb7",
+    "start_date": "2023-09-15",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-03-08T03:33:12.065",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "ab4b3da1-2caa-43d4-93b1-de2eea8352cd",
+    "student_id": "df207079-cbac-4427-8e26-3fa9dc31980e",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-02",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-03-13T04:55:28.834",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "00b075c3-25ba-41ba-b81c-9986871b2c69",
+    "student_id": "d0685ba0-e348-48cf-adb7-cd1e65b13811",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-16",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-03-17T03:40:07.1",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "dcf592e8-b00e-4003-86b6-13b67bfbf8af",
+    "student_id": "28c8f065-6f07-472f-a742-07214d33d41d",
+    "course_id": "fc482b70-d7ba-4800-a90b-13b136bcac29",
+    "start_date": "2023-09-09",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-03-20T21:50:23.507",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "16a3aefd-912b-4bcd-8b43-7e0c7b0b9c1e",
+    "student_id": "8010b944-cd6d-4872-8259-ccd1744f32ab",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-17",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-03-26T18:15:56.626",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "198b56f3-da64-4a31-8e75-c051aa13aa58",
+    "student_id": "cf71d850-508b-468c-916f-7e76f2470743",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-18",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-06T10:03:25.396",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "044ab4b2-da03-4635-9a18-d862e2497318",
+    "student_id": "6783a80f-7754-43b0-b350-4a9355464ffb",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2023-09-19",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-08T20:42:01.551",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "091c98d2-f517-433e-b46b-999c72fac2ff",
+    "student_id": "8ae61741-3722-4cce-bd28-858a13e3eebd",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-26",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-11T19:13:23.21",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "899d3ba5-92b9-4028-b773-0ddea831aec3",
+    "student_id": "7b0c8feb-15ca-4671-8c21-86031c36a272",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-29",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-12T12:49:02.874",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "783842c4-0f49-45bb-82fe-8559294737aa",
+    "student_id": "fafd3de6-d05d-4525-b917-15fb25798099",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-15",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-13T21:45:20.55",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "ecbaa468-a19f-44de-bbf7-77bc33a7e4f9",
+    "student_id": "d7ab0b3d-2a9a-419f-b163-12c4e0ed89f9",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-14",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-14T03:42:54.877",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "669a1c2a-afe9-413b-b543-f92d520804ad",
+    "student_id": "7b106e91-4e47-4943-8cc3-c28b9bdee117",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2023-09-15",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-15T13:53:59.548",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "afb350e5-298a-4189-bbe1-89875cf0b8ff",
+    "student_id": "8488df6a-c7c6-4c88-ac6b-3add0fe3a0e0",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-22",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-16T09:52:27.32",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "e80923bd-b21c-46dc-b6f1-5c9526ac947c",
+    "student_id": "e14a7b7d-0676-4d19-a7f9-d1236fca40ba",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2023-09-30",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-17T00:10:43.44",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "25eed2ff-2645-487d-a07a-8d2eb6bba630",
+    "student_id": "cd89b38b-2847-476f-bf95-b321820fe10a",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2023-09-02",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-19T21:39:47.857",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "1984d794-6511-4327-8725-ec2b2581e5ec",
+    "student_id": "b385c412-7fd8-4662-8147-09f0ae30fe1d",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2023-09-30",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-27T21:19:38.071",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "70d02e60-9bcc-4071-b84c-468603b39948",
+    "student_id": "3ee88d63-fb96-4a2b-9ebe-5a9e6de335fb",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-10",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-04-29T21:55:33.867",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "b4b05d91-de51-43ae-a5ff-f60d6f956aeb",
+    "student_id": "c2526c26-0995-401e-9eeb-525ec0291685",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2023-09-26",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-05-02T06:40:13.617",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "2125f982-d6f6-4197-b80b-5285aef8f441",
+    "student_id": "e727c4d4-52c2-4d31-a1b2-6b96a6fada2b",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-23",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-05-04T08:36:49.533",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "06a62b05-4956-4df7-bbcc-9215410cdab5",
+    "student_id": "6639647b-d269-47f1-9467-ab8825118d22",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2023-09-10",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-05-05T23:53:28.611",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "1e3b051c-110d-4933-8870-716a6e57a773",
+    "student_id": "d67e6572-2213-4eab-83fa-968625bca557",
+    "course_id": "fc482b70-d7ba-4800-a90b-13b136bcac29",
+    "start_date": "2023-09-05",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-05-07T14:45:24.809",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "7cd29ebf-cb42-4fed-9164-c5fe7ee665bd",
+    "student_id": "059dbd94-1824-49b9-84b2-4ae328f58765",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-09",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-05-11T20:57:40.797",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "67cf893d-8b65-4716-a651-4f3dc00539ea",
+    "student_id": "cf71d850-508b-468c-916f-7e76f2470743",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-05-12T04:38:57.849",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "f4e46678-10c4-418d-bfab-2590e1e38add",
+    "student_id": "088a2438-af05-4579-bf5b-ad9ef0a13ff7",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-25",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-05-16T18:04:30.909",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "100231ac-feea-4539-a5ec-f3a91f072861",
+    "student_id": "088a2438-af05-4579-bf5b-ad9ef0a13ff7",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-19",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-05-19T18:38:15.496",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "68b5644b-e152-45b1-aa6e-76f312947e61",
+    "student_id": "aea65cdc-e24c-4c2c-9eb9-23de4b529633",
+    "course_id": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4",
+    "start_date": "2023-09-18",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-05-24T11:57:30.946",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "b181d089-1b02-4bac-8235-142e287e922c",
+    "student_id": "b385c412-7fd8-4662-8147-09f0ae30fe1d",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2023-09-17",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-06-06T01:57:04.289",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "d1f0e712-aafb-4a1a-856d-e4b721714a55",
+    "student_id": "059dbd94-1824-49b9-84b2-4ae328f58765",
+    "course_id": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4",
+    "start_date": "2023-09-20",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-06-06T04:10:26.47",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "48dd3676-25a8-466c-8cd5-6132b99a4047",
+    "student_id": "fda00135-9ea8-4fc9-821f-09f8549b0db6",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2023-09-23",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-06-06T12:14:31.705",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "a2b018fc-8427-4046-becb-b59c0c4ce05b",
+    "student_id": "cd89b38b-2847-476f-bf95-b321820fe10a",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-06-06T12:29:27.644",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "92e1a2ba-6311-45eb-b513-b0fec5f09efe",
+    "student_id": "f4411d7f-e34a-4673-9593-e5d775130382",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2023-09-25",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-06-08T14:34:41.776",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "b55df488-c5e8-46ca-a5e5-19526cc93cf9",
+    "student_id": "aea65cdc-e24c-4c2c-9eb9-23de4b529633",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2023-09-03",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-06-13T11:02:10.568",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "9bb22030-c034-4fc5-b017-04b432f210ea",
+    "student_id": "79994bf1-ec3f-4c81-8a6e-67e61d2a3c10",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2023-09-30",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-06-13T20:35:08.276",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "e18a2bd4-1f39-4a43-8e02-42d7b90c5138",
+    "student_id": "7b106e91-4e47-4943-8cc3-c28b9bdee117",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2023-09-14",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-06-20T00:50:22.175",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "8177e918-321a-4af0-b8c7-833b1929ae9d",
+    "student_id": "8488df6a-c7c6-4c88-ac6b-3add0fe3a0e0",
+    "course_id": "fc482b70-d7ba-4800-a90b-13b136bcac29",
+    "start_date": "2023-09-23",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-06-24T00:46:52.954",
+    "school_year_id": "bff641b5-8c73-4f17-910e-8aebfdddac55"
+  },
+  {
+    "id": "accd94cc-deee-4912-880e-6c12f31814fb",
+    "student_id": "e1d87362-67e2-41ed-896f-79f036199495",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2024-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "25b0dc2b-4752-4fe2-9bad-37ab10cf00b8",
+    "student_id": "208eb050-8a98-4fa9-8e36-c01801e2a775",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2024-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "24366d86-520b-45d7-8e6c-a2bb419410b8",
+    "student_id": "40f8a3d5-b307-4cbd-bef5-a869a85f8d32",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2024-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "2f6679ee-9996-43d9-9379-d86fa7814e80",
+    "student_id": "40f8a3d5-b307-4cbd-bef5-a869a85f8d32",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2024-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "d0a4612a-c199-4df4-bf56-6cebcfb1195f",
+    "student_id": "c21d476a-49ea-4b8a-a762-0a59752a5c82",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2024-09-01",
+    "end_date": "2025-06-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "aa4d1d34-e4f7-4e8d-843b-7fbafb552742",
+    "student_id": "c21d476a-49ea-4b8a-a762-0a59752a5c82",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2024-09-01",
+    "end_date": "2025-03-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "47d6d61b-7277-49a8-a37b-dedb465c97fb",
+    "student_id": "71caf634-e745-4703-980d-9d5d68b77e10",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2024-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "02a2afc7-a349-48f5-a5d5-56df1c91bc8f",
+    "student_id": "67386f89-d86a-44dd-8e41-371152e4844c",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2024-09-01",
+    "end_date": "2025-12-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "475692bc-7a45-4ec9-9f72-36b900176381",
+    "student_id": "8c1f0ca6-c96f-47c6-b6fc-a1d878583d78",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2024-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "4c36ba63-4775-476b-a531-09263a40043e",
+    "student_id": "8c1f0ca6-c96f-47c6-b6fc-a1d878583d78",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2024-09-01",
+    "end_date": "2025-06-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "fabe1ad1-1c84-418b-9597-04229e3f9537",
+    "student_id": "c1ee81de-be31-4f73-beb2-841480d80a4a",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2024-09-01",
+    "end_date": "2025-06-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "87fa26df-dc2b-45bd-b079-7e705f70a492",
+    "student_id": "c1ee81de-be31-4f73-beb2-841480d80a4a",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2024-09-01",
+    "end_date": "2025-12-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "66cb8fc3-ba86-4557-957f-756eaa640209",
+    "student_id": "c1e53668-63f6-4a63-b50b-068ebd5d61d6",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2024-09-01",
+    "end_date": "2025-03-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "b19c03a3-5c41-435f-9864-fd76436bd1c6",
+    "student_id": "c1e53668-63f6-4a63-b50b-068ebd5d61d6",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2024-09-01",
+    "end_date": "2025-03-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "aaa5fca7-6afc-4dc5-bcb3-013b2e98d887",
+    "student_id": "10d330f6-5ae9-4a62-9fe5-ad4d88cfff1d",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2024-09-01",
+    "end_date": "2025-03-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "0cd28c86-fe7c-4b3a-ba23-c1024d65f177",
+    "student_id": "9445f951-0a56-4f8b-b0bb-7b570df3fdb2",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2024-09-01",
+    "end_date": "2025-03-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "876cb2f9-a23d-4b81-8198-40e7412515de",
+    "student_id": "9445f951-0a56-4f8b-b0bb-7b570df3fdb2",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2024-09-01",
+    "end_date": "2025-12-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "5f453645-ea0b-4415-a996-4d204b1423f6",
+    "student_id": "51b005ab-f946-4212-8335-ea5db60d2f97",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2024-09-01",
+    "end_date": "2025-06-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "d8eb4d87-e873-4e8c-bc80-bb030478a505",
+    "student_id": "51b005ab-f946-4212-8335-ea5db60d2f97",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2024-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "6e724702-eefb-4ea1-bd5a-49ee1ca1dc54",
+    "student_id": "67386f89-d86a-44dd-8e41-371152e4844c",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2024-09-01",
+    "end_date": "2025-03-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "99bc4a0b-c9e3-4aad-aa49-d29a1dc2f01d",
+    "student_id": "71caf634-e745-4703-980d-9d5d68b77e10",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2024-09-01",
+    "end_date": "2025-03-01",
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "e17d0d40-012c-482c-a795-6833d45fddce",
+    "student_id": "c19d7f9f-3301-4340-8b3a-c21131665947",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2024-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "1bf7e288-30d5-48c7-8eeb-1093b7b8c3de",
+    "student_id": "c19d7f9f-3301-4340-8b3a-c21131665947",
+    "course_id": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4",
+    "start_date": "2024-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2024-09-01T00:00:00",
+    "school_year_id": "bb9d0bea-7ae3-48a7-82b1-4f68ccbd84fb"
+  },
+  {
+    "id": "c7d038f2-e505-4962-85e6-11980ef6a964",
+    "student_id": "9445f951-0a56-4f8b-b0bb-7b570df3fdb2",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2025-09-01",
+    "end_date": "2026-12-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "41b9327b-0559-449e-97fc-e2a8912aa160",
+    "student_id": "5c559bc8-f762-4512-b189-75d46de43a78",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2025-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "c93d49e1-53ef-4435-ab7d-bf99509ba907",
+    "student_id": "5c559bc8-f762-4512-b189-75d46de43a78",
+    "course_id": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4",
+    "start_date": "2025-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "3c81aea2-f134-4d4a-a715-ad00f51b162f",
+    "student_id": "340d9938-0db4-49f6-b54d-aa1377cf5fbd",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2025-09-01",
+    "end_date": "2026-06-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "c0a2cd7c-472d-4a42-9018-b9269ad30f5f",
+    "student_id": "340d9938-0db4-49f6-b54d-aa1377cf5fbd",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2025-09-01",
+    "end_date": "2026-06-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "36321728-7eea-4bda-ba18-18d8d0baeee1",
+    "student_id": "c19d7f9f-3301-4340-8b3a-c21131665947",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2025-09-01",
+    "end_date": "2026-12-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "9b81b8a0-6c20-4951-b4b0-bb0bedd46149",
+    "student_id": "c19d7f9f-3301-4340-8b3a-c21131665947",
+    "course_id": "424d1481-bf49-41e4-9dc4-fc97fff86726",
+    "start_date": "2025-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "601f2c04-75b7-4aa3-93c7-34647490097c",
+    "student_id": "40f8a3d5-b307-4cbd-bef5-a869a85f8d32",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2025-09-01",
+    "end_date": "2026-03-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "d19aa28d-ff4f-47de-9cac-726f87406e9f",
+    "student_id": "40f8a3d5-b307-4cbd-bef5-a869a85f8d32",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2025-09-01",
+    "end_date": "2026-06-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "8d4e3ef6-6394-4fea-8861-c9161e6ae3e0",
+    "student_id": "c21d476a-49ea-4b8a-a762-0a59752a5c82",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2025-09-01",
+    "end_date": "2026-06-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "8a6107ac-0023-4393-a0ff-b03dcd942357",
+    "student_id": "67386f89-d86a-44dd-8e41-371152e4844c",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2025-09-01",
+    "end_date": "2026-06-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "613ccf32-e581-4f8e-9711-002de8a9f38a",
+    "student_id": "67386f89-d86a-44dd-8e41-371152e4844c",
+    "course_id": "8a1ada5c-be2e-4404-bff6-d789da7fb180",
+    "start_date": "2025-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "4bbddf9d-1be4-4b34-a33a-3a408b145d44",
+    "student_id": "8c1f0ca6-c96f-47c6-b6fc-a1d878583d78",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2025-09-01",
+    "end_date": "2026-12-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "755a2773-3d0a-49ef-987a-ba6ebb02b3a4",
+    "student_id": "c1ee81de-be31-4f73-beb2-841480d80a4a",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2025-09-01",
+    "end_date": "2026-03-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "d60c6b17-2b85-4dd6-80ca-538f118db8f6",
+    "student_id": "c1e53668-63f6-4a63-b50b-068ebd5d61d6",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2025-09-01",
+    "end_date": "2026-06-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "35fc8935-1b45-423e-aa3b-869f2a50e31d",
+    "student_id": "c1e53668-63f6-4a63-b50b-068ebd5d61d6",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2025-09-01",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "53e2ea87-8016-4530-8f0d-d1d943d16ff2",
+    "student_id": "9445f951-0a56-4f8b-b0bb-7b570df3fdb2",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2025-09-01",
+    "end_date": "2026-03-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "3c08481e-3a14-40ac-a5f4-7cbd600ee875",
+    "student_id": "71caf634-e745-4703-980d-9d5d68b77e10",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2025-09-01",
+    "end_date": "2026-12-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "ea49d11e-cba6-4456-ae1f-a155c7bfaec1",
+    "student_id": "71caf634-e745-4703-980d-9d5d68b77e10",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2025-09-01",
+    "end_date": "2026-03-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "c608242e-d750-4c6a-8f0b-ee676463af51",
+    "student_id": "51b005ab-f946-4212-8335-ea5db60d2f97",
+    "course_id": "d65cf133-aa23-427e-bfcb-e3768d0152b1",
+    "start_date": "2025-09-01",
+    "end_date": "2026-12-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "d6c996dc-522a-47a6-a6d9-1906fe2e70a4",
+    "student_id": "51b005ab-f946-4212-8335-ea5db60d2f97",
+    "course_id": "be3c5d1f-066a-4716-8572-4e6110b1e335",
+    "start_date": "2025-09-01",
+    "end_date": "2026-03-01",
+    "status": "active",
+    "created_at": "2025-09-01T00:00:00",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "54809fa7-65b6-4789-8f57-e44288cbae3d",
+    "student_id": "55b43cc5-2523-46e5-9bc1-819e7b3c171e",
+    "course_id": "641d3396-4091-4e37-b3de-c1c0a0552fb7",
+    "start_date": "2025-09-20",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-20T20:07:02.022",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "49da8865-2a4b-4d91-b7d1-62ef5befcda2",
+    "student_id": "55b43cc5-2523-46e5-9bc1-819e7b3c171e",
+    "course_id": "041ed059-910a-4830-a93c-8d1589421b5d",
+    "start_date": "2025-09-20",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-20T20:07:02.022",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "fa9adc17-6b42-4fff-adea-3e991a8d1c95",
+    "student_id": "55b43cc5-2523-46e5-9bc1-819e7b3c171e",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2025-09-20",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-20T20:07:02.022",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "a1900a66-9830-4c39-9dab-f0fbea00959f",
+    "student_id": "0ba4194e-ed6b-469a-8334-af7f3df4e0f1",
+    "course_id": "e3b77ab1-dfc5-465e-b437-831e4237f5e9",
+    "start_date": "2025-09-20",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-20T20:08:55.223",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "26fa671f-8139-4036-be3c-e3a5f63e9120",
+    "student_id": "0ba4194e-ed6b-469a-8334-af7f3df4e0f1",
+    "course_id": "3634bf29-2ef2-4695-b532-f8aa0ee695a3",
+    "start_date": "2025-09-20",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-20T20:08:55.223",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "66a52808-dba5-4700-935e-9b9a6a2fa04b",
+    "student_id": "0ba4194e-ed6b-469a-8334-af7f3df4e0f1",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2025-09-20",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-20T20:08:55.223",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "375ca9a6-88b0-414b-a3ea-297870ee2dbd",
+    "student_id": "847b05e3-b396-4f8a-8c0f-ef1f54b3d7de",
+    "course_id": "12cabd47-e0f4-4dfb-aa47-b5572a4aada8",
+    "start_date": "2025-09-21",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-21T17:24:43.698",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "aece1edb-fe3d-4657-9940-8c0bb3af923c",
+    "student_id": "46aaf0ce-45ba-4493-b61a-84c031602d23",
+    "course_id": "43665bcb-f614-4133-903b-f9377fe6c95d",
+    "start_date": "2025-09-21",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-21T21:53:07.595",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "9cef5984-d3cd-4126-b9c0-c8233f4a36aa",
+    "student_id": "46aaf0ce-45ba-4493-b61a-84c031602d23",
+    "course_id": "12cabd47-e0f4-4dfb-aa47-b5572a4aada8",
+    "start_date": "2025-09-21",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-21T21:53:07.595",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  },
+  {
+    "id": "9b8be7d4-eecf-4ee8-8407-ad92b228fa42",
+    "student_id": "46aaf0ce-45ba-4493-b61a-84c031602d23",
+    "course_id": "77a19180-d842-46a7-a1b2-29b1da52eb75",
+    "start_date": "2025-09-21",
+    "end_date": null,
+    "status": "active",
+    "created_at": "2025-09-21T21:53:07.595",
+    "school_year_id": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+  }
+]

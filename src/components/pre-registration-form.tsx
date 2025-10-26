@@ -526,7 +526,7 @@ export default function PreRegistrationForm() {
                         <div>
                           <Label className="text-base font-medium">Prénom *</Label>
                           <Input
-                            placeholder="Prénom de l'élève"
+                            placeholder="Prénom de l’élève"
                             value={student.firstName}
                             onChange={e =>
                               setStudents(prev =>

@@ -1,0 +1,510 @@
+{
+  "exportDate": "2025-10-25T17:52:19.717Z",
+  "tables": {
+    "families": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "sample": "60899d72-81bf-4b92-b35a-bc99662f6737"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "sample": "TEST1"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "sample": "TEST1"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "sample": "othman.assas@gmail.com"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "sample": "0663341982"
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "sample": "15 RUE DE LA DHUYS"
+        },
+        {
+          "name": "postal_code",
+          "type": "string",
+          "sample": "93470"
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "sample": "COUBRON"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "sample": "2025-09-20T17:43:46.049443"
+        }
+      ],
+      "sampleCount": 1
+    },
+    "students": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "sample": "10d330f6-5ae9-4a62-9fe5-ad4d88cfff1d"
+        },
+        {
+          "name": "family_id",
+          "type": "string",
+          "sample": "92aa0af1-1527-4d07-a531-27f9a3d0789f"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "sample": "Bennani"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "sample": "Lina"
+        },
+        {
+          "name": "birth_date",
+          "type": "string",
+          "sample": "2010-09-20"
+        },
+        {
+          "name": "level",
+          "type": "string",
+          "sample": "Avancé"
+        },
+        {
+          "name": "registration_type",
+          "type": "string",
+          "sample": "adult"
+        },
+        {
+          "name": "already_registered",
+          "type": "boolean",
+          "sample": false
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "sample": "Besoin d'encouragements"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "sample": "2023-09-06T19:58:06.788"
+        }
+      ],
+      "sampleCount": 1
+    },
+    "courses": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "sample": "43665bcb-f614-4133-903b-f9377fe6c95d"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "sample": "MATER 1"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "sample": "enfants"
+        },
+        {
+          "name": "teacher",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "schedule",
+          "type": "string",
+          "sample": "Samedi 8h30-12h30"
+        },
+        {
+          "name": "capacity",
+          "type": "number",
+          "sample": 16
+        },
+        {
+          "name": "price",
+          "type": "number",
+          "sample": 350
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "sample": "active"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "sample": "2025-09-21T11:50:12.191063"
+        },
+        {
+          "name": "room_id",
+          "type": "string",
+          "sample": "b20fa0fb-f8d1-4e92-84df-f1a6f74d5585"
+        },
+        {
+          "name": "label",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "category",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "audience",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "school_year_id",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "teacher_id",
+          "type": "string",
+          "sample": "40734440-7d34-48cd-b713-19693d163b23"
+        }
+      ],
+      "sampleCount": 1
+    },
+    "enrollments": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "sample": "0bfc5016-4e22-4be2-828d-5da5f4986183"
+        },
+        {
+          "name": "student_id",
+          "type": "string",
+          "sample": "10d330f6-5ae9-4a62-9fe5-ad4d88cfff1d"
+        },
+        {
+          "name": "course_id",
+          "type": "string",
+          "sample": "cb9dc64a-0995-49bd-a4f2-376f9f31d7e4"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "sample": "2022-09-01"
+        },
+        {
+          "name": "end_date",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "sample": "finished"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "sample": "2022-09-01T00:00:00"
+        },
+        {
+          "name": "school_year_id",
+          "type": "string",
+          "sample": "94cd11de-3564-4913-858c-6713b5790083"
+        }
+      ],
+      "sampleCount": 1
+    },
+    "payments": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "sample": "1f6f0e7a-abc9-410b-b5b5-092382e39f2a"
+        },
+        {
+          "name": "student_id",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "cash_amount",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "cheque_amount",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "card_amount",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "cheque_count",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "bank_transfer",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "books",
+          "type": "boolean",
+          "sample": false
+        },
+        {
+          "name": "bank_name",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "sample": "2023-06-02T22:00:00"
+        },
+        {
+          "name": "amount_cash",
+          "type": "number",
+          "sample": 0
+        },
+        {
+          "name": "amount_card",
+          "type": "number",
+          "sample": 0
+        },
+        {
+          "name": "amount_transfer",
+          "type": "number",
+          "sample": 0
+        },
+        {
+          "name": "refund_amount",
+          "type": "number",
+          "sample": 0
+        },
+        {
+          "name": "cheques",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "remarks",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "family_id",
+          "type": "string",
+          "sample": "92aa0af1-1527-4d07-a531-27f9a3d0789f"
+        },
+        {
+          "name": "school_year_id",
+          "type": "object",
+          "sample": null
+        }
+      ],
+      "sampleCount": 1
+    },
+    "school_years": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "sample": "94cd11de-3564-4913-858c-6713b5790083"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "sample": "2022-2023"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "sample": "2022-09-01"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "sample": "2023-06-30"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "sample": "2025-09-20T16:08:04.891"
+        }
+      ],
+      "sampleCount": 1
+    },
+    "registrations": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "sample": "80867e5c-fbd8-4e89-8753-2561e86ead55"
+        },
+        {
+          "name": "student_id",
+          "type": "string",
+          "sample": "e41902b7-253d-435f-a2f4-813ad6244d39"
+        },
+        {
+          "name": "course_instance_id",
+          "type": "object",
+          "sample": null
+        },
+        {
+          "name": "is_waiting_list",
+          "type": "boolean",
+          "sample": false
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "sample": "2025-09-20T17:43:46.639567"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "sample": "draft"
+        },
+        {
+          "name": "family_id",
+          "type": "string",
+          "sample": "60899d72-81bf-4b92-b35a-bc99662f6737"
+        },
+        {
+          "name": "school_year_id",
+          "type": "string",
+          "sample": "0109cd0b-e4eb-4f47-ba5a-af6b994128d4"
+        },
+        {
+          "name": "appointment_day",
+          "type": "string",
+          "sample": "2025-06-29"
+        }
+      ],
+      "sampleCount": 1
+    },
+    "appointments": {
+      "exists": true,
+      "columns": [],
+      "sampleCount": 0
+    },
+    "teachers": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "sample": "0db5c0be-90a5-4b5d-9606-ff9776902806"
+        },
+        {
+          "name": "full_name",
+          "type": "string",
+          "sample": "Ustadh Ahmed Benali"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "sample": "ahmed.benali@ecole.fr"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "sample": "06 12 34 56 78"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "sample": "2025-09-20T16:08:05.015"
+        }
+      ],
+      "sampleCount": 1
+    },
+    "rooms": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "sample": "b20fa0fb-f8d1-4e92-84df-f1a6f74d5585"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "sample": "Salle Al-Fatiha"
+        },
+        {
+          "name": "capacity",
+          "type": "number",
+          "sample": 15
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "sample": "Rez-de-chaussée"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "sample": "2025-09-20T16:08:05.075"
+        }
+      ],
+      "sampleCount": 1
+    },
+    "settings": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "key",
+          "type": "string",
+          "sample": "course_discount"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "sample": "{\"mode\":\"cumulative\",\"step\":25,\"startAt\":3}"
+        }
+      ],
+      "sampleCount": 1
+    },
+    "course_instances": {
+      "exists": true,
+      "columns": [],
+      "sampleCount": 0
+    },
+    "subjects": {
+      "exists": true,
+      "columns": [],
+      "sampleCount": 0
+    }
+  }
+}

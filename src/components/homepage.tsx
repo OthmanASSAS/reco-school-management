@@ -54,7 +54,7 @@ export default function HomePage() {
               📚 Inscriptions ouvertes 2025
             </Badge>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent mb-4 sm:mb-6 leading-tight">
-              Apprenez l'arabe et le Coran
+              Apprenez l’arabe et le Coran
             </h1>
             <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-6 sm:mb-8 px-4">
               Rejoignez notre école pour apprendre la langue arabe, mémoriser le Coran et
@@ -74,7 +74,7 @@ export default function HomePage() {
               </div>
               <div className="text-center col-span-2 sm:col-span-1">
                 <div className="text-2xl sm:text-3xl font-bold text-purple-600">5+</div>
-                <div className="text-xs sm:text-sm text-gray-600">Années d'expérience</div>
+                <div className="text-xs sm:text-sm text-gray-600">Années d’expérience</div>
               </div>
             </div>
           </div>
@@ -82,10 +82,10 @@ export default function HomePage() {
           {/* Main CTA Section */}
           <div className="mb-12 sm:mb-16 px-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-3 sm:mb-4">
-              Choisissez votre parcours d'inscription
+              Choisissez votre parcours d’inscription
             </h2>
             <p className="text-center text-gray-600 mb-8 sm:mb-12 max-w-2xl mx-auto">
-              Sélectionnez l'option qui correspond à votre situation pour une inscription rapide et
+              Sélectionnez l’option qui correspond à votre situation pour une inscription rapide et
               personnalisée.
             </p>
 
@@ -108,9 +108,9 @@ export default function HomePage() {
                     </div>
                   </div>
                   <p className="text-gray-600 leading-relaxed text-center sm:text-left">
-                    Vous découvrez notre école ? Créez votre dossier famille et inscrivez vos
-                    enfants en quelques étapes simples. Nous vous accompagnons dans votre choix de
-                    cours.
+                    Vous découvrez notre école ? Créez votre dossier famille et effectuez vos
+                    inscriptions en quelques étapes simples. Nous vous accompagnons dans votre choix
+                    de cours.
                   </p>
                 </CardHeader>
                 <CardContent className="relative p-4 sm:p-6 pt-0">
@@ -121,7 +121,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex items-center gap-3 text-sm text-gray-600">
                       <div className="w-2 h-2 bg-emerald-600 rounded-full shrink-0"></div>
-                      <span>Inscription de vos enfants</span>
+                      <span>Inscription enfants ou adultes</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm text-gray-600">
                       <div className="w-2 h-2 bg-emerald-600 rounded-full shrink-0"></div>
@@ -130,7 +130,7 @@ export default function HomePage() {
                   </div>
                   <Link href="/pre-registration" className="block">
                     <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 group-hover:scale-105 transition-all duration-300 h-11 sm:h-12 text-sm sm:text-base">
-                      <span>Faire une demande d'inscription</span>
+                      <span>Faire une demande d’inscription</span>
                       <ArrowRight
                         className="ml-2 group-hover:translate-x-1 transition-transform duration-300"
                         size={16}
@@ -197,7 +197,7 @@ export default function HomePage() {
           {/* Features Section */}
           <div className="mb-12 sm:mb-16 px-4">
             <h3 className="text-xl sm:text-2xl font-bold text-center text-gray-900 mb-8 sm:mb-12">
-              Pourquoi choisir l'École Reconnaissance ?
+              Pourquoi choisir l’École Reconnaissance ?
             </h3>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               <div className="text-center group">
@@ -232,8 +232,8 @@ export default function HomePage() {
                   Environnement bienveillant
                 </h4>
                 <p className="text-gray-600 text-sm sm:text-base">
-                  Un cadre respectueux et encourageant qui favorise l'épanouissement et
-                  l'apprentissage.
+                  Un cadre respectueux et encourageant qui favorise l’épanouissement et
+                  l’apprentissage.
                 </p>
               </div>
             </div>
