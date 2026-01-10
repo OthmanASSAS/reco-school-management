@@ -1,4 +1,5 @@
 import supabase from "@/lib/supabase";
+import { getDashboardStats } from "@/lib/dal/dashboard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,21 +9,7 @@ import StatsCard from "@/components/dashboard/StatsCard";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  // 1. Nombre total d'élèves
-  const { count: studentsCount } = await supabase
-    .from("students")
-    .select("id", { count: "exact", head: true });
-
-  // 2. Nombre total de familles
-  const { count: familiesCount } = await supabase
-    .from("families")
-    .select("id", { count: "exact", head: true });
-
-  // 3. Nombre de cours actifs
-  const { count: coursesCount } = await supabase
-    .from("courses")
-    .select("id", { count: "exact", head: true })
-    .eq("status", "active");
+  const { studentsCount, coursesCount, familiesCount, recentStudents } = await getDashboardStats();
 
   // 4. Revenus encaissés ce mois-ci
   const now = new Date();
@@ -59,15 +46,6 @@ export default async function DashboardPage() {
     .select("id", { count: "exact", head: true })
     .lt("created_at", overdueDate)
     .or("amount_cash.eq.0,amount_card.eq.0,amount_transfer.eq.0,cheques.is.null");
-
-  // 6. Inscriptions récentes (7 derniers jours)
-  const recentDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const { data: recentStudents } = await supabase
-    .from("students")
-    .select("id, first_name, last_name, created_at")
-    .gte("created_at", recentDate)
-    .order("created_at", { ascending: false })
-    .limit(5);
 
   // 7. Données des cours pour le composant Classes Overview
   const { data: coursesData } = await supabase
@@ -180,17 +158,17 @@ export default async function DashboardPage() {
             <Card>
               <CardContent className="space-y-3">
                 <div className="font-semibold mb-2">Inscriptions récentes</div>
-                {(recentStudents || []).map((reg: Record<string, unknown>) => (
+                {(recentStudents || []).map(reg => (
                   <div
                     key={reg.id as string}
                     className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
                   >
                     <div>
                       <p className="font-medium text-sm">
-                        {reg.first_name} {reg.last_name}
+                        {reg.firstName} {reg.lastName}
                       </p>
                       <p className="text-xs text-gray-600">
-                        {new Date(reg.created_at as string).toLocaleDateString()}
+                        {new Date(reg.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <Badge variant="secondary">Nouveau</Badge>

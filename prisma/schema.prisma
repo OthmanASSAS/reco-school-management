@@ -1,6 +1,4 @@
-// Schéma Prisma MINIMAL pour les flows critiques (préinscription + add-student)
-// Date: 25 octobre 2025
-// Version: 1.0 - Migration Supabase → Neon
+// /Users/oassas/Projets/inscription-app/prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -8,15 +6,10 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL") // Neon utilise connection pooling
+  url       = env("PRISMA_ACCELERATE_URL")
+  directUrl = env("PRISMA_DIRECT_URL")
 }
 
-// ============================================================================
-// TABLES PRINCIPALES - Flows critiques
-// ============================================================================
-
-/// Familles (responsables/parents)
 model Family {
   id          String   @id @default(uuid()) @db.Uuid
   lastName    String   @map("last_name") @db.VarChar(255)
@@ -31,11 +24,11 @@ model Family {
   // Relations
   students      Student[]
   registrations Registration[]
+  payments      Payment[]
 
   @@map("families")
 }
 
-/// Élèves (enfants ou adultes)
 model Student {
   id                String            @id @default(uuid()) @db.Uuid
   familyId          String            @map("family_id") @db.Uuid
@@ -56,10 +49,9 @@ model Student {
   @@map("students")
 }
 
-/// Années scolaires (contexte temporel)
 model SchoolYear {
   id        String    @id @default(uuid()) @db.Uuid
-  label     String    @unique @db.VarChar(20) // Ex: "2024-2025"
+  label     String    @unique @db.VarChar(20)
   startDate DateTime  @map("start_date") @db.Date
   endDate   DateTime? @map("end_date") @db.Date
   isCurrent Boolean?  @default(false) @map("is_current")
@@ -68,18 +60,17 @@ model SchoolYear {
   // Relations
   enrollments   Enrollment[]
   registrations Registration[]
+  payments      Payment[]
 
   @@map("school_years")
 }
 
-/// Cours (classes)
-/// NOTE: Migration fidèle depuis Supabase - tous les champs conservés
 model Course {
   id           String    @id @default(uuid()) @db.Uuid
   name         String    @db.VarChar(100)
   type         String    @db.VarChar(50)
-  teacher      String?   @db.VarChar(100) // Legacy - nom du prof (avant teacher_id)
-  room         String?   @db.VarChar(100) // Legacy - nom de la salle (avant room_id)
+  teacher      String?   @db.VarChar(100)
+  room         String?   @db.VarChar(100)
   schedule     String?   @db.VarChar(200)
   capacity     Int?
   price        Decimal?  @db.Decimal(10, 2)
@@ -98,13 +89,12 @@ model Course {
   @@map("courses")
 }
 
-/// Inscriptions aux cours (enrollment = étudiant inscrit à un cours)
 model Enrollment {
   id           String    @id @default(uuid()) @db.Uuid
   studentId    String    @map("student_id") @db.Uuid
   courseId     String    @map("course_id") @db.Uuid
   schoolYearId String    @map("school_year_id") @db.Uuid
-  status       String    @default("active") @db.VarChar(20) // 'active', 'finished', 'cancelled'
+  status       String    @default("active") @db.VarChar(20)
   startDate    DateTime  @map("start_date") @db.Date
   endDate      DateTime? @map("end_date") @db.Date
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
@@ -117,63 +107,46 @@ model Enrollment {
   @@map("enrollments")
 }
 
-/// Pré-inscriptions (demandes avant validation admin)
 model Registration {
   id               String    @id @default(uuid()) @db.Uuid
   studentId        String    @map("student_id") @db.Uuid
   familyId         String    @map("family_id") @db.Uuid
   schoolYearId     String    @map("school_year_id") @db.Uuid
-  status           String    @default("draft") @db.VarChar(20) // 'draft', 'confirmed', 'cancelled'
+  status           String    @default("draft") @db.VarChar(20)
   isWaitingList    Boolean   @default(false) @map("is_waiting_list")
   appointmentDay   DateTime? @map("appointment_day") @db.Date
-  courseInstanceId String?   @map("course_instance_id") @db.Uuid // ⚠️ FK vers table inexistante, nullable
+  courseInstanceId String?   @map("course_instance_id") @db.Uuid
   createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   // Relations
   student    Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
   family     Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
   schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id], onDelete: Restrict)
-  // courseInstance CourseInstance? @relation(fields: [courseInstanceId], references: [id]) // Désactivé pour l'instant
 
   @@map("registrations")
 }
 
-// ============================================================================
-// ENUMS
-// ============================================================================
+model Payment {
+  id             String   @id @default(uuid()) @db.Uuid
+  familyId       String   @map("family_id") @db.Uuid
+  schoolYearId   String   @map("school_year_id") @db.Uuid
+  amountCash     Decimal  @default(0) @map("amount_cash") @db.Decimal(10, 2)
+  amountCard     Decimal  @default(0) @map("amount_card") @db.Decimal(10, 2)
+  amountTransfer Decimal  @default(0) @map("amount_transfer") @db.Decimal(10, 2)
+  refundAmount   Decimal  @default(0) @map("refund_amount") @db.Decimal(10, 2)
+  cheques        Json?
+  books          Boolean  @default(false)
+  remarks        String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  family     Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id], onDelete: Restrict)
+
+  @@map("payments")
+}
 
 enum RegistrationType {
   child
   adult
 }
-
-// ============================================================================
-// NOTES ET INCOHÉRENCES DÉTECTÉES
-// ============================================================================
-
-// ⚠️ INCOHÉRENCE 1: Redondance dans Registration
-// - Registration a BOTH studentId ET familyId
-// - Or Student appartient déjà à Family
-// - Question: Pourquoi stocker familyId dans Registration alors qu'on peut y accéder via student.family ?
-// - Hypothèse: Performance (éviter join) ou contrainte métier ?
-// - ACTION: À clarifier avec vous
-
-// ⚠️ INCOHÉRENCE 2: courseInstanceId dans Registration
-// - Référence vers table "course_instances" qui est VIDE
-// - Utilisé nulle part dans le code
-// - Toujours NULL dans le flow
-// - ACTION: Probablement une feature abandonnée, peut être supprimé
-
-// ⚠️ INCOHÉRENCE 3: alreadyRegistered dans Student
-// - Boolean qui est toujours à false dans le code
-// - Jamais lu nulle part
-// - ACTION: Colonne inutile, peut être supprimée
-
-// ✅ AMÉLIORATIONS POSSIBLES:
-// 1. Ajouter index sur les colonnes fréquemment queryées:
-//    - families.email (déjà unique, donc indexé)
-//    - students.familyId + firstName + lastName + birthDate (pour le check de doublon)
-//    - registrations.studentId + schoolYearId (pour le check de doublon)
-//
-// 2. Contrainte unique sur Registration pour éviter doublons:
-//    @@unique([studentId, schoolYearId])
