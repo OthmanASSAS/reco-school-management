@@ -47,14 +47,14 @@ export async function getCoursesWithDetails() {
     name: c.name,
     type: c.type,
     // Priorité au nom dans la table liée, sinon le champ texte statique
-    teacher_name: c.teacher?.fullName || c.teacherNameText, 
-    room_name: c.room?.name || c.roomNameText,
+    teacher_name: (c.teacher?.fullName || c.teacherNameText || "") as string,
+    room_name: (c.room?.name || c.roomNameText || "") as string,
     status: c.status,
     price: Number(c.price || 0),
-    capacity: c.capacity,
-    enrolled_count: c._count.enrollments,
+    capacity: (c.capacity || 0) as number,
+    enrolled_count: Number(c._count.enrollments || 0),
     teacher_id: c.teacherId,
     room_id: c.roomId,
-    schedule: c.schedule,
+    schedule: c.schedule || "",
   }));
 }

@@ -2,6 +2,8 @@ import CoursesClientTable from "./components/CoursesClientTable";
 import { deleteCourse } from "./actions/actions.server";
 import { getCoursesWithDetails } from "@/lib/dal/courses";
 
+export const dynamic = 'force-dynamic';
+
 export default async function CoursesPage() {
   // Fetch via Prisma DAL (Architecture DDD)
   const courses = await getCoursesWithDetails();

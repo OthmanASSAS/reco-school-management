@@ -3,6 +3,8 @@ import { GradesPageWrapper } from "./components/GradesPageWrapper";
 import { saveGrades } from "./actions/save-grades.server";
 import { getGradesInitialData } from "@/lib/dal/grades";
 
+export const dynamic = 'force-dynamic';
+
 export default async function GradesPage() {
   // Chargement ultra-rapide et typé via Prisma DAL
   // Remplace les multiples appels supabase.from().select()

@@ -7,6 +7,8 @@ import CompactClassesOverview from "@/components/dashboard/CompactClassesOvervie
 import StatsCard from "@/components/dashboard/StatsCard";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const {
     studentsCount,

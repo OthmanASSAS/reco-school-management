@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("PRISMA_ACCELERATE_URL")
-  directUrl = env("PRISMA_DIRECT_URL")
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Family {
@@ -103,6 +103,7 @@ model Course {
 
   // Relations
   enrollments Enrollment[]
+  subjects    Subject[]
   teacher     Teacher?     @relation(fields: [teacherId], references: [id], onDelete: SetNull)
   room        Room?        @relation(fields: [roomId], references: [id], onDelete: SetNull)
 
@@ -170,4 +171,19 @@ model Setting {
   value Json?
 
   @@map("settings")
+}
+
+model Subject {
+  id          String   @id @default(uuid()) @db.Uuid
+  courseId    String   @map("course_id") @db.Uuid
+  name        String   @db.VarChar(100)
+  description String?
+  color       String?  @db.VarChar(20)
+  orderIndex  Int      @default(0) @map("order_index")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@map("subjects")
 }

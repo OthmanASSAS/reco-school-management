@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PlanningView from "./components/PlanningView";
 import { getCoursesWithDetails } from "@/lib/dal/courses";
 
+export const dynamic = 'force-dynamic';
+
 export default async function PlanningPage() {
   // Chargement des données via Prisma au niveau serveur
   // Évite les erreurs de fetch Supabase côté client

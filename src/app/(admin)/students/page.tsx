@@ -2,6 +2,8 @@ import StudentsList from "./components/StudentsList";
 import { getStudents } from "@/lib/dal/students";
 import { getActiveCourses } from "@/lib/dal/courses";
 
+export const dynamic = 'force-dynamic';
+
 export default async function StudentsPage() {
   // Récupérer les données via le DAL Prisma (Architecture DDD)
   const [students, typedCourses] = await Promise.all([

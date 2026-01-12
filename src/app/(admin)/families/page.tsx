@@ -1,6 +1,8 @@
 import FamiliesList from "./components/FamiliesList";
 import { getFamilies, getSchoolYears } from "@/lib/dal/families";
 
+export const dynamic = 'force-dynamic';
+
 export default async function FamiliesPage() {
   // Charger les données via le DAL Prisma (Architecture DDD)
   const [typedFamilies, typedSchoolYears] = await Promise.all([

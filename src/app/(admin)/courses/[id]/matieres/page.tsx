@@ -1,29 +1,19 @@
-import { createClient } from "@/lib/supabase/server";
+// /Users/oassas/Projets/inscription-app/src/app/(admin)/courses/[id]/matieres/page.tsx
 import { SubjectsManager } from "../../components/SubjectsManager";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Settings } from "lucide-react";
 import Link from "next/link";
+import { getCourseForSubjects, getCourseSubjects, getAllCoursesMini } from "@/lib/dal/subjects";
+
+export const dynamic = 'force-dynamic';
 
 export default async function CourseSubjectsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = await createClient();
-
-  // Récupérer les données du cours
-  const { data: course } = await supabase
-    .from("courses")
-    .select("id, name, label, type, category")
-    .eq("id", id)
-    .single();
-
-  // Récupérer les matières du cours
-  const { data: subjects } = await supabase
-    .from("subjects")
-    .select("id, name, description, color, order_index, is_active")
-    .eq("course_id", id)
-    .order("order_index");
-
-  // Récupérer tous les cours pour les templates
-  const { data: allCourses } = await supabase.from("courses").select("id, name, label");
+  
+  // Charger les données via Prisma DAL
+  const course = await getCourseForSubjects(id);
+  const subjects = await getCourseSubjects(id);
+  const allCourses = await getAllCoursesMini();
 
   if (!course) {
     return (
