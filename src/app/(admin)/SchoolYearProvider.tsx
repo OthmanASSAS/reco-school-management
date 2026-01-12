@@ -1,12 +1,18 @@
+// /Users/oassas/Projets/inscription-app/src/app/(admin)/SchoolYearProvider.tsx
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import supabase from "@/lib/supabase";
 
-export type SchoolYear = { id: string; label: string; start_date: string; end_date: string | null };
+export type SchoolYearListItem = { 
+  id: string; 
+  label: string; 
+  start_date: string; 
+  end_date: string | null;
+  is_current?: boolean | null;
+};
 
 type SchoolYearContextValue = {
-  schoolYears: SchoolYear[];
+  schoolYears: SchoolYearListItem[];
   currentSchoolYearId: string | null;
   setCurrentSchoolYearId: (id: string | null) => void;
   loading: boolean;
@@ -20,43 +26,38 @@ export function useSchoolYear() {
   return ctx;
 }
 
-export function SchoolYearProvider({ children }: { children: React.ReactNode }) {
-  const [schoolYears, setSchoolYears] = useState<SchoolYear[]>([]);
+export function SchoolYearProvider({ 
+  children, 
+  initialSchoolYears = [] 
+}: { 
+  children: React.ReactNode;
+  initialSchoolYears?: SchoolYearListItem[];
+}) {
+  const [schoolYears, setSchoolYears] = useState<SchoolYearListItem[]>(initialSchoolYears);
   const [currentSchoolYearId, setCurrentSchoolYearId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialSchoolYears.length === 0);
 
+  // Initialisation du school year courant
   useEffect(() => {
-    let isMounted = true;
-    (async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("school_years")
-        .select("id, label, start_date, end_date")
-        .order("start_date", { ascending: false });
-      if (!isMounted) return;
-      if (!error && data) {
-        setSchoolYears(data as SchoolYear[]);
-        const saved =
-          typeof window !== "undefined" ? localStorage.getItem("selectedSchoolYearId") : null;
-        if (saved && data.find(y => y.id === saved)) {
-          setCurrentSchoolYearId(saved);
+    if (schoolYears.length > 0 && !currentSchoolYearId) {
+      const saved = typeof window !== "undefined" ? localStorage.getItem("selectedSchoolYearId") : null;
+      
+      if (saved && schoolYears.find(y => y.id === saved)) {
+        setCurrentSchoolYearId(saved);
+      } else {
+        // Chercher l'année marquée comme courante ou l'année calendaire actuelle
+        const currentByFlag = schoolYears.find(y => y.is_current);
+        if (currentByFlag) {
+          setCurrentSchoolYearId(currentByFlag.id);
         } else {
-          const now = new Date();
-          const current = data.find(y => {
-            const s = new Date(y.start_date);
-            const e = y.end_date ? new Date(y.end_date) : new Date(s.getFullYear() + 1, 7, 31);
-            return now >= s && now <= e;
-          });
-          setCurrentSchoolYearId(current?.id || data[0]?.id || null);
+          setCurrentSchoolYearId(schoolYears[0].id);
         }
       }
       setLoading(false);
-    })();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    }
+  }, [schoolYears, currentSchoolYearId]);
 
+  // Sauvegarde dans le localStorage
   useEffect(() => {
     if (currentSchoolYearId && typeof window !== "undefined") {
       localStorage.setItem("selectedSchoolYearId", currentSchoolYearId);

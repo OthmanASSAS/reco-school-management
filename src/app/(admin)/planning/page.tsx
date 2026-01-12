@@ -1,15 +1,17 @@
-import { Calendar, Clock, MapPin, Users, ChevronLeft, ChevronRight, Download } from "lucide-react";
+// /Users/oassas/Projets/inscription-app/src/app/(admin)/planning/page.tsx
+import { Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PlanningView from "./components/PlanningView";
+import { getCoursesWithDetails } from "@/lib/dal/courses";
 
-export default function PlanningPage() {
+export default async function PlanningPage() {
+  // Chargement des données via Prisma au niveau serveur
+  // Évite les erreurs de fetch Supabase côté client
+  const courses = await getCoursesWithDetails();
+
   return (
     <div className="w-full p-4 md:p-6">
       <div className="w-full md:max-w-7xl md:mx-auto space-y-6">
-        {/* Header moderne */}
         <Card className="border-0 shadow-sm">
           <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
             <div className="flex items-center gap-3">
@@ -24,7 +26,7 @@ export default function PlanningPage() {
             </div>
           </CardHeader>
           <CardContent className="p-6">
-            <PlanningView />
+            <PlanningView initialCourses={courses} />
           </CardContent>
         </Card>
       </div>

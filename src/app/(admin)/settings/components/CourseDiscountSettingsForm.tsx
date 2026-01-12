@@ -1,6 +1,7 @@
+// /Users/oassas/Projets/inscription-app/src/app/(admin)/settings/components/CourseDiscountSettingsForm.tsx
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -13,35 +14,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import supabase from "@/lib/supabase";
 import { updateCourseDiscountSettings } from "../actions/actions.server";
 import { Percent, Calculator, Save, Loader2 } from "lucide-react";
 
-const DEFAULTS = { startAt: 3, step: 25, mode: "cumulative" };
-
-export default function CourseDiscountSettingsForm() {
+export default function CourseDiscountSettingsForm({ initialSettings }: { initialSettings: any }) {
   const { toast } = useToast();
-  const [settings, setSettings] = useState<typeof DEFAULTS>(DEFAULTS);
-  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState(initialSettings);
   const [saving, setSaving] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    async function fetchSettings() {
-      const { data, error } = await supabase
-        .from("settings")
-        .select("value")
-        .eq("key", "course_discount")
-        .single();
-      if (data?.value) setSettings(data.value);
-      setLoading(false);
-    }
-    fetchSettings();
-  }, []);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setSettings(prev => ({
+    setSettings((prev: any) => ({
       ...prev,
       [name]: name === "startAt" || name === "step" ? Number(value) : value,
     }));
@@ -65,17 +49,6 @@ export default function CourseDiscountSettingsForm() {
       }
     });
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="flex items-center gap-3">
-          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-          <span className="text-gray-600">Chargement des paramètres...</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
@@ -110,7 +83,6 @@ export default function CourseDiscountSettingsForm() {
                   value={settings.startAt ?? ""}
                   onChange={handleChange}
                   className="h-11 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
-                  disabled={loading}
                   placeholder="3"
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -135,7 +107,6 @@ export default function CourseDiscountSettingsForm() {
                   value={settings.step ?? ""}
                   onChange={handleChange}
                   className="h-11 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
-                  disabled={loading}
                   placeholder="25"
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -153,8 +124,7 @@ export default function CourseDiscountSettingsForm() {
             <Select
               name="mode"
               value={settings.mode}
-              onValueChange={val => setSettings(prev => ({ ...prev, mode: val }))}
-              disabled={loading}
+              onValueChange={val => setSettings((prev: any) => ({ ...prev, mode: val }))}
             >
               <SelectTrigger className="h-11 border-gray-200 focus:border-purple-300 focus:ring-purple-200">
                 <SelectValue placeholder="Sélectionner un mode" />
@@ -180,7 +150,7 @@ export default function CourseDiscountSettingsForm() {
           <div className="flex justify-end pt-4 border-t border-gray-100">
             <Button
               type="submit"
-              disabled={loading || saving || isPending}
+              disabled={saving || isPending}
               className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300"
             >
               {saving || isPending ? (

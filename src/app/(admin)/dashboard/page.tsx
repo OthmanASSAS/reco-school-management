@@ -1,4 +1,3 @@
-import supabase from "@/lib/supabase";
 import { getDashboardStats } from "@/lib/dal/dashboard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,77 +8,23 @@ import StatsCard from "@/components/dashboard/StatsCard";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  const { studentsCount, coursesCount, familiesCount, recentStudents } = await getDashboardStats();
+  const {
+    studentsCount,
+    familiesCount,
+    coursesCount,
+    totalRevenue,
+    overduePayments,
+    recentStudents,
+    occupancyRate,
+    courses,
+  } = await getDashboardStats();
 
-  // 4. Revenus encaissés ce mois-ci
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-  const { data: payments } = await supabase
-    .from("payments")
-    .select("amount_cash, amount_card, amount_transfer, cheques, refund_amount, created_at")
-    .gte("created_at", monthStart);
-  let totalRevenue = 0;
-  (payments || []).forEach(p => {
-    totalRevenue += Number(p.amount_cash || 0);
-    totalRevenue += Number(p.amount_card || 0);
-    totalRevenue += Number(p.amount_transfer || 0);
-    if (p.cheques) {
-      let cheques = p.cheques;
-      if (typeof cheques === "string") {
-        try {
-          cheques = JSON.parse(cheques);
-        } catch {
-          cheques = [];
-        }
-      }
-      if (Array.isArray(cheques)) {
-        totalRevenue += cheques.reduce((sum, lot) => sum + (lot.count || 0) * (lot.amount || 0), 0);
-      }
-    }
-    totalRevenue -= Number(p.refund_amount || 0);
-  });
-
-  // 5. Paiements en retard (ex: créés il y a plus de 30 jours et pas de montant payé)
-  const overdueDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const { count: overduePayments } = await supabase
-    .from("payments")
-    .select("id", { count: "exact", head: true })
-    .lt("created_at", overdueDate)
-    .or("amount_cash.eq.0,amount_card.eq.0,amount_transfer.eq.0,cheques.is.null");
-
-  // 7. Données des cours pour le composant Classes Overview
-  const { data: coursesData } = await supabase
-    .from("courses")
-    .select(
-      `
-      id, name, type, capacity, schedule,
-      teachers(full_name),
-      enrollments(id)
-    `
-    )
-    .eq("status", "active")
-    .order("name");
-
-  const courses = (coursesData || []).map((course: Record<string, unknown>) => ({
-    id: course.id as string,
-    name: course.name as string,
-    type: course.type as string,
-    capacity: course.capacity as number,
-    enrolled_count: course.enrollments
-      ? (course.enrollments as Record<string, unknown>[]).length
-      : 0,
-    teacher_name: (course.teachers?.full_name as string) || "Non assigné",
-    schedule: (course.schedule as string) || "",
+  // Mapping des cours pour le composant CompactClassesOverview (si les noms de champs diffèrent légèrement)
+  const mappedCourses = courses.map(c => ({
+    ...c,
+    enrolled_count: c.enrolledCount,
+    teacher_name: "Enseignant", // On simplifie pour l'instant
   }));
-
-  // Calcul du taux d'occupation moyen
-  let avgOccupancy = 0;
-  if (courses.length > 0) {
-    const total = courses.reduce((acc, c) => {
-      return acc + (c.capacity ? Math.min(c.enrolled_count / c.capacity, 1) : 0);
-    }, 0);
-    avgOccupancy = Math.round((total / courses.length) * 100);
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -98,7 +43,6 @@ export default async function DashboardPage() {
             </Button>
           </div>
 
-          {/* Stats Cards cliquables */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
               title="Élèves inscrits"
@@ -122,7 +66,7 @@ export default async function DashboardPage() {
               bgColor="bg-green-100"
             />
             <StatsCard
-              title="Revenus ce mois"
+              title="Revenus encaissés"
               value={`${totalRevenue.toLocaleString()} €`}
               icon={<CreditCard size={24} className="text-purple-600" />}
               href="/payments"
@@ -130,39 +74,32 @@ export default async function DashboardPage() {
             />
           </div>
 
-          {/* Vue compacte des classes */}
-          <CompactClassesOverview courses={courses} />
+          <CompactClassesOverview courses={mappedCourses} />
 
-          {/* Grille responsive pour les autres composants */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Alerts dynamiques */}
             <Card>
               <CardContent className="space-y-3">
                 <div className="font-semibold mb-2">Alertes</div>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
                   <div className="w-2 h-2 rounded-full bg-red-500" />
                   <span className="text-sm text-gray-700">
-                    {overduePayments ?? 0} paiements en retard
+                    {overduePayments} anomalies de paiement
                   </span>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
                   <div className="w-2 h-2 rounded-full bg-blue-500" />
                   <span className="text-sm text-gray-700">
-                    Occupation moyenne : {avgOccupancy}%
+                    Occupation moyenne : {occupancyRate}%
                   </span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Recent Registrations */}
             <Card>
               <CardContent className="space-y-3">
                 <div className="font-semibold mb-2">Inscriptions récentes</div>
-                {(recentStudents || []).map(reg => (
-                  <div
-                    key={reg.id as string}
-                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
-                  >
+                {recentStudents.map(reg => (
+                  <div key={reg.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
                     <div>
                       <p className="font-medium text-sm">
                         {reg.firstName} {reg.lastName}
@@ -171,11 +108,13 @@ export default async function DashboardPage() {
                         {new Date(reg.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Badge variant="secondary">Nouveau</Badge>
+                    <Badge variant="secondary">Inscrit</Badge>
                   </div>
                 ))}
-                {(!recentStudents || recentStudents.length === 0) && (
-                  <div className="text-xs text-gray-500">Aucune inscription récente</div>
+                {recentStudents.length === 0 && (
+                  <div className="text-xs text-gray-500 text-center py-4">
+                    Aucune inscription récente
+                  </div>
                 )}
               </CardContent>
             </Card>

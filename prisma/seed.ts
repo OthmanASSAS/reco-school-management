@@ -1,389 +1,181 @@
-/**
- * SEED PRISMA - Import données Supabase
- *
- * POURQUOI CE SCRIPT ?
- * - Importer les données exportées de Supabase vers Prisma
- * - Respecter l'ordre des foreign keys (parents → enfants)
- * - Garantir l'intégrité avec une transaction atomique
- *
- * ORDRE D'INSERTION CRITIQUE :
- * 1. school_years (pas de FK)
- * 2. families (pas de FK)
- * 3. courses (pas de FK)
- * 4. students (FK → families)
- * 5. enrollments (FK → students, courses, school_years)
- * 6. registrations (FK → students, families, school_years)
- */
-
+// /Users/oassas/Projets/inscription-app/prisma/seed.ts
 import { PrismaClient } from "@prisma/client";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-// Singleton Prisma client (même pattern que src/lib/prisma.ts)
 const prisma = new PrismaClient();
 
-/**
- * UTILITAIRE : Lire fichier JSON
- *
- * resolve() = construire chemin absolu depuis racine projet
- * readFileSync() = lecture synchrone (ok pour seed, 1 fois)
- * JSON.parse() = transformer string JSON → objet JavaScript
- */
 function readJsonFile<T>(filename: string): T[] {
   const filePath = resolve(process.cwd(), `scripts/backup-supabase/${filename}`);
-
   try {
     const content = readFileSync(filePath, "utf-8");
     return JSON.parse(content) as T[];
   } catch (err) {
     console.error(`❌ Erreur lecture ${filename}:`, err);
-    throw err;
+    return [];
   }
 }
 
-/**
- * TRANSFORMATION DATES
- *
- * POURQUOI ? Supabase renvoie des strings ISO ("2022-09-01")
- * Prisma attend des Date objects
- *
- * new Date(string) = convertit ISO string → Date JS
- * || null = si undefined/null, retourner null (pour champs optionnels)
- */
 function parseDate(dateString: string | null | undefined): Date | null {
   if (!dateString) return null;
   return new Date(dateString);
 }
 
-/**
- * MAIN SEED FUNCTION
- *
- * async = fonction asynchrone (peut utiliser await)
- * try/catch = gestion d'erreurs
- * finally = toujours exécuté (même si erreur) → fermer connexion DB
- */
+const TEACHERS_FALLBACK = [
+  { id: "bbd22662-33cb-4ab7-bb98-dc387f220375", fullName: "Ustadh Ahmed Benali", email: "ahmed.benali@ecole.fr", phone: "06 12 34 56 78" },
+  { id: "f08dc133-1485-45a0-867a-f5b2dc28c17e", fullName: "Ustadha Fatima Al-Maghribi", email: "fatima.almaghribi@ecole.fr", phone: "06 23 45 67 89" },
+  { id: "e9f4ec36-92cf-49a4-b795-33b45e7893b1", fullName: "Ustadh Omar Zouaoui", email: "omar.zouaoui@ecole.fr", phone: "06 34 56 78 90" },
+  { id: "6c450ef6-aa18-4b10-b5d7-0e6d910f606a", fullName: "Ustadha Aisha Bennani", email: "aisha.bennani@ecole.fr", phone: "06 45 67 89 01" },
+  { id: "40734440-7d34-48cd-b713-19693d163b23", fullName: "Ustadh Youssef Talbi", email: "youssef.talbi@ecole.fr", phone: "06 56 78 90 12" },
+];
+
+const ROOMS_FALLBACK = [
+  { id: "3c559c42-6778-4f0e-85fe-7eb051beeabe", name: "Salle Al-Fatiha", capacity: 15, location: "Rez-de-chaussée" },
+  { id: "c3c32556-70cf-4d59-bb20-3321a7857ad9", name: "Salle Al-Baqarah", capacity: 20, location: "1er étage" },
+  { id: "04a51e4f-3f7f-49eb-aa6b-797e8b9d3acb", name: "Salle An-Nour", capacity: 12, location: "1er étage" },
+  { id: "b20fa0fb-f8d1-4e92-84df-f1a6f74d5585", name: "Salle As-Sabr", capacity: 18, location: "2ème étage" },
+  { id: "4e64243f-4dd1-461b-aa6b-a3141d8366f1", name: "Salle Al-Hikmah", capacity: 25, location: "2ème étage" },
+];
+
 async function main() {
-  console.log("🌱 Début du seed Prisma...\n");
+  console.log("🌱 Début du seed Prisma (Sans Transaction pour éviter les timeouts Accelerate)...\n");
 
   try {
-    // ========================================
-    // ÉTAPE 1 : NETTOYER LA DB
-    // ========================================
     console.log("🧹 Nettoyage de la base de données...");
-
-    /**
-     * deleteMany() = DELETE FROM table
-     * Ordre inverse des FK (enfants → parents)
-     * POURQUOI ? On ne peut pas supprimer un parent si un enfant l'utilise
-     *
-     * await = attendre que l'opération se termine avant de passer à la suite
-     */
     await prisma.registration.deleteMany();
     await prisma.enrollment.deleteMany();
     await prisma.student.deleteMany();
     await prisma.course.deleteMany();
     await prisma.family.deleteMany();
     await prisma.schoolYear.deleteMany();
-
+    await prisma.teacher.deleteMany();
+    await prisma.room.deleteMany();
+    await prisma.setting.deleteMany();
+    await prisma.payment.deleteMany();
     console.log("✅ Base nettoyée\n");
 
-    // ========================================
-    // ÉTAPE 2 : LIRE LES FICHIERS JSON
-    // ========================================
-    console.log("📂 Lecture des fichiers JSON...");
+    const schoolYears = readJsonFile<any>("school_years.json");
+    const families = readJsonFile<any>("families.json");
+    const courses = readJsonFile<any>("courses.json");
+    const students = readJsonFile<any>("students.json");
+    const enrollments = readJsonFile<any>("enrollments.json");
+    const registrations = readJsonFile<any>("registrations.json");
 
-    /**
-     * Type inference TypeScript
-     * <SchoolYear> = typage générique
-     * TypeScript sait que schoolYears est un array de SchoolYear
-     */
-    const schoolYears = readJsonFile<{
-      id: string;
-      label: string;
-      start_date: string;
-      end_date: string;
-      created_at: string;
-    }>("school_years.json");
-
-    const families = readJsonFile<{
-      id: string;
-      last_name: string;
-      first_name: string;
-      email: string;
-      phone: string | null;
-      address: string | null;
-      postal_code: string | null;
-      city: string | null;
-      created_at: string;
-    }>("families.json");
-
-    const courses = readJsonFile<{
-      id: string;
-      name: string;
-      type: string;
-      teacher: string | null;
-      room: string | null;
-      schedule: string | null;
-      capacity: number | null;
-      price: number | null;
-      status: string;
-      created_at: string;
-      label: string | null;
-      category: string | null;
-      audience: string | null;
-      teacher_id: string | null;
-      room_id: string | null;
-      school_year_id: string | null;
-    }>("courses.json");
-
-    const students = readJsonFile<{
-      id: string;
-      family_id: string;
-      last_name: string;
-      first_name: string;
-      birth_date: string | null;
-      level: string | null;
-      registration_type: string;
-      already_registered: boolean | null;
-      notes: string | null;
-      created_at: string;
-    }>("students.json");
-
-    const enrollments = readJsonFile<{
-      id: string;
-      student_id: string;
-      course_id: string;
-      school_year_id: string;
-      start_date: string | null;
-      end_date: string | null;
-      status: string;
-      created_at: string;
-    }>("enrollments.json");
-
-    const registrations = readJsonFile<{
-      id: string;
-      student_id: string;
-      family_id: string;
-      school_year_id: string;
-      course_instance_id: string | null;
-      is_waiting_list: boolean | null;
-      status: string;
-      created_at: string;
-    }>("registrations.json");
-
-    console.log(`✅ Fichiers lus:
-   - ${schoolYears.length} années scolaires
-   - ${families.length} familles
-   - ${courses.length} cours
-   - ${students.length} élèves
-   - ${enrollments.length} inscriptions aux cours
-   - ${registrations.length} dossiers préinscription\n`);
-
-    // ========================================
-    // ÉTAPE 3 : INSERTION AVEC TRANSACTION
-    // ========================================
-    console.log("💾 Insertion des données...");
-
-    /**
-     * TRANSACTION PRISMA = $transaction()
-     *
-     * POURQUOI ?
-     * - Garantit que TOUTES les insertions réussissent OU AUCUNE
-     * - Si 1 insertion échoue → rollback automatique
-     * - Évite d'avoir une DB à moitié remplie
-     *
-     * PATTERN AVANCÉ :
-     * $transaction() accepte une fonction async
-     * Cette fonction reçoit "tx" = transaction context
-     * On utilise "tx" au lieu de "prisma" pour que tout soit dans la transaction
-     */
-    await prisma.$transaction(async tx => {
-      // 1️⃣ SCHOOL YEARS (pas de FK)
-      console.log("   📅 Années scolaires...");
-      for (const year of schoolYears) {
-        /**
-         * create() = INSERT INTO
-         * data = les valeurs à insérer
-         *
-         * MAPPING SNAKE_CASE → CAMELCASE :
-         * Prisma utilise camelCase (startDate)
-         * Supabase utilise snake_case (start_date)
-         * On doit transformer manuellement
-         */
-        await tx.schoolYear.create({
-          data: {
-            id: year.id,
-            label: year.label,
-            startDate: parseDate(year.start_date)!,
-            endDate: parseDate(year.end_date)!,
-            createdAt: parseDate(year.created_at)!,
-          },
-        });
-      }
-
-      // 2️⃣ FAMILIES (pas de FK)
-      console.log("   👨‍👩‍👧‍👦 Familles...");
-      for (const family of families) {
-        await tx.family.create({
-          data: {
-            id: family.id,
-            lastName: family.last_name,
-            firstName: family.first_name,
-            email: family.email,
-            phone: family.phone,
-            address: family.address,
-            postalCode: family.postal_code,
-            city: family.city,
-            createdAt: parseDate(family.created_at)!,
-          },
-        });
-      }
-
-      // 3️⃣ COURSES (pas de FK)
-      console.log("   📚 Cours...");
-      for (const course of courses) {
-        await tx.course.create({
-          data: {
-            id: course.id,
-            name: course.name,
-            type: course.type,
-            teacher: course.teacher,
-            room: course.room,
-            schedule: course.schedule,
-            capacity: course.capacity,
-            price: course.price,
-            status: course.status,
-            label: course.label,
-            category: course.category,
-            audience: course.audience,
-            teacherId: course.teacher_id,
-            roomId: course.room_id,
-            schoolYearId: course.school_year_id,
-            createdAt: parseDate(course.created_at)!,
-          },
-        });
-      }
-
-      // 4️⃣ STUDENTS (FK → families)
-      console.log("   👦 Élèves...");
-      for (const student of students) {
-        /**
-         * ENUM CASTING + NULL HANDLING
-         *
-         * registration_type peut être "child" | "adult" | null
-         * Ternaire : si null → null, sinon → cast en enum
-         *
-         * POURQUOI ? Données Supabase ont des valeurs null (préinscriptions en cours)
-         */
-        await tx.student.create({
-          data: {
-            id: student.id,
-            familyId: student.family_id,
-            lastName: student.last_name,
-            firstName: student.first_name,
-            birthDate: parseDate(student.birth_date),
-            level: student.level,
-            registrationType: student.registration_type
-              ? (student.registration_type as "child" | "adult")
-              : null,
-            alreadyRegistered: student.already_registered ?? false,
-            notes: student.notes,
-            createdAt: parseDate(student.created_at)!,
-          },
-        });
-      }
-
-      // 5️⃣ ENROLLMENTS (FK → students, courses, school_years)
-      console.log("   ✍️  Inscriptions aux cours...");
-      for (const enrollment of enrollments) {
-        await tx.enrollment.create({
-          data: {
-            id: enrollment.id,
-            studentId: enrollment.student_id,
-            courseId: enrollment.course_id,
-            schoolYearId: enrollment.school_year_id,
-            startDate: parseDate(enrollment.start_date),
-            endDate: parseDate(enrollment.end_date),
-            status: enrollment.status,
-            createdAt: parseDate(enrollment.created_at)!,
-          },
-        });
-      }
-
-      // 6️⃣ REGISTRATIONS (FK → students, families, school_years)
-      console.log("   📋 Dossiers préinscription...");
-      for (const registration of registrations) {
-        await tx.registration.create({
-          data: {
-            id: registration.id,
-            studentId: registration.student_id,
-            familyId: registration.family_id,
-            schoolYearId: registration.school_year_id,
-            courseInstanceId: registration.course_instance_id,
-            isWaitingList: registration.is_waiting_list ?? false,
-            status: registration.status,
-            createdAt: parseDate(registration.created_at)!,
-          },
-        });
-      }
+    console.log("   📅 Années scolaires...");
+    await prisma.schoolYear.createMany({
+      data: schoolYears.map((year: any) => ({
+        id: year.id,
+        label: year.label,
+        startDate: parseDate(year.start_date)!,
+        endDate: parseDate(year.end_date),
+        isCurrent: year.is_current ?? false,
+        createdAt: parseDate(year.created_at)!,
+      }))
     });
 
-    console.log("\n✅ Toutes les données ont été insérées !");
+    console.log("   👨‍🏫 Professeurs...");
+    await prisma.teacher.createMany({ data: TEACHERS_FALLBACK });
 
-    // ========================================
-    // ÉTAPE 4 : VÉRIFICATION
-    // ========================================
-    console.log("\n📊 Vérification finale...");
+    console.log("   🏫 Salles...");
+    await prisma.room.createMany({ data: ROOMS_FALLBACK });
 
-    /**
-     * count() = SELECT COUNT(*) FROM table
-     * Retourne le nombre de lignes
-     */
-    const counts = {
-      schoolYears: await prisma.schoolYear.count(),
-      families: await prisma.family.count(),
-      courses: await prisma.course.count(),
-      students: await prisma.student.count(),
-      enrollments: await prisma.enrollment.count(),
-      registrations: await prisma.registration.count(),
-    };
+    console.log("   👨‍👩‍👧‍👦 Familles...");
+    await prisma.family.createMany({
+      data: families.map((family: any) => ({
+        id: family.id,
+        lastName: family.last_name,
+        firstName: family.first_name,
+        email: family.email,
+        phone: family.phone,
+        address: family.address,
+        postalCode: family.postal_code,
+        city: family.city,
+        createdAt: parseDate(family.created_at)!,
+      }))
+    });
 
-    console.log(`
-   Années scolaires : ${counts.schoolYears}
-   Familles        : ${counts.families}
-   Cours           : ${counts.courses}
-   Élèves          : ${counts.students}
-   Inscriptions    : ${counts.enrollments}
-   Préinscriptions : ${counts.registrations}
-    `);
+    console.log("   📚 Cours...");
+    await prisma.course.createMany({
+      data: courses.map((course: any) => ({
+        id: course.id,
+        name: course.name,
+        type: course.type,
+        teacherNameText: course.teacher,
+        roomNameText: course.room,
+        schedule: course.schedule,
+        capacity: course.capacity,
+        price: course.price,
+        status: course.status || "active",
+        label: course.label,
+        category: course.category,
+        audience: course.audience,
+        teacherId: course.teacher_id,
+        roomId: course.room_id,
+        schoolYearId: course.school_year_id,
+        createdAt: parseDate(course.created_at)!,
+      }))
+    });
+
+    console.log("   👦 Élèves...");
+    await prisma.student.createMany({
+      data: students.map((s: any) => ({
+        id: s.id,
+        familyId: s.family_id,
+        lastName: s.last_name,
+        firstName: s.first_name,
+        birthDate: parseDate(s.birth_date),
+        level: s.level,
+        registrationType: s.registration_type || null,
+        alreadyRegistered: s.already_registered ?? false,
+        notes: s.notes,
+        createdAt: parseDate(s.created_at)!,
+      }))
+    });
+
+    console.log("   ✍️  Inscriptions...");
+    await prisma.enrollment.createMany({
+      data: enrollments.map((e: any) => ({
+        id: e.id,
+        studentId: e.student_id,
+        courseId: e.course_id,
+        schoolYearId: e.school_year_id,
+        startDate: parseDate(e.start_date) || new Date(),
+        endDate: parseDate(e.end_date),
+        status: e.status,
+        createdAt: parseDate(e.created_at)!,
+      }))
+    });
+
+    console.log("   📋 Dossiers...");
+    await prisma.registration.createMany({
+      data: registrations.map((reg: any) => ({
+        id: reg.id,
+        studentId: reg.student_id,
+        familyId: reg.family_id,
+        schoolYearId: reg.school_year_id,
+        isWaitingList: reg.is_waiting_list ?? false,
+        status: reg.status,
+        createdAt: parseDate(reg.created_at)!,
+      }))
+    });
+
+    console.log("   ⚙️ Paramètres...");
+    await prisma.setting.upsert({
+      where: { key: "course_discount" },
+      update: {},
+      create: {
+        key: "course_discount",
+        value: { mode: "cumulative", step: 25, startAt: 3 }
+      }
+    });
 
     console.log("\n🎉 Seed terminé avec succès !");
   } catch (error) {
     console.error("\n❌ Erreur durant le seed:", error);
-
-    /**
-     * process.exit(1) = arrêter le script avec code erreur
-     * 1 = erreur (0 = succès)
-     * Permet à Prisma de savoir que le seed a échoué
-     */
     process.exit(1);
   } finally {
-    /**
-     * $disconnect() = fermer la connexion DB
-     * TOUJOURS dans finally = même si erreur, on ferme la connexion
-     * Évite les connexions orphelines qui bloquent la DB
-     */
     await prisma.$disconnect();
   }
 }
 
-/**
- * EXÉCUTION
- *
- * main() = appeler la fonction
- * .catch() = si erreur non catchée dans main()
- */
-main().catch(err => {
-  console.error("❌ Erreur fatale:", err);
-  process.exit(1);
-});
+main();

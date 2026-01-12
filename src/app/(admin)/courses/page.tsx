@@ -1,30 +1,10 @@
-import supabase from "@/lib/supabase";
 import CoursesClientTable from "./components/CoursesClientTable";
 import { deleteCourse } from "./actions/actions.server";
+import { getCoursesWithDetails } from "@/lib/dal/courses";
 
 export default async function CoursesPage() {
-  // Fetch all courses, teachers, rooms, enrollments côté serveur
-  const { data } = await supabase.from("courses").select(`
-    id, name, type, status, price, capacity,
-    teachers(full_name), rooms(name), enrollments(id), teacher_id, room_id, schedule
-  `);
-
-  const courses = (data || [])
-    .map((c: Record<string, unknown>) => ({
-      id: c.id,
-      name: c.name,
-      type: c.type,
-      teacher_name: c.teachers?.full_name ?? null,
-      room_name: c.rooms?.name ?? null,
-      status: c.status,
-      price: c.price,
-      capacity: c.capacity,
-      enrolled_count: c.enrollments ? c.enrollments.length : 0,
-      teacher_id: c.teacher_id,
-      room_id: c.room_id,
-      schedule: c.schedule,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  // Fetch via Prisma DAL (Architecture DDD)
+  const courses = await getCoursesWithDetails();
 
   // Handler pour la suppression (Server Action)
   async function handleDeleteCourse(formData: FormData) {

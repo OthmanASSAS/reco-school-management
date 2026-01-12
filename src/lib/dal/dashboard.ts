@@ -19,6 +19,15 @@ export interface DashboardStats {
     createdAt: Date;
   }>;
   occupancyRate: number;
+  courses: Array<{
+    id: string;
+    name: string;
+    type: string;
+    capacity: number;
+    enrolledCount: number;
+    schedule: string;
+    occupancyRate: number;
+  }>;
 }
 
 /**
@@ -87,9 +96,38 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       ? Math.round(courses.reduce((acc, c) => acc + c.occupancyRate, 0) / courses.length)
       : 0;
 
-  // TODO: Implémenter le calcul complexe du revenu et des paiements en retard
-  const totalRevenue = 0;
-  const overduePayments = 0;
+  // 4. Calcul du revenu encaissé (somme de tous les modes de paiement)
+  const payments = await prisma.payment.findMany({
+    select: {
+      amountCash: true,
+      amountCard: true,
+      amountTransfer: true,
+      refundAmount: true,
+      cheques: true,
+    }
+  });
+
+  let totalRevenue = 0;
+  payments.forEach(p => {
+    totalRevenue += Number(p.amountCash || 0);
+    totalRevenue += Number(p.amountCard || 0);
+    totalRevenue += Number(p.amountTransfer || 0);
+    totalRevenue -= Number(p.refundAmount || 0);
+    
+    // Calcul des chèques (stockés en JSON)
+    if (p.cheques && Array.isArray(p.cheques)) {
+      totalRevenue += (p.cheques as any[]).reduce((sum, lot) => 
+        sum + (Number(lot.count) || 0) * (Number(lot.amount) || 0), 0
+      );
+    }
+  });
+
+  // 5. Paiements en retard (Simple: familles n'ayant aucun paiement pour l'année en cours)
+  const overduePayments = await prisma.family.count({
+    where: {
+      payments: { none: {} }
+    }
+  });
 
   return {
     studentsCount,
@@ -99,6 +137,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     overduePayments,
     recentStudents,
     occupancyRate,
-    courses, // On ajoute les cours formatés à la réponse
+    courses,
   };
 }

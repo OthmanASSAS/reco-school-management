@@ -3,23 +3,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, UserPlus, BookOpen, CreditCard, Info } from "lucide-react";
-import supabase from "@/lib/supabase";
+import { getFamilyById } from "@/lib/dal/families";
 import { notFound } from "next/navigation";
 
 export default async function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  // Fetch famille + membres dynamiquement
-  const { data: family, error } = await supabase
-    .from("families")
-    .select(
-      `id, last_name, first_name, email, phone, address, status, students(
-        id, first_name, last_name, birth_date, registration_type, level, notes, enrollments(id, status, start_date, courses(name, type, price))
-      )`
-    )
-    .eq("id", id)
-    .single();
+  
+  // Fetch via Prisma DAL (Architecture DDD)
+  const family = await getFamilyById(id);
 
-  if (error || !family) return notFound();
+  if (!family) return notFound();
 
   return (
     <div className="w-full max-w-5xl mx-auto p-4 md:p-8 space-y-8">
@@ -103,7 +96,6 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
         <TabsContent value="courses">
           <Card>
             <CardContent className="p-6">
-              {/* TODO: Attribution de cours, année courante, historique */}
               <div className="text-gray-500">Cours et historique à venir…</div>
             </CardContent>
           </Card>
@@ -113,7 +105,6 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
         <TabsContent value="payments">
           <Card>
             <CardContent className="p-6">
-              {/* TODO: Paiements, reste à payer, historique paiements */}
               <div className="text-gray-500">Paiements à venir…</div>
             </CardContent>
           </Card>
@@ -123,7 +114,6 @@ export default async function FamilyDetailPage({ params }: { params: Promise<{ i
         <TabsContent value="info">
           <Card>
             <CardContent className="p-6">
-              {/* TODO: Formulaire d'édition des infos famille */}
               <div className="text-gray-500">Édition des infos famille à venir…</div>
             </CardContent>
           </Card>

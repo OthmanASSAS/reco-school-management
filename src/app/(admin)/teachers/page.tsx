@@ -1,17 +1,17 @@
+// /Users/oassas/Projets/inscription-app/src/app/(admin)/teachers/page.tsx
 import TeachersList from "./components/TeachersList";
-import supabase from "@/lib/supabase";
+import { getTeachers } from "@/lib/dal/teachers";
+
+export const dynamic = 'force-dynamic';
 
 export default async function TeachersPage() {
-  // Charger les données des professeurs côté serveur
-  const { data: teachers } = await supabase
-    .from("teachers")
-    .select("id, full_name, email, phone, created_at")
-    .order("full_name", { ascending: true });
+  // Charger les données via le DAL Prisma (Architecture DDD)
+  const teachers = await getTeachers();
 
   return (
     <div className="w-full p-4 md:p-6">
       <div className="w-full md:max-w-7xl md:mx-auto">
-        <TeachersList initialTeachers={teachers || []} />
+        <TeachersList initialTeachers={teachers} />
       </div>
     </div>
   );

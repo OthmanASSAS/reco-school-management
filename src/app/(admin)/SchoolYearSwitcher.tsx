@@ -1,3 +1,4 @@
+// /Users/oassas/Projets/inscription-app/src/app/(admin)/SchoolYearSwitcher.tsx
 "use client";
 
 import React from "react";
@@ -19,7 +20,7 @@ export function SchoolYearSwitcher() {
   return (
     <div className="px-4 py-2">
       <Select
-        value={currentSchoolYearId || undefined}
+        value={currentSchoolYearId || ""}
         onValueChange={val => setCurrentSchoolYearId(val)}
       >
         <SelectTrigger className="w-40">

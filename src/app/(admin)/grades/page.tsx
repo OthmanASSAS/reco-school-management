@@ -1,20 +1,12 @@
-import { createClient } from "@/lib/supabase/server";
+// /Users/oassas/Projets/inscription-app/src/app/(admin)/grades/page.tsx
 import { GradesPageWrapper } from "./components/GradesPageWrapper";
 import { saveGrades } from "./actions/save-grades.server";
+import { getGradesInitialData } from "@/lib/dal/grades";
 
 export default async function GradesPage() {
-  const supabase = await createClient();
-
-  // Fetch initial data for selectors (Server-side)
-  const { data: schoolYears } = await supabase
-    .from("school_years")
-    .select("id, label, start_date, end_date");
-  const { data: courses } = await supabase.from("courses").select("id, name");
-  const { data: students } = await supabase.from("students").select("id, first_name, last_name");
-  const { data: subjects } = await supabase.from("subjects").select("id, name, course_id");
-  const { data: enrollments } = await supabase
-    .from("enrollments")
-    .select("student_id, course_id, school_year_id");
+  // Chargement ultra-rapide et typé via Prisma DAL
+  // Remplace les multiples appels supabase.from().select()
+  const { schoolYears, courses, students, subjects, enrollments } = await getGradesInitialData();
 
   return (
     <div className="w-full p-4 md:p-6">
@@ -27,11 +19,11 @@ export default async function GradesPage() {
         </div>
 
         <GradesPageWrapper
-          courses={courses || []}
-          subjects={subjects || []}
-          students={students || []}
-          schoolYears={schoolYears || []}
-          enrollments={enrollments || []}
+          courses={courses}
+          subjects={subjects}
+          students={students}
+          schoolYears={schoolYears as any}
+          enrollments={enrollments}
           onSaveGrades={async (subjectId, grades, periodType, periodValue, schoolYearId) => {
             "use server";
             if (!schoolYearId) {

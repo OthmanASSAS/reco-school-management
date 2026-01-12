@@ -1,5 +1,3 @@
-// /Users/oassas/Projets/inscription-app/prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,20 +9,18 @@ datasource db {
 }
 
 model Family {
-  id          String   @id @default(uuid()) @db.Uuid
-  lastName    String   @map("last_name") @db.VarChar(255)
-  firstName   String   @map("first_name") @db.VarChar(255)
-  email       String   @unique @db.VarChar(255)
-  phone       String?  @db.VarChar(20)
-  address     String?  @db.Text
-  postalCode  String?  @map("postal_code") @db.VarChar(10)
-  city        String?  @db.VarChar(100)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  // Relations
-  students      Student[]
-  registrations Registration[]
+  id            String         @id @default(uuid()) @db.Uuid
+  lastName      String         @map("last_name") @db.VarChar(255)
+  firstName     String         @map("first_name") @db.VarChar(255)
+  email         String         @unique @db.VarChar(255)
+  phone         String?        @db.VarChar(20)
+  address       String?
+  postalCode    String?        @map("postal_code") @db.VarChar(10)
+  city          String?        @db.VarChar(100)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   payments      Payment[]
+  registrations Registration[]
+  students      Student[]
 
   @@map("families")
 }
@@ -38,110 +34,128 @@ model Student {
   registrationType  RegistrationType? @map("registration_type")
   level             String?           @db.VarChar(50)
   alreadyRegistered Boolean           @default(false) @map("already_registered")
-  notes             String?           @db.Text
-  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz
-
-  // Relations
-  family        Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  enrollments   Enrollment[]
-  registrations Registration[]
+  notes             String?
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  enrollments       Enrollment[]
+  registrations     Registration[]
+  family            Family            @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
   @@map("students")
 }
 
 model SchoolYear {
-  id        String    @id @default(uuid()) @db.Uuid
-  label     String    @unique @db.VarChar(20)
-  startDate DateTime  @map("start_date") @db.Date
-  endDate   DateTime? @map("end_date") @db.Date
-  isCurrent Boolean?  @default(false) @map("is_current")
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
-
-  // Relations
+  id            String         @id @default(uuid()) @db.Uuid
+  label         String         @unique @db.VarChar(20)
+  startDate     DateTime       @map("start_date") @db.Date
+  endDate       DateTime?      @map("end_date") @db.Date
+  isCurrent     Boolean?       @default(false) @map("is_current")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   enrollments   Enrollment[]
-  registrations Registration[]
   payments      Payment[]
+  registrations Registration[]
 
   @@map("school_years")
 }
 
+model Teacher {
+  id        String   @id @default(uuid()) @db.Uuid
+  fullName  String   @map("full_name") @db.VarChar(255)
+  email     String?  @db.VarChar(255)
+  phone     String?  @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  courses Course[]
+
+  @@map("teachers")
+}
+
+model Room {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(100)
+  capacity  Int?
+  location  String?  @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  courses Course[]
+
+  @@map("rooms")
+}
+
 model Course {
-  id           String    @id @default(uuid()) @db.Uuid
-  name         String    @db.VarChar(100)
-  type         String    @db.VarChar(50)
-  teacher      String?   @db.VarChar(100)
-  room         String?   @db.VarChar(100)
-  schedule     String?   @db.VarChar(200)
-  capacity     Int?
-  price        Decimal?  @db.Decimal(10, 2)
-  status       String    @default("active") @db.VarChar(20)
-  label        String?   @db.VarChar(100)
-  category     String?   @db.VarChar(50)
-  audience     String?   @db.VarChar(50)
-  teacherId    String?   @map("teacher_id") @db.Uuid
-  roomId       String?   @map("room_id") @db.Uuid
-  schoolYearId String?   @map("school_year_id") @db.Uuid
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @db.VarChar(100)
+  type         String   @db.VarChar(50)
+  teacherNameText String?  @map("teacher") @db.VarChar(100)
+  roomNameText    String?  @map("room") @db.VarChar(100)
+  schedule        String?  @db.VarChar(200)
+  capacity        Int?
+  price           Decimal? @db.Decimal(10, 2)
+  status          String   @default("active") @db.VarChar(20)
+  label           String?  @db.VarChar(100)
+  category        String?  @db.VarChar(50)
+  audience        String?  @db.VarChar(50)
+  teacherId       String?  @map("teacher_id") @db.Uuid
+  roomId          String?  @map("room_id") @db.Uuid
+  schoolYearId    String?  @map("school_year_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   // Relations
   enrollments Enrollment[]
+  teacher     Teacher?     @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+  room        Room?        @relation(fields: [roomId], references: [id], onDelete: SetNull)
 
   @@map("courses")
 }
 
 model Enrollment {
-  id           String    @id @default(uuid()) @db.Uuid
-  studentId    String    @map("student_id") @db.Uuid
-  courseId     String    @map("course_id") @db.Uuid
-  schoolYearId String    @map("school_year_id") @db.Uuid
-  status       String    @default("active") @db.VarChar(20)
-  startDate    DateTime  @map("start_date") @db.Date
-  endDate      DateTime? @map("end_date") @db.Date
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
-
-  // Relations
-  student    Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course     Course     @relation(fields: [courseId], references: [id], onDelete: Restrict)
-  schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id], onDelete: Restrict)
+  id           String     @id @default(uuid()) @db.Uuid
+  studentId    String     @map("student_id") @db.Uuid
+  courseId     String     @map("course_id") @db.Uuid
+  schoolYearId String     @map("school_year_id") @db.Uuid
+  status       String     @default("active") @db.VarChar(20)
+  startDate    DateTime   @map("start_date") @db.Date
+  endDate      DateTime?  @map("end_date") @db.Date
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  course       Course     @relation(fields: [courseId], references: [id])
+  schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id])
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@map("enrollments")
 }
 
 model Registration {
-  id               String    @id @default(uuid()) @db.Uuid
-  studentId        String    @map("student_id") @db.Uuid
-  familyId         String    @map("family_id") @db.Uuid
-  schoolYearId     String    @map("school_year_id") @db.Uuid
-  status           String    @default("draft") @db.VarChar(20)
-  isWaitingList    Boolean   @default(false) @map("is_waiting_list")
-  appointmentDay   DateTime? @map("appointment_day") @db.Date
-  courseInstanceId String?   @map("course_instance_id") @db.Uuid
-  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
-
-  // Relations
-  student    Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  family     Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id], onDelete: Restrict)
+  id               String     @id @default(uuid()) @db.Uuid
+  studentId        String     @map("student_id") @db.Uuid
+  familyId         String     @map("family_id") @db.Uuid
+  schoolYearId     String     @map("school_year_id") @db.Uuid
+  status           String     @default("draft") @db.VarChar(20)
+  isWaitingList    Boolean    @default(false) @map("is_waiting_list")
+  appointmentDay   DateTime?  @map("appointment_day") @db.Date
+  courseInstanceId String?    @map("course_instance_id") @db.Uuid
+  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  family           Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  schoolYear       SchoolYear @relation(fields: [schoolYearId], references: [id])
+  student          Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@map("registrations")
 }
 
 model Payment {
-  id             String   @id @default(uuid()) @db.Uuid
-  familyId       String   @map("family_id") @db.Uuid
-  schoolYearId   String   @map("school_year_id") @db.Uuid
-  amountCash     Decimal  @default(0) @map("amount_cash") @db.Decimal(10, 2)
-  amountCard     Decimal  @default(0) @map("amount_card") @db.Decimal(10, 2)
-  amountTransfer Decimal  @default(0) @map("amount_transfer") @db.Decimal(10, 2)
-  refundAmount   Decimal  @default(0) @map("refund_amount") @db.Decimal(10, 2)
+  id             String     @id @default(uuid()) @db.Uuid
+  familyId       String     @map("family_id") @db.Uuid
+  schoolYearId   String     @map("school_year_id") @db.Uuid
+  amountCash     Decimal    @default(0) @map("amount_cash") @db.Decimal(10, 2)
+  amountCard     Decimal    @default(0) @map("amount_card") @db.Decimal(10, 2)
+  amountTransfer Decimal    @default(0) @map("amount_transfer") @db.Decimal(10, 2)
+  refundAmount   Decimal    @default(0) @map("refund_amount") @db.Decimal(10, 2)
   cheques        Json?
-  books          Boolean  @default(false)
-  remarks        String?  @db.Text
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  // Relations
-  family     Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id], onDelete: Restrict)
+  books          Boolean    @default(false)
+  remarks        String?
+  createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  family         Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  schoolYear     SchoolYear @relation(fields: [schoolYearId], references: [id])
 
   @@map("payments")
 }
@@ -149,4 +163,11 @@ model Payment {
 enum RegistrationType {
   child
   adult
+}
+
+model Setting {
+  key   String @id @db.VarChar(100)
+  value Json?
+
+  @@map("settings")
 }

@@ -1,26 +1,13 @@
 import RegistrationWizard from "@/app/(admin)/registration/components/RegistrationWizard";
-import supabase from "@/lib/supabase";
+import { getFamiliesMinimal } from "@/lib/dal/families";
+import { getActiveCourses } from "@/lib/dal/courses";
 
 export default async function RegistrationPage() {
-  const [familiesRes, coursesRes] = await Promise.all([
-    supabase.from("families").select("id, first_name, last_name"),
-    supabase.from("courses").select("id, label, name, type, price").eq("status", "active"),
+  // Chargement via DAL Prisma
+  const [families, courses] = await Promise.all([
+    getFamiliesMinimal(),
+    getActiveCourses(),
   ]);
-
-  if (familiesRes.error || coursesRes.error) {
-    return <div className="p-4 text-red-600">Erreur de chargement</div>;
-  }
-
-  const families = (familiesRes.data || []).map(f => ({
-    id: f.id,
-    name: `${f.first_name} ${f.last_name}`.trim(),
-  }));
-  const courses = (coursesRes.data || []).map(c => ({
-    id: c.id,
-    label: c.label || c.name,
-    type: c.type,
-    price: c.price,
-  }));
 
   return (
     <div className="w-full p-4 md:p-6">
