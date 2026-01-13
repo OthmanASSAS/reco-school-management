@@ -255,7 +255,7 @@ export async function updateStudent(
 
     // Ajouter les nouvelles inscriptions
     if (selectedCourses.length > 0) {
-      const enrollmentInserts = selectedCourses.map(courseId => ({
+      const enrollmentInserts = selectedCourses.map((courseId: string) => ({
         student_id: studentId,
         course_id: courseId,
         school_year_id: schoolYearToUse,

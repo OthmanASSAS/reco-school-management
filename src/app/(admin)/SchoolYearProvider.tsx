@@ -1,13 +1,12 @@
-// /Users/oassas/Projets/inscription-app/src/app/(admin)/SchoolYearProvider.tsx
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-export type SchoolYearListItem = { 
-  id: string; 
-  label: string; 
-  start_date: string; 
-  end_date: string | null;
+export type SchoolYearListItem = {
+  id: string;
+  label: string;
+  start_date: string;
+  end_date?: string | null;
   is_current?: boolean | null;
 };
 
@@ -26,22 +25,23 @@ export function useSchoolYear() {
   return ctx;
 }
 
-export function SchoolYearProvider({ 
-  children, 
-  initialSchoolYears = [] 
-}: { 
+export function SchoolYearProvider({
+  children,
+  initialSchoolYears = [],
+}: {
   children: React.ReactNode;
   initialSchoolYears?: SchoolYearListItem[];
 }) {
-  const [schoolYears, setSchoolYears] = useState<SchoolYearListItem[]>(initialSchoolYears);
+  const [schoolYears] = useState<SchoolYearListItem[]>(initialSchoolYears);
   const [currentSchoolYearId, setCurrentSchoolYearId] = useState<string | null>(null);
   const [loading, setLoading] = useState(initialSchoolYears.length === 0);
 
   // Initialisation du school year courant
   useEffect(() => {
     if (schoolYears.length > 0 && !currentSchoolYearId) {
-      const saved = typeof window !== "undefined" ? localStorage.getItem("selectedSchoolYearId") : null;
-      
+      const saved =
+        typeof window !== "undefined" ? localStorage.getItem("selectedSchoolYearId") : null;
+
       if (saved && schoolYears.find(y => y.id === saved)) {
         setCurrentSchoolYearId(saved);
       } else {

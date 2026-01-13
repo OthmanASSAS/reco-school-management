@@ -14,16 +14,16 @@ import {
 } from "@/components/ui/select";
 import { useSchoolYear } from "../../SchoolYearProvider";
 import { createOnsiteRegistration, OnsiteRegistrationPayload } from "../actions/actions.server";
-import { Users, User, BookOpen, CreditCard, Trash2, Plus } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Course } from "@/types/families";
+import { Users, User, BookOpen, CreditCard, Trash2, Plus } from "lucide-react";
 
 export default function RegistrationWizard({
   families,
   courses,
 }: {
   families: { id: string; name: string }[];
-  courses: { id: string; label: string; type?: string; price?: number }[];
+  courses: Course[];
 }) {
   const { currentSchoolYearId } = useSchoolYear();
   const [isPending, startTransition] = useTransition();
@@ -102,7 +102,7 @@ export default function RegistrationWizard({
     [currentSchoolYearId, familyId, newFamily.email]
   );
 
-  const SectionHeader = ({ icon: Icon, title }: { icon: any; title: string }) => (
+  const SectionHeader = ({ icon: Icon, title }: { icon: React.ElementType; title: string }) => (
     <div className="flex items-center gap-3">
       <div className="p-2 bg-blue-100 rounded-lg">
         <Icon className="h-5 w-5 text-blue-600" />
@@ -141,7 +141,7 @@ export default function RegistrationWizard({
     form.set("payload", JSON.stringify(payload));
 
     startTransition(async () => {
-      await createOnsiteRegistration({} as any, form);
+      await createOnsiteRegistration({}, form);
     });
   };
 
@@ -228,11 +228,11 @@ export default function RegistrationWizard({
                 <>
                   <Input
                     placeholder="Nom"
-                    value={s.last_name}
+                    value={s.isNew ? s.last_name : ""}
                     onChange={e =>
                       setStudents(cur =>
                         cur.map((c, i) =>
-                          i === idx ? { ...(c as any), last_name: e.target.value } : c
+                          i === idx && c.isNew ? { ...c, last_name: e.target.value } : c
                         )
                       )
                     }
@@ -240,11 +240,11 @@ export default function RegistrationWizard({
                   />
                   <Input
                     placeholder="Prénom"
-                    value={s.first_name}
+                    value={s.isNew ? s.first_name : ""}
                     onChange={e =>
                       setStudents(cur =>
                         cur.map((c, i) =>
-                          i === idx ? { ...(c as any), first_name: e.target.value } : c
+                          i === idx && c.isNew ? { ...c, first_name: e.target.value } : c
                         )
                       )
                     }
@@ -252,22 +252,24 @@ export default function RegistrationWizard({
                   />
                   <Input
                     type="date"
-                    value={s.birth_date}
+                    value={s.isNew ? s.birth_date : ""}
                     onChange={e =>
                       setStudents(cur =>
                         cur.map((c, i) =>
-                          i === idx ? { ...(c as any), birth_date: e.target.value } : c
+                          i === idx && c.isNew ? { ...c, birth_date: e.target.value } : c
                         )
                       )
                     }
                     className="h-10 border-gray-200 focus:border-blue-300 focus:ring-blue-200"
                   />
                   <Select
-                    value={s.registration_type}
+                    value={s.isNew ? s.registration_type : "child"}
                     onValueChange={v =>
                       setStudents(cur =>
                         cur.map((c, i) =>
-                          i === idx ? { ...(c as any), registration_type: v as any } : c
+                          i === idx && c.isNew
+                            ? { ...c, registration_type: v as "child" | "adult" }
+                            : c
                         )
                       )
                     }
@@ -318,7 +320,6 @@ export default function RegistrationWizard({
             <div key={idx} className="space-y-2">
               <Label className="text-sm text-gray-700">Élève {idx + 1}</Label>
               <Select
-                multiple={false as any}
                 onValueChange={courseId =>
                   setStudentCourses(cur => {
                     const existing = cur.find(e => e.studentRefIndex === idx);
@@ -337,7 +338,7 @@ export default function RegistrationWizard({
                 <SelectContent>
                   {courses.map(c => (
                     <SelectItem key={c.id} value={c.id}>
-                      {c.label}
+                      {c.label || c.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

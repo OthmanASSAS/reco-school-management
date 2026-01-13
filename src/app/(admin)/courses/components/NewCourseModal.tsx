@@ -74,10 +74,12 @@ export default function NewCourseModal({ onCourseCreated }: NewCourseModalProps)
       ]);
 
       if (teachersResponse.data) {
-        const teachersData = teachersResponse.data.map((t: Record<string, unknown>) => ({
-          id: t.id as string,
-          name: t.full_name as string,
-        }));
+        const teachersData = (teachersResponse.data as { id: string; full_name: string }[]).map(
+          t => ({
+            id: t.id,
+            name: t.full_name,
+          })
+        );
         console.log("Teachers loaded:", teachersData);
         setTeachers(teachersData);
       } else {
@@ -85,9 +87,9 @@ export default function NewCourseModal({ onCourseCreated }: NewCourseModalProps)
       }
 
       if (roomsResponse.data) {
-        const roomsData = roomsResponse.data.map((r: Record<string, unknown>) => ({
-          id: r.id as string,
-          name: r.name as string,
+        const roomsData = (roomsResponse.data as { id: string; name: string }[]).map(r => ({
+          id: r.id,
+          name: r.name,
         }));
         console.log("Rooms loaded:", roomsData);
         setRooms(roomsData);

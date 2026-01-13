@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, Users, MapPin, Euro, BookOpen, BookOpenCheck } from "lucide-react";
@@ -22,9 +22,9 @@ interface Course {
   price: number;
   capacity: number;
   enrolled_count: number;
-  teacher_id?: string;
-  room_id?: string;
-  schedule?: string;
+  teacher_id: string | null;
+  room_id: string | null;
+  schedule: string | null;
 }
 
 interface CoursesClientTableProps {

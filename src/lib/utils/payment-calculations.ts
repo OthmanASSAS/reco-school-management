@@ -1,4 +1,4 @@
-import { Family } from "@/types/families";
+import { Family, Payment, SchoolYear, Enrollment, PaymentCheque } from "@/types/families";
 
 export interface DiscountSettings {
   startAt: number;
@@ -10,9 +10,9 @@ export interface DiscountSettings {
  * Filtre les enrollments par année scolaire avec fallback intelligent
  */
 export function filterEnrollmentsBySchoolYear(
-  enrollments: Record<string, unknown>[],
+  enrollments: Enrollment[],
   schoolYearId: string | null,
-  schoolYears: Record<string, unknown>[]
+  schoolYears: SchoolYear[]
 ) {
   if (!schoolYearId) {
     return enrollments.filter(e => e.status === "active");
@@ -41,11 +41,6 @@ export function filterEnrollmentsBySchoolYear(
     const enrollmentSchoolYear = enrollmentMonth >= 9 ? enrollmentYear : enrollmentYear - 1;
 
     const schoolYearStart = new Date(schoolYear.start_date).getFullYear();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const schoolYearEnd = schoolYear.end_date
-      ? new Date(schoolYear.end_date).getFullYear()
-      : schoolYearStart + 1;
-
     const belongsToSchoolYear = enrollmentSchoolYear === schoolYearStart;
 
     return isActive && belongsToSchoolYear;
@@ -58,7 +53,7 @@ export function filterEnrollmentsBySchoolYear(
 export function calculateFamilyTotal(
   family: Family,
   schoolYearId: string | null,
-  schoolYears: Record<string, unknown>[],
+  schoolYears: SchoolYear[],
   discountSettings: DiscountSettings
 ): number {
   const { startAt, step, mode } = discountSettings;
@@ -69,7 +64,9 @@ export function calculateFamilyTotal(
 
   let total = 0;
   allEnrollments.forEach((enrollment, idx) => {
-    let price = parseFloat(enrollment.courses?.price || "0");
+    // Si price est déjà un nombre, pas besoin de parseFloat
+    const rawPrice = enrollment.courses?.price;
+    let price = typeof rawPrice === "number" ? rawPrice : parseFloat(rawPrice || "0");
 
     // Appliquer la dégressivité à partir du 3e cours
     if (idx >= startAt - 1) {
@@ -89,7 +86,7 @@ export function calculateFamilyTotal(
 export function calculatePaidAmount(
   family: Family,
   schoolYearId: string | null,
-  schoolYears: Record<string, unknown>[]
+  schoolYears: SchoolYear[]
 ): number {
   // Si pas d'année scolaire spécifiée, retourner tous les paiements
   if (!schoolYearId) {
@@ -100,22 +97,19 @@ export function calculatePaidAmount(
       amount += payment.amount_card || 0;
       amount += payment.amount_transfer || 0;
 
-      // Gérer les chèques (JSON ou array)
+      // Gérer les chèques
       const cheques =
         typeof payment.cheques === "string"
           ? JSON.parse(payment.cheques || "[]")
           : payment.cheques || [];
 
       const chequesAmount = cheques.reduce(
-        (sum: number, lot: Record<string, unknown>) =>
-          sum + ((lot.count as number) || 0) * ((lot.amount as number) || 0),
+        (sum: number, lot: PaymentCheque) =>
+          sum + (Number(lot.count) || 0) * (Number(lot.amount) || 0),
         0
       );
       amount += chequesAmount;
-
-      // Soustraire les remboursements
       amount -= payment.refund_amount || 0;
-
       totalPaid += amount;
     });
     return totalPaid;
@@ -135,14 +129,13 @@ export function calculatePaidAmount(
     if (payment.school_year_id) {
       if (payment.school_year_id !== schoolYearId) return;
     } else {
-      // Fallback par date (logique septembre-août)
+      // Fallback par date
       const paymentDate = new Date(payment.created_at);
       const paymentMonth = paymentDate.getMonth() + 1;
       const paymentYear = paymentDate.getFullYear();
       const paymentSchoolYear = paymentMonth >= 9 ? paymentYear : paymentYear - 1;
       const belongsToSchoolYear = paymentSchoolYear === schoolYearStart;
 
-      // Laisser passer les paiements récents pour ne pas surprendre lors du basculement d'année
       const isRecentPayment =
         new Date().getTime() - paymentDate.getTime() < 30 * 24 * 60 * 60 * 1000;
       if (!belongsToSchoolYear && !isRecentPayment) return;
@@ -158,8 +151,8 @@ export function calculatePaidAmount(
         ? JSON.parse(payment.cheques || "[]")
         : payment.cheques || [];
     const chequesAmount = cheques.reduce(
-      (sum: number, lot: Record<string, unknown>) =>
-        sum + ((lot.count as number) || 0) * ((lot.amount as number) || 0),
+      (sum: number, lot: PaymentCheque) =>
+        sum + (Number(lot.count) || 0) * (Number(lot.amount) || 0),
       0
     );
     amount += chequesAmount;
@@ -175,14 +168,13 @@ export function calculatePaidAmount(
 /**
  * Filtre les paiements par année scolaire
  */
-export function filterPaymentsBySchoolYear(
-  payments: Record<string, unknown>[],
-  schoolYear: Record<string, unknown>
-): Record<string, unknown>[] {
+export function filterPaymentsBySchoolYear(payments: Payment[], schoolYear: SchoolYear): Payment[] {
   if (!schoolYear) return payments;
 
   const schoolYearStart = new Date(schoolYear.start_date).getFullYear();
-  const schoolYearEnd = new Date(schoolYear.end_date).getFullYear();
+  const schoolYearEnd = schoolYear.end_date
+    ? new Date(schoolYear.end_date).getFullYear()
+    : schoolYearStart + 1;
 
   return payments.filter(payment => {
     // Priorité: equality par school_year_id si présent

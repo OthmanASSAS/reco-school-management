@@ -999,6 +999,8 @@ export default function EditFamilyPage() {
                 family={family}
                 currentSchoolYear={currentSchoolYear}
                 schoolYears={schoolYears}
+                onStartPayment={() => setShowPaymentForm(true)}
+                onClose={() => {}}
               />
             )}
           </CardContent>
