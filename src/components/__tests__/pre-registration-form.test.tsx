@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -37,13 +39,13 @@ describe("PreRegistrationForm URL Navigation", () => {
       push: mockPush,
       replace: mockReplace,
     };
-    vi.mocked(useRouter).mockReturnValue(mockRouter as unknown);
+    vi.mocked(useRouter).mockReturnValue(mockRouter as any);
   });
 
   it("should start at step 1 by default", () => {
     // Mock empty search params
     const mockSearchParams = new URLSearchParams();
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -53,7 +55,7 @@ describe("PreRegistrationForm URL Navigation", () => {
   it("should initialize with step from URL parameter", () => {
     // Mock search params with step=1
     const mockSearchParams = new URLSearchParams("step=1");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -64,7 +66,7 @@ describe("PreRegistrationForm URL Navigation", () => {
     // Mock search params trying to access step 2
     const mockSearchParams = new URLSearchParams("step=2");
     mockSearchParams.get = vi.fn().mockReturnValue("2");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -75,7 +77,7 @@ describe("PreRegistrationForm URL Navigation", () => {
   it("should update URL when navigating between steps", async () => {
     const mockSearchParams = new URLSearchParams();
     mockSearchParams.get = vi.fn().mockReturnValue(null);
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -105,7 +107,7 @@ describe("PreRegistrationForm URL Navigation", () => {
 
   it("should validate step access based on form data", () => {
     const mockSearchParams = new URLSearchParams();
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -124,7 +126,7 @@ describe("PreRegistrationForm URL Navigation", () => {
   it("should allow navigation back to previous steps", async () => {
     const mockSearchParams = new URLSearchParams();
     mockSearchParams.get = vi.fn().mockReturnValue(null);
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -161,7 +163,7 @@ describe("PreRegistrationForm URL Navigation", () => {
     // Mock search params with step=1
     const mockSearchParams = new URLSearchParams("step=1");
     mockSearchParams.get = vi.fn().mockReturnValue("1");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -173,7 +175,7 @@ describe("PreRegistrationForm URL Navigation", () => {
     // Mock search params with invalid step
     const mockSearchParams = new URLSearchParams("step=99");
     mockSearchParams.get = vi.fn().mockReturnValue("99");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -184,7 +186,7 @@ describe("PreRegistrationForm URL Navigation", () => {
   it("should allow direct access to step 4 confirmation page", () => {
     const mockSearchParams = new URLSearchParams("step=4");
     mockSearchParams.get = vi.fn().mockReturnValue("4");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -206,12 +208,12 @@ describe("PreRegistrationForm localStorage Persistence", () => {
       push: mockPush,
       replace: mockReplace,
     };
-    vi.mocked(useRouter).mockReturnValue(mockRouter as unknown);
+    vi.mocked(useRouter).mockReturnValue(mockRouter as any);
   });
 
   it("should persist family data to localStorage", () => {
     const mockSearchParams = new URLSearchParams();
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -244,7 +246,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
 
     const mockSearchParams = new URLSearchParams("step=2");
     mockSearchParams.get = vi.fn().mockReturnValue("2");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -255,7 +257,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
 
   it("should persist students data to localStorage", () => {
     const mockSearchParams = new URLSearchParams();
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -303,7 +305,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
 
     const mockSearchParams = new URLSearchParams("step=3");
     mockSearchParams.get = vi.fn().mockReturnValue("3");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -340,7 +342,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
     localStorage.setItem("preregister-students", "also-invalid");
 
     const mockSearchParams = new URLSearchParams();
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     // Should not crash and use default values
     expect(() => render(<PreRegistrationForm />)).not.toThrow();
@@ -365,7 +367,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
     // Mock URL params with step=2
     const mockSearchParams = new URLSearchParams("step=2");
     mockSearchParams.get = vi.fn().mockReturnValue("2");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -396,7 +398,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
     // Mock URL params with step=3
     const mockSearchParams = new URLSearchParams("step=3");
     mockSearchParams.get = vi.fn().mockReturnValue("3");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -421,7 +423,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
     // Mock URL params with step=2
     const mockSearchParams = new URLSearchParams("step=2");
     mockSearchParams.get = vi.fn().mockReturnValue("2");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -446,7 +448,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
     // Mock URL params with step=3
     const mockSearchParams = new URLSearchParams("step=3");
     mockSearchParams.get = vi.fn().mockReturnValue("3");
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -470,7 +472,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
     localStorage.setItem("preregister-step", "3");
 
     const mockSearchParams = new URLSearchParams();
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 
@@ -481,7 +483,7 @@ describe("PreRegistrationForm localStorage Persistence", () => {
   it("should persist the step in localStorage when navigating", async () => {
     const mockSearchParams = new URLSearchParams();
     mockSearchParams.get = vi.fn().mockReturnValue(null);
-    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
 
     render(<PreRegistrationForm />);
 

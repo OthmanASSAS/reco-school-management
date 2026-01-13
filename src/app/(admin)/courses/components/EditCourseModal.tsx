@@ -19,11 +19,11 @@ interface EditCourseModalProps {
     id: string;
     name: string;
     type: string;
-    teacher_id?: string;
-    room_id?: string;
-    price?: number;
-    capacity?: number;
-    schedule?: string;
+    teacher_id: string | null;
+    room_id: string | null;
+    price: number | null;
+    capacity: number | null;
+    schedule: string | null;
   };
   open: boolean;
   onClose: () => void;
@@ -70,11 +70,21 @@ export default function EditCourseModal({ course, open, onClose, onSaved }: Edit
       ]);
 
       if (teachersResponse.data) {
-        setTeachers(teachersResponse.data.map((t: any) => ({ id: t.id, name: t.full_name })));
+        setTeachers(
+          (teachersResponse.data as { id: string; full_name: string }[]).map(t => ({
+            id: t.id,
+            name: t.full_name,
+          }))
+        );
       }
 
       if (roomsResponse.data) {
-        setRooms(roomsResponse.data.map((r: any) => ({ id: r.id, name: r.name })));
+        setRooms(
+          (roomsResponse.data as { id: string; name: string }[]).map(r => ({
+            id: r.id,
+            name: r.name,
+          }))
+        );
       }
     } catch (error) {
       console.error("Erreur lors du chargement des données:", error);
@@ -115,7 +125,7 @@ export default function EditCourseModal({ course, open, onClose, onSaved }: Edit
         if (onSaved) onSaved();
         onClose();
       }
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Erreur",

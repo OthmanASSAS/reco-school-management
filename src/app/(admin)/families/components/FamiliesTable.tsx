@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Eye, CreditCard, Edit, Trash2, Users } from "lucide-react";
-import { Family } from "@/types/families";
+import { Family, SchoolYear } from "@/types/families";
 import { deleteFamily } from "@/lib/actions/families";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import Link from "next/link";
 
 interface FamiliesTableProps {
   families: Family[];
-  schoolYears: { id: string; label?: string; start_date: string; end_date?: string }[];
+  schoolYears: SchoolYear[];
   currentSchoolYear: string | null;
   onPaymentManagement: (family: Family) => void;
   // onFamilyDetails: (family: Family) => void;

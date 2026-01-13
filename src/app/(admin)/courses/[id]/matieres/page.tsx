@@ -5,11 +5,11 @@ import { ChevronLeft, Settings } from "lucide-react";
 import Link from "next/link";
 import { getCourseForSubjects, getCourseSubjects, getAllCoursesMini } from "@/lib/dal/subjects";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function CourseSubjectsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  
+
   // Charger les données via Prisma DAL
   const course = await getCourseForSubjects(id);
   const subjects = await getCourseSubjects(id);
@@ -20,7 +20,7 @@ export default async function CourseSubjectsPage({ params }: { params: Promise<{
       <div className="p-6">
         <div className="text-center text-gray-500">
           <h1 className="text-2xl font-bold mb-4">Cours non trouvé</h1>
-          <p>Le cours demandé n'existe pas.</p>
+          <p>Le cours demandé n&apos;existe pas.</p>
         </div>
       </div>
     );
@@ -48,7 +48,7 @@ export default async function CourseSubjectsPage({ params }: { params: Promise<{
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Gestion des matières</h1>
               <p className="text-gray-600 mt-2">
-                Configurez les matières enseignées dans le cours "{course.name}"
+                Configurez les matières enseignées dans le cours &quot;{course.name}&quot;
               </p>
               <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
                 <span>Type: {course.type}</span>
@@ -70,12 +70,7 @@ export default async function CourseSubjectsPage({ params }: { params: Promise<{
         </div>
 
         {/* Gestionnaire de matières */}
-        <SubjectsManager
-          courseId={id}
-          courseName={course.name}
-          subjects={subjects || []}
-          allCourses={allCourses || []}
-        />
+        <SubjectsManager courseId={id} subjects={subjects || []} allCourses={allCourses || []} />
       </div>
     </div>
   );

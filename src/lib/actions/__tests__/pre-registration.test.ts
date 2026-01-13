@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { processPreRegistrationTransaction } from "@/lib/dal/registration";
 
@@ -5,9 +6,7 @@ vi.mock("@/lib/dal/registration", () => ({
   processPreRegistrationTransaction: vi.fn(),
 }));
 
-let preRegister: (
-  formData: FormData
-) => Promise<{ success: boolean; messages: string[]; status: number; error?: string }>;
+let preRegister: (formData: FormData) => Promise<any>;
 
 beforeAll(async () => {
   ({ preRegister } = await import("../pre-registration"));
@@ -50,7 +49,7 @@ describe("preRegister action", () => {
 
     expect(result).toMatchObject({ success: true, status: 201 });
     expect(result.messages).toContain("Othman Assas a été ajouté.");
-    
+
     expect(processPreRegistrationTransaction).toHaveBeenCalledWith({
       family: baseFamily,
       students: [{ ...baseStudent, registration_type: undefined }],

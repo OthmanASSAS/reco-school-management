@@ -1,8 +1,9 @@
+import { Student, Enrollment } from "@/types/families";
 import { User } from "lucide-react";
 
 interface StudentCoursesCardProps {
-  student: { first_name: string; last_name: string; registration_type: string };
-  enrollments: { id: string; courses?: { name?: string; type?: string; price?: number } }[];
+  student: Student;
+  enrollments: Enrollment[];
   totalPaid: number;
   totalDue: number;
 }

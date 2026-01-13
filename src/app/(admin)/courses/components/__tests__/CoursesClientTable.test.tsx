@@ -32,6 +32,9 @@ const mockCourses = [
     price: 100,
     capacity: 10,
     enrolled_count: 5,
+    teacher_id: null,
+    room_id: null,
+    schedule: null,
   },
   {
     id: "2",
@@ -43,6 +46,9 @@ const mockCourses = [
     price: 200,
     capacity: 20,
     enrolled_count: 15,
+    teacher_id: null,
+    room_id: null,
+    schedule: null,
   },
 ];
 

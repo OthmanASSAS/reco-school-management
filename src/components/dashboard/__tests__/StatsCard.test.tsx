@@ -42,8 +42,8 @@ describe("StatsCard", () => {
   });
 
   it("uses default bgColor when not provided", () => {
-    const propsWithoutBgColor = { ...mockProps };
-    delete propsWithoutBgColor.bgColor;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { bgColor: _, ...propsWithoutBgColor } = mockProps;
 
     render(<StatsCard {...propsWithoutBgColor} />);
 

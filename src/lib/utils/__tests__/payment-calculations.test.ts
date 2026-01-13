@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from "vitest";
 import {
   calculateFamilyTotal,
@@ -6,54 +7,55 @@ import {
   filterPaymentsBySchoolYear,
   type DiscountSettings,
 } from "../payment-calculations";
+import { Family, Payment, SchoolYear } from "@/types/families";
 
-const mockSchoolYears = [
+const mockSchoolYears: SchoolYear[] = [
   {
     id: "2024-2025",
-    name: "2024-2025",
+    label: "2024-2025",
     start_date: "2024-09-01",
     end_date: "2025-08-31",
   },
   {
     id: "2023-2024",
-    name: "2023-2024",
+    label: "2023-2024",
     start_date: "2023-09-01",
     end_date: "2024-08-31",
   },
 ];
 
-const mockEnrollments = [
+const mockEnrollments: any[] = [
   {
     id: "enroll-1",
     status: "active",
     start_date: "2024-09-15",
     school_year_id: "2024-2025",
-    courses: { id: "course-1", name: "Coran 1", price: "350" },
+    courses: { id: "course-1", name: "Coran 1", price: 350 },
   },
   {
     id: "enroll-2",
     status: "active",
     start_date: "2024-10-01",
     school_year_id: "2024-2025",
-    courses: { id: "course-2", name: "Arabe 1", price: "350" },
+    courses: { id: "course-2", name: "Arabe 1", price: 350 },
   },
   {
     id: "enroll-3",
     status: "active",
     start_date: "2024-11-01",
     school_year_id: "2024-2025",
-    courses: { id: "course-3", name: "Coran 2", price: "350" },
+    courses: { id: "course-3", name: "Coran 2", price: 350 },
   },
   {
     id: "enroll-4",
     status: "inactive",
     start_date: "2024-09-01",
     school_year_id: "2024-2025",
-    courses: { id: "course-4", name: "Cours inactif", price: "350" },
+    courses: { id: "course-4", name: "Cours inactif", price: 350 },
   },
 ];
 
-const mockPayments = [
+const mockPayments: Payment[] = [
   {
     id: "payment-1",
     amount_cash: 100,
@@ -86,7 +88,7 @@ const mockPayments = [
   },
 ];
 
-const mockFamily = {
+const mockFamily: Family = {
   id: "family-1",
   first_name: "Jean",
   last_name: "Dupont",
@@ -101,7 +103,7 @@ const mockFamily = {
       first_name: "Alice",
       last_name: "Dupont",
       birth_date: "2010-05-15",
-      registration_type: "enfant" as const,
+      registration_type: "child",
       level: "débutant",
       notes: "",
       enrollments: mockEnrollments.slice(0, 2), // 2 cours
@@ -111,7 +113,7 @@ const mockFamily = {
       first_name: "Bob",
       last_name: "Dupont",
       birth_date: "2012-08-20",
-      registration_type: "enfant" as const,
+      registration_type: "child",
       level: "débutant",
       notes: "",
       enrollments: mockEnrollments.slice(2, 3), // 1 cours
@@ -164,7 +166,7 @@ describe("filterEnrollmentsBySchoolYear", () => {
     ];
 
     const result2024 = filterEnrollmentsBySchoolYear(
-      enrollmentsWithoutYear,
+      enrollmentsWithoutYear as any,
       "2024-2025",
       mockSchoolYears
     );
@@ -172,7 +174,7 @@ describe("filterEnrollmentsBySchoolYear", () => {
     expect(result2024[0].id).toBe("enroll-no-year");
 
     const result2023 = filterEnrollmentsBySchoolYear(
-      enrollmentsWithoutYear,
+      enrollmentsWithoutYear as any,
       "2023-2024",
       mockSchoolYears
     );
@@ -377,7 +379,7 @@ describe("calculatePaidAmount", () => {
       payments: [
         {
           ...mockPayments[0],
-          cheques: null,
+          cheques: undefined,
         },
         {
           ...mockPayments[0],
@@ -513,7 +515,7 @@ describe("filterPaymentsBySchoolYear", () => {
   });
 
   it("should return all payments when no school year provided", () => {
-    const filtered = filterPaymentsBySchoolYear(mockPayments, null);
+    const filtered = filterPaymentsBySchoolYear(mockPayments, null as any);
 
     expect(filtered).toEqual(mockPayments);
   });

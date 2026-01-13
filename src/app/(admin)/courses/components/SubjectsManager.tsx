@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Edit, Trash2, Copy, BookOpen, Palette } from "lucide-react";
+import { Plus, Edit, Trash2, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,9 +27,9 @@ interface Subject {
   id: string;
   name: string;
   description: string | null;
-  color: string;
-  order_index: number;
-  is_active: boolean;
+  color: string | null;
+  orderIndex: number;
+  isActive: boolean;
 }
 
 interface Course {
@@ -40,7 +40,6 @@ interface Course {
 
 interface SubjectsManagerProps {
   courseId: string;
-  courseName: string;
   subjects: Subject[];
   allCourses: Course[];
 }
@@ -56,14 +55,9 @@ const DEFAULT_COLORS = [
   "#EC4899", // Pink
 ];
 
-export function SubjectsManager({
-  courseId,
-  courseName,
-  subjects,
-  allCourses,
-}: SubjectsManagerProps) {
+export function SubjectsManager({ courseId, subjects, allCourses }: SubjectsManagerProps) {
   const [isAddingSubject, setIsAddingSubject] = useState(false);
-  const [editingSubject, setEditingSubject] = useState<string | null>(null);
+  const [, setEditingSubject] = useState<string | null>(null);
   const [newSubject, setNewSubject] = useState({
     name: "",
     description: "",
@@ -107,7 +101,7 @@ export function SubjectsManager({
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Erreur",
         description: "Erreur lors de l'ajout de la matière.",
@@ -116,6 +110,7 @@ export function SubjectsManager({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleEditSubject = async (subjectId: string, data: Partial<ServerSubject>) => {
     try {
       const result = await updateSubject(subjectId, data);
@@ -134,7 +129,7 @@ export function SubjectsManager({
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Erreur",
         description: "Erreur lors de la modification.",
@@ -164,7 +159,7 @@ export function SubjectsManager({
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Erreur",
         description: "Erreur lors de la suppression.",
@@ -190,7 +185,7 @@ export function SubjectsManager({
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Erreur",
         description: "Erreur lors de la copie des matières.",
@@ -317,7 +312,10 @@ export function SubjectsManager({
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-4 h-4 rounded" style={{ backgroundColor: subject.color }} />
+                  <div
+                    className="w-4 h-4 rounded"
+                    style={{ backgroundColor: subject.color || "#3B82F6" }}
+                  />
                   <div>
                     <CardTitle className="text-lg">{subject.name}</CardTitle>
                     {subject.description && (
@@ -326,7 +324,7 @@ export function SubjectsManager({
                   </div>
                 </div>
                 <div className="flex items-center space-x-1">
-                  {!subject.is_active && (
+                  {!subject.isActive && (
                     <Badge variant="secondary" className="text-xs">
                       Inactif
                     </Badge>

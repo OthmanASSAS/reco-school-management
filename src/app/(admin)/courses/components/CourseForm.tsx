@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,15 +22,16 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Plus, Edit, Trash2, BookOpen, AlertCircle } from "lucide-react";
+import { Plus, Trash2, BookOpen, AlertCircle } from "lucide-react";
 import supabase from "@/lib/supabase";
 
 interface CourseFormProps {
   onCourseCreated: () => void;
   onCourseUpdated: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   course?: any;
-  teachers?: any[];
-  rooms?: any[];
+  teachers?: { id: string; full_name: string }[];
+  rooms?: { id: string; name: string }[];
 }
 
 interface Subject {
@@ -92,13 +93,7 @@ export default function CourseForm({
     "#EA580C", // Orange
   ];
 
-  useEffect(() => {
-    if (course) {
-      loadCourseSubjects();
-    }
-  }, [course]);
-
-  const loadCourseSubjects = async () => {
+  const loadCourseSubjects = useCallback(async () => {
     if (!course?.id) return;
 
     try {
@@ -113,7 +108,13 @@ export default function CourseForm({
     } catch (error) {
       console.error("Erreur lors du chargement des matières:", error);
     }
-  };
+  }, [course?.id]);
+
+  useEffect(() => {
+    if (course) {
+      loadCourseSubjects();
+    }
+  }, [course, loadCourseSubjects]);
 
   const addSubject = () => {
     if (!newSubject.name.trim()) return;

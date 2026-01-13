@@ -97,18 +97,6 @@ export async function addStudent(
         console.error("Erreur association cours:", coursesError);
       }
     }
-    if (appointmentDay) {
-      const { error: appointmentError } = await supabase.from("appointments").insert([
-        {
-          student_id: studentData.id,
-          date: appointmentDay,
-          created_at: new Date().toISOString(),
-        },
-      ]);
-      if (appointmentError) {
-        console.error("Erreur création rendez-vous:", appointmentError);
-      }
-    }
     revalidatePath("/(admin)/families");
     revalidatePath("/(admin)/students");
     revalidatePath("/(admin)/appointments");
@@ -167,7 +155,7 @@ export async function updateStudent(
     return { message: "Champs manquants ou invalides." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { studentId, firstName, lastName, birthDate, registrationType } = validatedFields.data;
 
   try {
@@ -232,7 +220,7 @@ export async function deleteStudent(
   prevState: DeleteStudentState,
   formData: FormData
 ): Promise<DeleteStudentState> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const studentId = formData.get("studentId") as string;
   if (!studentId) {
     return { message: "ID étudiant manquant." };

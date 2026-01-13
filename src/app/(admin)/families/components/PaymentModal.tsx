@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 // import { Button } from "@/components/ui/button";
-import { Family } from "@/types/families";
+import { Family, SchoolYear } from "@/types/families";
 import PaymentSummary from "./PaymentSummary";
 import PaymentForm from "./PaymentForm";
 
@@ -13,7 +13,7 @@ interface PaymentModalProps {
   onOpenChange: (open: boolean) => void;
   onPaymentSaved: () => void;
   currentSchoolYear: string | null;
-  schoolYears: { id: string; label?: string; start_date: string; end_date?: string }[];
+  schoolYears: SchoolYear[];
 }
 
 export default function PaymentModal({
